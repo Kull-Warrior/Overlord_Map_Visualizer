@@ -3,10 +3,17 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Windows.Controls;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Brush = System.Drawing.Brush;
+using Color = System.Drawing.Color;
+using MediaBrushes = System.Windows.Media.Brushes;
+using MediaColor = System.Windows.Media.Color;
+using MediaPen = System.Windows.Media.Pen;
+using Pen = System.Drawing.Pen;
 
 namespace Overlord_Map_Visualizer
 {
@@ -40,7 +47,13 @@ namespace Overlord_Map_Visualizer
             TextureDistributionMap
         }
 
-        private MapMode Mode;
+        private enum CursorMode
+        {
+            Normal,
+            Square
+        }
+
+        private MapMode currentMapMode;
         private readonly int MapWidth = 512;
         private readonly int MapHeight = 512;
         private string OMPFilePathString;
@@ -54,11 +67,16 @@ namespace Overlord_Map_Visualizer
 
         private bool IsAnyMapLoaded = false;
 
+        private CursorMode currentCursorMode;
+        private Color SelectedColor;
+        private int cursorRadius = 50;
+
         public MainWindow()
         {
             InitializeComponent();
             Initialise();
             DrawCoordinateSystem();
+            UpdateSelectedColor(Color.Black);
         }
 
         private void Initialise()
@@ -68,6 +86,8 @@ namespace Overlord_Map_Visualizer
 
             TextureDistributionDigitsOneAndTwo = new byte[MapWidth, MapHeight];
             TextureDistributionDigitsThreeAndFour = new byte[MapWidth, MapHeight];
+
+            SelectedColorCode.Text = "0000";
         }
 
         private void DrawCoordinateSystem()
@@ -189,7 +209,7 @@ namespace Overlord_Map_Visualizer
                 }
                 else
                 {
-                    GetMapData(0, openFileDialog.FileName, Mode);
+                    GetMapData(0, openFileDialog.FileName, currentMapMode);
                 }
 
                 Render();
@@ -201,6 +221,12 @@ namespace Overlord_Map_Visualizer
                     ImportMapButton.IsEnabled = true;
                     ExportMapButton.IsEnabled = true;
                     ExportToOMPFileButton.IsEnabled = true;
+                    SelectedColorCode.IsEnabled = true;
+                    SelectedColorCode.Visibility = Visibility.Visible;
+                    SelectedColorImage.Visibility = Visibility.Visible;
+                    SelectedColorHeight.Visibility = Visibility.Visible;
+                    cursorModeSelect.Visibility = Visibility.Visible;
+                    cursorModeSquare.Visibility = Visibility.Visible;
                     IsAnyMapLoaded = true;
                 }
             }
@@ -316,7 +342,7 @@ namespace Overlord_Map_Visualizer
 
                 if (saveFileDialog.ShowDialog() == true)
                 {
-                    WriteMapData(0, saveFileDialog.FileName, Mode);
+                    WriteMapData(0, saveFileDialog.FileName, currentMapMode);
                 }
             }
         }
@@ -758,7 +784,7 @@ namespace Overlord_Map_Visualizer
                     for (int y = 0; y < MapHeight; y++)
                     {
                         Brush MapBrush;
-                        switch (Mode)
+                        switch (currentMapMode)
                         {
                             case MapMode.HeightMap:
                                 MapBrush = new SolidBrush(GetColor(HeightMapDigitsOneAndTwo[x, y], HeightMapDigitsThreeAndFour[x, y], ColorFormat.Gray12));
@@ -792,19 +818,201 @@ namespace Overlord_Map_Visualizer
             switch (MapModeDropDown.SelectedIndex)
             {
                 case 0:
-                    Mode = MapMode.HeightMap;
+                    currentMapMode = MapMode.HeightMap;
                     ImportMapButton.Content = "Import Heightmap";
                     ExportMapButton.Content = "Export Heightmap";
                     Render();
+                    UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
                     break;
                 case 1:
-                    Mode = MapMode.TextureDistributionMap;
+                    currentMapMode = MapMode.TextureDistributionMap;
                     ImportMapButton.Content = "Import Texture Distribution";
                     ExportMapButton.Content = "Export Texture Distribution";
                     Render();
+                    UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
                     break;
                 default:
                     break;
+            }
+        }
+
+        private string LeaveOnlyHexNumbers(string inString)
+        {
+            foreach (char c in inString.ToCharArray())
+            {
+                if (!System.Text.RegularExpressions.Regex.IsMatch(c.ToString(), "^[0-9a-fA-F]*$"))
+                {
+                    inString = inString.Replace(c.ToString(), "");
+                }
+            }
+
+            return inString;
+        }
+
+        private void SelectedColorCode_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            SelectedColorCode.Text = LeaveOnlyHexNumbers(SelectedColorCode.Text);
+            
+            if (SelectedColorCode.Text.Length == 4)
+            {
+                UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
+            }
+            if(currentCursorMode != CursorMode.Normal)
+            {
+                UpdateCursor();
+            }
+        }
+
+        private void UpdateSelectedColor(Color color)
+        {
+            SelectedColor = color;
+            SolidBrush selectedColorBrush = new SolidBrush(color);
+            Bitmap selectedColorBitmap = new Bitmap((int)SelectedColorImage.Width, (int)SelectedColorImage.Height);
+            using (Graphics MapGraphics = Graphics.FromImage(selectedColorBitmap))
+            {
+                MapGraphics.FillRectangle(selectedColorBrush, 0, 0, (int)SelectedColorImage.Width, (int)SelectedColorImage.Height);
+                SelectedColorImage.Source = GetBmpImageFromBmp(selectedColorBitmap);
+            }
+        }
+
+        private Color GetColorFromHexString(string fullHexStumber)
+        {
+            string digitOneAndTwoString = "" + fullHexStumber[2] + fullHexStumber[3];
+            string digitThreeAndFourString = "" + fullHexStumber[0] + fullHexStumber[1];
+
+            int digitOne = Convert.ToInt32("" + fullHexStumber[3], 16);
+            int digitTwo = Convert.ToInt32("" + fullHexStumber[2], 16);
+            int digitThree = Convert.ToInt32("" + fullHexStumber[1], 16);
+            int digitFour = Convert.ToInt32("" + fullHexStumber[0], 16);
+
+            byte digitOneAndTwoNumber = Convert.ToByte(digitOneAndTwoString, 16);
+            byte digitThreeAndFourNumber = Convert.ToByte(digitThreeAndFourString, 16);
+
+            SelectedColorHeight.Content = "This color corresponds to a height of\r\n" + (((digitThree * Math.Pow(16, 1)) + (digitTwo * Math.Pow(16, 0)) + (digitOne * Math.Pow(16, -1))) / 2);
+
+            if (currentMapMode == MapMode.HeightMap)
+            {
+                int grayscale = (int)Math.Ceiling(0.2989 * (digitThreeAndFourNumber & 0x0F) + 0.5870 * ((digitOneAndTwoNumber >> 4) & 0x0F) + 0.1140 * (digitOneAndTwoNumber & 0x0F));
+                grayscale = grayscale * 255 / 15;
+
+                return Color.FromArgb(grayscale, grayscale, grayscale);
+            }
+            else if (currentMapMode == MapMode.TextureDistributionMap)
+            {
+                int blue, green, red;
+
+                red = digitOneAndTwoNumber & 0x1F;
+                green = ((digitThreeAndFourNumber << 3) & 0x38) | ((digitOneAndTwoNumber >> 5) & 0x07);
+                blue = (digitThreeAndFourNumber >> 3) & 0x1F;
+
+                blue = blue * 255 / 31;
+                green = green * 255 / 63;
+                red = red * 255 / 31;
+
+                return Color.FromArgb(red, green, blue);
+            }
+            else
+            {
+                return Color.Black;
+            }
+        }
+
+        private void SelectedColorCode_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            //if (e.Key == Key.Back && SelectedColorCode.SelectionStart > 0)
+            //{
+            //    string insertText = "0";
+            //    int selectionIndex = SelectedColorCode.SelectionStart;
+            //    SelectedColorCode.Text = SelectedColorCode.Text.Insert(selectionIndex, insertText);
+            //    SelectedColorCode.SelectionStart = selectionIndex; // restore cursor position
+            //}
+            //if (e.Key == Key.Delete && SelectedColorCode.SelectionStart < SelectedColorCode.MaxLength)
+            //{
+            //    string insertText = "0";
+            //    int selectionIndex = SelectedColorCode.SelectionStart;
+            //    SelectedColorCode.Text = SelectedColorCode.Text.Insert(selectionIndex, insertText);
+            //    SelectedColorCode.SelectionStart = selectionIndex; // restore cursor position
+            //}
+        }
+
+        private Cursor CreateCursor(double cursorWidth, double cursorHeight, SolidColorBrush fillBrush, SolidColorBrush borderBrush, MediaPen pen)
+        {
+            System.Windows.Point centrePoint = new System.Windows.Point(cursorWidth / 2,cursorHeight / 2);
+            DrawingVisual drawingVisual = new DrawingVisual();
+            using (DrawingContext drawingContext = drawingVisual.RenderOpen())
+            {
+                drawingContext.DrawRectangle(fillBrush, new MediaPen(borderBrush, 1.0), new Rect(1, 1, cursorWidth, cursorHeight));
+                drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X - 10, centrePoint.Y), new System.Windows.Point(centrePoint.X + 10, centrePoint.Y));
+                drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X, centrePoint.Y - 10), new System.Windows.Point(centrePoint.X, centrePoint.Y + 10));
+                drawingContext.Close();
+            }
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int) cursorWidth + 2, (int) cursorHeight + 2, 96, 96, PixelFormats.Pbgra32);
+            renderTargetBitmap.Render(drawingVisual);
+
+            using (MemoryStream memoryStreamOne = new MemoryStream())
+            {
+                PngBitmapEncoder pngBitmapEncoder = new PngBitmapEncoder();
+                pngBitmapEncoder.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+                pngBitmapEncoder.Save(memoryStreamOne);
+
+                byte[] pngBytes = memoryStreamOne.ToArray();
+                int size = pngBytes.GetLength(0);
+
+                //.cur format spec http://en.wikipedia.org/wiki/ICO_(file_format)
+                using (MemoryStream memoryStreamTwo = new MemoryStream())
+                {
+                    {//ICONDIR Structure
+                        memoryStreamTwo.Write(BitConverter.GetBytes((short)0), 0, 2);//Reserved. Must always be 0. 
+                        memoryStreamTwo.Write(BitConverter.GetBytes((short)2), 0, 2);//Specifies image type: 1 for icon (.ICO) image, 2 for cursor (.CUR) image. Other values are invalid. 
+                        memoryStreamTwo.Write(BitConverter.GetBytes((short)1), 0, 2);//Specifies number of images in the file. 2 Bytes
+                    }
+
+                    {//ICONDIRENTRY structure
+                        memoryStreamTwo.WriteByte((byte) cursorWidth); //Specifies image width in pixels. Can be any number between 0 and 255. Value 0 means image width is 256 pixels.
+                        memoryStreamTwo.WriteByte((byte) cursorHeight); //Specifies image height in pixels. Can be any number between 0 and 255. Value 0 means image height is 256 pixels.
+
+                        memoryStreamTwo.WriteByte(0); //Specifies number of colors in the color palette. Should be 0 if the image does not use a color palette. 
+                        memoryStreamTwo.WriteByte(0); //Reserved. Should be 0. 
+
+                        memoryStreamTwo.Write(BitConverter.GetBytes((short)(cursorWidth / 2.0)), 0, 2);//2 bytes. In CUR format: Specifies the horizontal coordinates of the hotspot in number of pixels from the left.
+                        memoryStreamTwo.Write(BitConverter.GetBytes((short)(cursorHeight / 2.0)), 0, 2);//2 bytes. In CUR format: Specifies the vertical coordinates of the hotspot in number of pixels from the top.
+
+                        memoryStreamTwo.Write(BitConverter.GetBytes(size), 0, 4);//Specifies the size of the image's data in bytes 
+                        memoryStreamTwo.Write(BitConverter.GetBytes(22), 0, 4);//Specifies the offset of BMP or PNG data from the beginning of the ICO/CUR file
+                    }
+
+                    memoryStreamTwo.Write(pngBytes, 0, size);//write the png data.
+                    memoryStreamTwo.Seek(0, SeekOrigin.Begin);
+                    return new Cursor(memoryStreamTwo);
+                }
+            }
+        }
+
+        private void CursorModeSelect_Click(object sender, RoutedEventArgs e)
+        {
+            currentCursorMode = CursorMode.Normal;
+            Mouse.OverrideCursor = null;
+        }
+
+        private void CursorModeSquare_Click(object sender, RoutedEventArgs e)
+        {
+            currentCursorMode = CursorMode.Square;
+            UpdateCursor();
+        }
+        private void UpdateCursor()
+        {
+            SolidColorBrush fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, SelectedColor.R, SelectedColor.G, SelectedColor.B));
+
+            Mouse.OverrideCursor = CreateCursor(cursorRadius, cursorRadius, fillBrush, MediaBrushes.Black, null);
+        }
+
+        private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (IsAnyMapLoaded == true)
+            {
+                CursorRadiosLabel.Content = "Cursor Radius: " + slider.Value;
+                cursorRadius = (int) slider.Value;
+                UpdateCursor();
             }
         }
     }
