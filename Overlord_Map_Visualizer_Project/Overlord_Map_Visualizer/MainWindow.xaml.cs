@@ -50,6 +50,7 @@ namespace Overlord_Map_Visualizer
         private enum CursorMode
         {
             Normal,
+            Pipette,
             Square
         }
 
@@ -69,7 +70,7 @@ namespace Overlord_Map_Visualizer
 
         private CursorMode currentCursorMode;
         private Color SelectedColor;
-        private int cursorRadius = 50;
+        private int cursorDiameter = 50;
 
         public MainWindow()
         {
@@ -798,10 +799,79 @@ namespace Overlord_Map_Visualizer
 
         private void GetCoordinates(object sender, MouseButtonEventArgs e)
         {
-            int x = (int)e.GetPosition(Map).X;
-            int y = 512 - (int)e.GetPosition(Map).Y;
+            int xCoordinate = (int)e.GetPosition(Map).X;
+            int yCoordinate = 512 - (int)e.GetPosition(Map).Y;
 
-            MessageBox.Show("Location : X:" + x + " | Y:" + y);
+            if (currentCursorMode == CursorMode.Normal)
+            {
+                MessageBox.Show("Location : X:" + xCoordinate + " | Y:" + yCoordinate);
+            }
+            else if(currentCursorMode == CursorMode.Pipette)
+            {
+
+            }
+            else if (currentCursorMode == CursorMode.Square)
+            {
+                int yMin = 0;
+                int xMin = 0;
+                int xMax = 512;
+                int yMax = 512;
+
+                if ((xCoordinate - (cursorDiameter / 2)) >= xMin)
+                {
+                    xMin = xCoordinate - (cursorDiameter / 2);
+                }
+                if ((xCoordinate + (cursorDiameter / 2)) <= xMax)
+                {
+                    xMax = xCoordinate + (cursorDiameter / 2);
+                }
+
+                if ((yCoordinate - (cursorDiameter / 2)) >= yMin)
+                {
+                    yMin = yCoordinate - (cursorDiameter / 2);
+                }
+                if ((yCoordinate + (cursorDiameter / 2)) <= yMax)
+                {
+                    yMax = yCoordinate + (cursorDiameter / 2);
+                }
+
+                for (int y = yMin; y < yMax; y++)
+                {
+                    for (int x = xMin; x < xMax; x++)
+                    {
+                        byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
+                        switch (currentMapMode)
+                        {
+                            case MapMode.HeightMap:
+                                HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                break;
+                            case MapMode.TextureDistributionMap:
+                                TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                Render();
+            }
+        }
+
+        private byte[] GetByteArrayFromHexString(string fullHexStumber)
+        {
+            string digitOneAndTwoString = "" + fullHexStumber[2] + fullHexStumber[3];
+            string digitThreeAndFourString = "" + fullHexStumber[0] + fullHexStumber[1];
+
+            byte digitOneAndTwoNumber = Convert.ToByte(digitOneAndTwoString, 16);
+            byte digitThreeAndFourNumber = Convert.ToByte(digitThreeAndFourString, 16);
+
+            byte[] tempByteArray = new byte[2];
+            tempByteArray[0] = digitOneAndTwoNumber;
+            tempByteArray[1] = digitThreeAndFourNumber;
+
+            return tempByteArray;
         }
 
         private void MapModeChanged(object sender, SelectionChangedEventArgs e)
@@ -985,6 +1055,12 @@ namespace Overlord_Map_Visualizer
             Mouse.OverrideCursor = null;
         }
 
+        private void CursorModePipette_Click(object sender, RoutedEventArgs e)
+        {
+            currentCursorMode = CursorMode.Pipette;
+            Mouse.OverrideCursor = null;
+        }
+
         private void CursorModeSquare_Click(object sender, RoutedEventArgs e)
         {
             currentCursorMode = CursorMode.Square;
@@ -994,15 +1070,15 @@ namespace Overlord_Map_Visualizer
         {
             SolidColorBrush fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, SelectedColor.R, SelectedColor.G, SelectedColor.B));
 
-            Mouse.OverrideCursor = CreateCursor(cursorRadius, cursorRadius, fillBrush, MediaBrushes.Black, null);
+            Mouse.OverrideCursor = CreateCursor(cursorDiameter, cursorDiameter, fillBrush, MediaBrushes.Black, null);
         }
 
-        private void slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (IsAnyMapLoaded == true)
+            if (IsAnyMapLoaded)
             {
                 CursorRadiosLabel.Content = "Cursor Radius: " + slider.Value;
-                cursorRadius = (int) slider.Value;
+                cursorDiameter = (int) slider.Value;
                 UpdateCursor();
             }
         }

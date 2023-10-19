@@ -22,8 +22,9 @@
         <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="135,63,0,0" VerticalAlignment="Top" Width="120" Visibility="Visible"/>
         <Label x:Name="SelectedColorHeight" Content="" HorizontalAlignment="Left" Margin="10,91,0,0" VerticalAlignment="Top" Width="245" Visibility="Visible"/>
         <Button x:Name="cursorModeSelect" Content="Select" HorizontalAlignment="Left" Margin="10,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeSelect_Click" Visibility="Visible"/>
-        <Button x:Name="cursorModeSquare" Content="Square" HorizontalAlignment="Left" Margin="65,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeSquare_Click" Visibility="Visible"/>
-        <Slider x:Name="slider" HorizontalAlignment="Left" Margin="13,132,0,0" VerticalAlignment="Top" Width="256" Value="50" Minimum="1" Maximum="255" SmallChange="1" TickPlacement="Both" Cursor="Arrow" Height="35" ValueChanged="slider_ValueChanged" IsSnapToTickEnabled="True"/>
+        <Button x:Name="cursorModePipette" Content="Pipette" HorizontalAlignment="Left" Margin="65,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModePipette_Click" Visibility="Visible"/>
+        <Slider x:Name="slider" HorizontalAlignment="Left" Margin="13,132,0,0" VerticalAlignment="Top" Width="256" Value="50" Minimum="1" Maximum="255" SmallChange="1" TickPlacement="Both" Cursor="Arrow" Height="35" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True"/>
         <Label x:Name="CursorRadiosLabel" Content="Cursor Radius : 1" HorizontalAlignment="Left" Margin="13,172,0,0" VerticalAlignment="Top" Width="256"/>
+        <Button x:Name="cursorModeSquare" Content="Square" HorizontalAlignment="Left" Margin="120,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeSquare_Click" Visibility="Visible"/>
     </Grid>
 </Window>
