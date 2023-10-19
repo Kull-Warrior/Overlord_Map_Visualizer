@@ -256,19 +256,11 @@ namespace Overlord_Map_Visualizer
                 for (int x = 0; x < MapWidth; x++)
                 {
                     totalOffset = x * xOffset + yOffset;
-                    
-                    HeightMapDigitsOneAndTwo[y, x] = allMapBytes[totalOffset];
 
-                    int tempValue = allMapBytes[totalOffset + 1];
-                    //tempValue &= ~(1 << 7);
-                    //tempValue &= ~(1 << 6);
-                    //tempValue &= ~(1 << 5);
-                    //tempValue &= ~(1 << 4);
-                    //tempValue |= 1 << 5;
-
-                    HeightMapDigitsThreeAndFour[y, x] = (byte) tempValue;
-                    TextureDistributionDigitsOneAndTwo[y, x] = allMapBytes[totalOffset + 2];
-                    TextureDistributionDigitsThreeAndFour[y, x] = allMapBytes[totalOffset + 3];
+                    HeightMapDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
+                    HeightMapDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
+                    TextureDistributionDigitsOneAndTwo[x, y] = allMapBytes[totalOffset + 2];
+                    TextureDistributionDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 3];
                 }
             }
         }
@@ -300,21 +292,13 @@ namespace Overlord_Map_Visualizer
 
                     if (mapMode == MapMode.HeightMap)
                     {
-                        HeightMapDigitsOneAndTwo[y, x] = allMapBytes[totalOffset];
-
-                        int tempValue = allMapBytes[totalOffset + 1];
-                        //tempValue &= ~(1 << 7);
-                        //tempValue &= ~(1 << 6);
-                        //tempValue &= ~(1 << 5);
-                        //tempValue &= ~(1 << 4);
-                        //tempValue |= 1 << 5;
-
-                        HeightMapDigitsThreeAndFour[y, x] = (byte)tempValue;
+                        HeightMapDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
+                        HeightMapDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
                     }
                     else if (mapMode == MapMode.TextureDistributionMap)
                     {
-                        TextureDistributionDigitsOneAndTwo[y, x] = allMapBytes[totalOffset];
-                        TextureDistributionDigitsThreeAndFour[y, x] = allMapBytes[totalOffset + 1];
+                        TextureDistributionDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
+                        TextureDistributionDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
                     }
                 }
             }
@@ -353,20 +337,22 @@ namespace Overlord_Map_Visualizer
             byte[] allMapBytes = new byte[totalNumberOfBytes];
             int xOffset = 4;
             int yOffset = 0;
+            int numberOfBytesInRow = MapWidth * 4; //One point is described by two bytes
+            int totalOffset;
 
             for (int y = 0; y < MapHeight; y++)
             {
                 if (y != 0)
                 {
-                    yOffset = y * 2048;
+                    yOffset = y * numberOfBytesInRow;
                 }
                 for (int x = 0; x < MapWidth; x++)
                 {
-                    int v = x * xOffset;
-                    allMapBytes[v + yOffset] = HeightMapDigitsOneAndTwo[y, x];
-                    allMapBytes[v + 1 + yOffset] = HeightMapDigitsThreeAndFour[y, x];
-                    allMapBytes[v + 2 + yOffset] = TextureDistributionDigitsOneAndTwo[y, x];
-                    allMapBytes[v + 3 + yOffset] = TextureDistributionDigitsThreeAndFour[y, x];
+                    totalOffset = x * xOffset + yOffset;
+                    allMapBytes[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
+                    allMapBytes[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
+                    allMapBytes[totalOffset + 2] = TextureDistributionDigitsOneAndTwo[x, y];
+                    allMapBytes[totalOffset + 3] = TextureDistributionDigitsThreeAndFour[x, y];
                 }
             }
 
@@ -383,26 +369,28 @@ namespace Overlord_Map_Visualizer
             byte[] allMapBytes = new byte[totalNumberOfBytes];
             int xOffset = 2;
             int yOffset = 0;
+            int numberOfBytesInRow = MapWidth * 2; //One point is described by two bytes
+            int totalOffset;
 
             for (int y = 0; y < MapHeight; y++)
             {
                 if (y != 0)
                 {
-                    yOffset = y * 1024;
+                    yOffset = y * numberOfBytesInRow;
                 }
                 for (int x = 0; x < MapWidth; x++)
                 {
-                    int v = x * xOffset;
+                    totalOffset = x * xOffset + yOffset;
 
                     if (mapMode == MapMode.HeightMap)
                     {
-                        allMapBytes[v + yOffset] = HeightMapDigitsOneAndTwo[y, x];
-                        allMapBytes[v + 1 + yOffset] = HeightMapDigitsThreeAndFour[y, x];
+                        allMapBytes[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
+                        allMapBytes[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
                     }
                     else if (mapMode == MapMode.TextureDistributionMap)
                     {
-                        allMapBytes[v + yOffset] = TextureDistributionDigitsOneAndTwo[y, x];
-                        allMapBytes[v + 1 + yOffset] = TextureDistributionDigitsThreeAndFour[y, x];
+                        allMapBytes[totalOffset] = TextureDistributionDigitsOneAndTwo[x, y];
+                        allMapBytes[totalOffset + 1] = TextureDistributionDigitsThreeAndFour[x, y];
                     }
                 }
             }
@@ -800,7 +788,10 @@ namespace Overlord_Map_Visualizer
                         MapGraphics.FillRectangle(MapBrush, x, y, 1, 1);
                     }
                 }
-                MapBitmap.RotateFlip(RotateFlipType.Rotate270FlipNone);
+
+                //Set Origin Bottom Left
+                MapBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
                 Map.Source = GetBmpImageFromBmp(MapBitmap);
             }
         }
@@ -852,7 +843,7 @@ namespace Overlord_Map_Visualizer
         private void SelectedColorCode_TextChanged(object sender, TextChangedEventArgs e)
         {
             SelectedColorCode.Text = LeaveOnlyHexNumbers(SelectedColorCode.Text);
-            
+
             if (SelectedColorCode.Text.Length == 4)
             {
                 UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
