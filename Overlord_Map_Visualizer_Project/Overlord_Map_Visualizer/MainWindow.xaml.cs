@@ -885,6 +885,11 @@ namespace Overlord_Map_Visualizer
                 default:
                     break;
             }
+
+            if (currentCursorMode == CursorMode.Square)
+            {
+                ShowSquareCursor();
+            }
         }
 
         private string LeaveOnlyHexNumbers(string inString)
@@ -908,9 +913,10 @@ namespace Overlord_Map_Visualizer
             {
                 UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
             }
-            if(currentCursorMode != CursorMode.Normal)
+
+            if(currentCursorMode == CursorMode.Square)
             {
-                UpdateCursor();
+                ShowSquareCursor();
             }
         }
 
@@ -985,16 +991,34 @@ namespace Overlord_Map_Visualizer
 
         private Cursor CreateCursor(double cursorWidth, double cursorHeight, SolidColorBrush fillBrush, SolidColorBrush borderBrush, MediaPen pen)
         {
-            System.Windows.Point centrePoint = new System.Windows.Point(cursorWidth / 2,cursorHeight / 2);
+            System.Windows.Point centrePoint;
+            int borderWidth;
             DrawingVisual drawingVisual = new DrawingVisual();
             using (DrawingContext drawingContext = drawingVisual.RenderOpen())
             {
-                drawingContext.DrawRectangle(fillBrush, new MediaPen(borderBrush, 1.0), new Rect(1, 1, cursorWidth, cursorHeight));
-                drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X - 10, centrePoint.Y), new System.Windows.Point(centrePoint.X + 10, centrePoint.Y));
-                drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X, centrePoint.Y - 10), new System.Windows.Point(centrePoint.X, centrePoint.Y + 10));
-                drawingContext.Close();
+                switch (currentCursorMode)
+                {
+                    case CursorMode.Square:
+                        centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
+                        borderWidth = 2;
+                        drawingContext.DrawRectangle(fillBrush, new MediaPen(borderBrush, 1.0), new Rect(1, 1, cursorWidth, cursorHeight));
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X - 10, centrePoint.Y), new System.Windows.Point(centrePoint.X + 10, centrePoint.Y));
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X, centrePoint.Y - 10), new System.Windows.Point(centrePoint.X, centrePoint.Y + 10));
+                        drawingContext.Close();
+                        break;
+                    case CursorMode.Pipette:
+                        centrePoint = new System.Windows.Point(0, 0);
+                        borderWidth = 0;
+                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Pipette.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
+                        drawingContext.Close();
+                        break;
+                    default:
+                        centrePoint = new System.Windows.Point(0, 0);
+                        borderWidth = 0;
+                        break;
+                }
             }
-            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int) cursorWidth + 2, (int) cursorHeight + 2, 96, 96, PixelFormats.Pbgra32);
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int) cursorWidth + borderWidth, (int) cursorHeight + borderWidth, 96, 96, PixelFormats.Pbgra32);
             renderTargetBitmap.Render(drawingVisual);
 
             using (MemoryStream memoryStreamOne = new MemoryStream())
@@ -1022,8 +1046,8 @@ namespace Overlord_Map_Visualizer
                         memoryStreamTwo.WriteByte(0); //Specifies number of colors in the color palette. Should be 0 if the image does not use a color palette. 
                         memoryStreamTwo.WriteByte(0); //Reserved. Should be 0. 
 
-                        memoryStreamTwo.Write(BitConverter.GetBytes((short)(cursorWidth / 2.0)), 0, 2);//2 bytes. In CUR format: Specifies the horizontal coordinates of the hotspot in number of pixels from the left.
-                        memoryStreamTwo.Write(BitConverter.GetBytes((short)(cursorHeight / 2.0)), 0, 2);//2 bytes. In CUR format: Specifies the vertical coordinates of the hotspot in number of pixels from the top.
+                        memoryStreamTwo.Write(BitConverter.GetBytes((short)centrePoint.X), 0, 2);//2 bytes. In CUR format: Specifies the horizontal coordinates of the hotspot in number of pixels from the left.
+                        memoryStreamTwo.Write(BitConverter.GetBytes((short)centrePoint.Y), 0, 2);//2 bytes. In CUR format: Specifies the vertical coordinates of the hotspot in number of pixels from the top.
 
                         memoryStreamTwo.Write(BitConverter.GetBytes(size), 0, 4);//Specifies the size of the image's data in bytes 
                         memoryStreamTwo.Write(BitConverter.GetBytes(22), 0, 4);//Specifies the offset of BMP or PNG data from the beginning of the ICO/CUR file
@@ -1045,19 +1069,27 @@ namespace Overlord_Map_Visualizer
         private void CursorModePipette_Click(object sender, RoutedEventArgs e)
         {
             currentCursorMode = CursorMode.Pipette;
-            Mouse.OverrideCursor = null;
+            ShowPipetteCursor();
         }
 
         private void CursorModeSquare_Click(object sender, RoutedEventArgs e)
         {
             currentCursorMode = CursorMode.Square;
-            UpdateCursor();
+            ShowSquareCursor();
         }
-        private void UpdateCursor()
+
+        private void ShowSquareCursor()
         {
             SolidColorBrush fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, SelectedColor.R, SelectedColor.G, SelectedColor.B));
 
             Mouse.OverrideCursor = CreateCursor(cursorDiameter, cursorDiameter, fillBrush, MediaBrushes.Black, null);
+        }
+
+        private void ShowPipetteCursor()
+        {
+            SolidColorBrush fillBrush = MediaBrushes.Black;
+
+            Mouse.OverrideCursor = CreateCursor(26, 26, fillBrush, null, null);
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -1066,7 +1098,10 @@ namespace Overlord_Map_Visualizer
             {
                 CursorRadiosLabel.Content = "Cursor Radius: " + slider.Value;
                 cursorDiameter = (int) slider.Value;
-                UpdateCursor();
+                if (currentCursorMode == CursorMode.Square)
+                {
+                    ShowSquareCursor();
+                }
             }
         }
     }
