@@ -64,8 +64,6 @@ namespace Overlord_Map_Visualizer
         private byte[,] TextureDistributionDigitsOneAndTwo;
         private byte[,] TextureDistributionDigitsThreeAndFour;
 
-        private Bitmap MapBitmap;
-
         private bool IsAnyMapLoaded = false;
 
         private CursorMode currentCursorMode;
@@ -94,30 +92,30 @@ namespace Overlord_Map_Visualizer
 
         private void DrawCoordinateSystem()
         {
-            Pen coordinatePen = new Pen(new SolidBrush(Color.Black));
-            MapBitmap = new Bitmap((int)CoordinateSystem.Width, (int)CoordinateSystem.Height);
-            using (Graphics MapGraphics = Graphics.FromImage(MapBitmap))
+            using (Bitmap coordinateSystem = new Bitmap((int)CoordinateSystem.Width, (int)CoordinateSystem.Height))
+            using (Graphics mapGraphics = Graphics.FromImage(coordinateSystem))
+            using (Pen coordinatePen = new Pen(new SolidBrush(Color.Black)))
             {
                 //Y Axis Arrow
-                MapGraphics.DrawLine(coordinatePen, 13, 550, 18, 555);
-                MapGraphics.DrawLine(coordinatePen, 18, 36, 18, 555);
-                MapGraphics.DrawLine(coordinatePen, 23, 550, 18, 555);
+                mapGraphics.DrawLine(coordinatePen, 13, 550, 18, 555);
+                mapGraphics.DrawLine(coordinatePen, 18, 36, 18, 555);
+                mapGraphics.DrawLine(coordinatePen, 23, 550, 18, 555);
 
                 //X Axis Arrow
-                MapGraphics.DrawLine(coordinatePen, 531, 41, 536, 36);
-                MapGraphics.DrawLine(coordinatePen, 18, 36, 536, 36);
-                MapGraphics.DrawLine(coordinatePen, 531, 31, 536, 36);
+                mapGraphics.DrawLine(coordinatePen, 531, 41, 536, 36);
+                mapGraphics.DrawLine(coordinatePen, 18, 36, 536, 36);
+                mapGraphics.DrawLine(coordinatePen, 531, 31, 536, 36);
 
                 //Y Axis Marker
                 for (int y = 36; y < 568; y += 50)
                 {
-                    MapGraphics.DrawLine(coordinatePen, 9, y, 18, y);
+                    mapGraphics.DrawLine(coordinatePen, 9, y, 18, y);
                 }
 
                 //X Axis Marker
                 for (int x = 18; x < 550; x += 50)
                 {
-                    MapGraphics.DrawLine(coordinatePen, x, 27, x, 36);
+                    mapGraphics.DrawLine(coordinatePen, x, 27, x, 36);
                 }
 
                 CreateNewLabel("CoordMarkerOrigin", "0", 274, 577);
@@ -147,9 +145,9 @@ namespace Overlord_Map_Visualizer
                 CreateNewLabel("CoordMarkerY", "Y", 284, 35);
 
                 //Set Origin Bottom Left
-                MapBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                coordinateSystem.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
-                CoordinateSystem.Source = GetBmpImageFromBmp(MapBitmap);
+                CoordinateSystem.Source = GetBmpImageFromBmp(coordinateSystem);
             }
         }
 
@@ -745,8 +743,8 @@ namespace Overlord_Map_Visualizer
 
         private void Render()
         {
-            MapBitmap = new Bitmap(MapWidth, MapHeight);
-            using (Graphics MapGraphics = Graphics.FromImage(MapBitmap))
+            Bitmap map = new Bitmap(MapWidth, MapHeight);
+            using (Graphics MapGraphics = Graphics.FromImage(map))
             {
                 for (int x = 0; x < MapWidth; x++)
                 {
@@ -771,9 +769,9 @@ namespace Overlord_Map_Visualizer
                 }
 
                 //Set Origin Bottom Left
-                MapBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                map.RotateFlip(RotateFlipType.RotateNoneFlipY);
 
-                Map.Source = GetBmpImageFromBmp(MapBitmap);
+                Map.Source = GetBmpImageFromBmp(map);
             }
         }
 
@@ -944,7 +942,6 @@ namespace Overlord_Map_Visualizer
             int digitOne = Convert.ToInt32("" + fullHexStumber[3], 16);
             int digitTwo = Convert.ToInt32("" + fullHexStumber[2], 16);
             int digitThree = Convert.ToInt32("" + fullHexStumber[1], 16);
-            int digitFour = Convert.ToInt32("" + fullHexStumber[0], 16);
 
             byte digitOneAndTwoNumber = Convert.ToByte(digitOneAndTwoString, 16);
             byte digitThreeAndFourNumber = Convert.ToByte(digitThreeAndFourString, 16);
