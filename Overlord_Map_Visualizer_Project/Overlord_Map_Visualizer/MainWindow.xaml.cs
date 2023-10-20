@@ -291,15 +291,16 @@ namespace Overlord_Map_Visualizer
                 {
                     totalOffset = x * xOffset + yOffset;
 
-                    if (mapMode == MapMode.HeightMap)
+                    switch (mapMode)
                     {
-                        HeightMapDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
-                        HeightMapDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
-                    }
-                    else if (mapMode == MapMode.TextureDistributionMap)
-                    {
-                        TextureDistributionDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
-                        TextureDistributionDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
+                        case MapMode.HeightMap:
+                            HeightMapDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
+                            HeightMapDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
+                            break;
+                        case MapMode.TextureDistributionMap:
+                            TextureDistributionDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
+                            TextureDistributionDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
+                            break;
                     }
                 }
             }
@@ -383,15 +384,16 @@ namespace Overlord_Map_Visualizer
                 {
                     totalOffset = x * xOffset + yOffset;
 
-                    if (mapMode == MapMode.HeightMap)
+                    switch (mapMode)
                     {
-                        allMapBytes[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
-                        allMapBytes[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
-                    }
-                    else if (mapMode == MapMode.TextureDistributionMap)
-                    {
-                        allMapBytes[totalOffset] = TextureDistributionDigitsOneAndTwo[x, y];
-                        allMapBytes[totalOffset + 1] = TextureDistributionDigitsThreeAndFour[x, y];
+                        case MapMode.HeightMap:
+                            allMapBytes[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
+                            allMapBytes[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
+                            break;
+                        case MapMode.TextureDistributionMap:
+                            allMapBytes[totalOffset] = TextureDistributionDigitsOneAndTwo[x, y];
+                            allMapBytes[totalOffset + 1] = TextureDistributionDigitsThreeAndFour[x, y];
+                            break;
                     }
                 }
             }
@@ -528,220 +530,195 @@ namespace Overlord_Map_Visualizer
 
         private Color GetColor(byte byte0, byte byte1, ColorFormat format)
         {
-            int blue, green, red, alpha;
+            int blue, green, red, alpha, grayscale;
             Color color;
 
-            //RGB 555
-            if (format == ColorFormat.RGB555)
+            switch (format)
             {
-                blue = byte0 & 0x1F;
-                green = ((byte1 << 2) & 0x18) | ((byte0 >> 5) & 0x07);
-                red = (byte1 >> 2) & 0x1F;
+                //RGB 555
+                case ColorFormat.RGB555:
+                    blue = byte0 & 0x1F;
+                    green = ((byte1 << 2) & 0x18) | ((byte0 >> 5) & 0x07);
+                    red = (byte1 >> 2) & 0x1F;
 
-                blue = blue * 255 / 31;
-                green = green * 255 / 31;
-                red = red * 255 / 31;
+                    blue = blue * 255 / 31;
+                    green = green * 255 / 31;
+                    red = red * 255 / 31;
 
-                color = Color.FromArgb(red, green, blue);
+                    color = Color.FromArgb(red, green, blue);
 
-                return color;
-            }
-            //RGB 555 Bytes Exchanged
-            else if (format == ColorFormat.RGB555Flipped)
-            {
-                blue = byte1 & 0x1F;
-                green = ((byte0 << 2) & 0x18) | ((byte1 >> 5) & 0x07);
-                red = (byte0 >> 2) & 0x1F;
+                    return color;
+                //RGB 555 Bytes Exchanged
+                case ColorFormat.RGB555Flipped:
+                    blue = byte1 & 0x1F;
+                    green = ((byte0 << 2) & 0x18) | ((byte1 >> 5) & 0x07);
+                    red = (byte0 >> 2) & 0x1F;
 
-                blue = blue * 255 / 31;
-                green = green * 255 / 31;
-                red = red * 255 / 31;
+                    blue = blue * 255 / 31;
+                    green = green * 255 / 31;
+                    red = red * 255 / 31;
 
-                color = Color.FromArgb(red, green, blue);
+                    color = Color.FromArgb(red, green, blue);
 
-                return color;
-            }
-            //RGB 565
-            else if (format == ColorFormat.RGB565)
-            {
-                blue = byte0 & 0x1F;
-                green = ((byte1 << 3) & 0x18) | ((byte0 >> 5) & 0x07);
-                red = (byte1 >> 3) & 0x1F;
+                    return color;
+                //RGB 565
+                case ColorFormat.RGB565:
+                    blue = byte0 & 0x1F;
+                    green = ((byte1 << 3) & 0x18) | ((byte0 >> 5) & 0x07);
+                    red = (byte1 >> 3) & 0x1F;
 
-                blue = blue * 255 / 31;
-                green = green * 255 / 63;
-                red = red * 255 / 31;
+                    blue = blue * 255 / 31;
+                    green = green * 255 / 63;
+                    red = red * 255 / 31;
 
-                color = Color.FromArgb(red, green, blue);
+                    color = Color.FromArgb(red, green, blue);
 
-                return color;
-            }
-            //RGB 565 Bytes Exchanged
-            else if (format == ColorFormat.RGB565Flipped)
-            {
-                blue = byte1 & 0x1F;
-                green = ((byte0 << 3) & 0x18) | ((byte1 >> 5) & 0x07);
-                red = (byte0 >> 3) & 0x1F;
+                    return color;
+                //RGB 565 Bytes Exchanged
+                case ColorFormat.RGB565Flipped:
+                    blue = byte1 & 0x1F;
+                    green = ((byte0 << 3) & 0x18) | ((byte1 >> 5) & 0x07);
+                    red = (byte0 >> 3) & 0x1F;
 
-                blue = blue * 255 / 31;
-                green = green * 255 / 63;
-                red = red * 255 / 31;
+                    blue = blue * 255 / 31;
+                    green = green * 255 / 63;
+                    red = red * 255 / 31;
 
-                color = Color.FromArgb(red, green, blue);
+                    color = Color.FromArgb(red, green, blue);
 
-                return color;
-            }
-            //BGR 555
-            else if (format == ColorFormat.BGR555)
-            {
-                red = byte0 & 0x1F;
-                green = ((byte1 << 2) & 0x18) | ((byte0 >> 5) & 0x07);
-                blue = (byte1 >> 2) & 0x1F;
+                    return color;
+                //BGR 555
+                case ColorFormat.BGR555:
+                    red = byte0 & 0x1F;
+                    green = ((byte1 << 2) & 0x18) | ((byte0 >> 5) & 0x07);
+                    blue = (byte1 >> 2) & 0x1F;
 
-                blue = blue * 255 / 31;
-                green = green * 255 / 31;
-                red = red * 255 / 31;
+                    blue = blue * 255 / 31;
+                    green = green * 255 / 31;
+                    red = red * 255 / 31;
 
-                color = Color.FromArgb(red, green, blue);
+                    color = Color.FromArgb(red, green, blue);
 
-                return color;
-            }
-            //BGR 555 Bytes Exchanged
-            else if (format == ColorFormat.BGR555Flipped)
-            {
-                red = byte1 & 0x1F;
-                green = ((byte0 << 2) & 0x18) | ((byte1 >> 5) & 0x07);
-                blue = (byte0 >> 2) & 0x1F;
+                    return color;
+                //BGR 555 Bytes Exchanged
+                case ColorFormat.BGR555Flipped:
+                    red = byte1 & 0x1F;
+                    green = ((byte0 << 2) & 0x18) | ((byte1 >> 5) & 0x07);
+                    blue = (byte0 >> 2) & 0x1F;
 
-                blue = blue * 255 / 31;
-                green = green * 255 / 31;
-                red = red * 255 / 31;
+                    blue = blue * 255 / 31;
+                    green = green * 255 / 31;
+                    red = red * 255 / 31;
 
-                color = Color.FromArgb(red, green, blue);
+                    color = Color.FromArgb(red, green, blue);
 
-                return color;
-            }
-            //BGR 565
-            else if (format == ColorFormat.BGR565)
-            {
-                red = byte0 & 0x1F;
-                green = ((byte1 << 3) & 0x38) | ((byte0 >> 5) & 0x07);
-                blue = (byte1 >> 3) & 0x1F;
+                    return color;
+                //BGR 565
+                case ColorFormat.BGR565:
+                    red = byte0 & 0x1F;
+                    green = ((byte1 << 3) & 0x38) | ((byte0 >> 5) & 0x07);
+                    blue = (byte1 >> 3) & 0x1F;
 
-                blue = blue * 255 / 31;
-                green = green * 255 / 63;
-                red = red * 255 / 31;
+                    blue = blue * 255 / 31;
+                    green = green * 255 / 63;
+                    red = red * 255 / 31;
 
-                color = Color.FromArgb(red, green, blue);
+                    color = Color.FromArgb(red, green, blue);
 
-                return color;
-            }
-            //BGR 565 Bytes Exchanged
-            else if (format == ColorFormat.BGR565Flipped)
-            {
-                red = byte1 & 0x1F;
-                green = ((byte0 << 3) & 0x38) | ((byte1 >> 5) & 0x07);
-                blue = (byte0 >> 3) & 0x1F;
+                    return color;
+                //BGR 565 Bytes Exchanged
+                case ColorFormat.BGR565Flipped:
+                    red = byte1 & 0x1F;
+                    green = ((byte0 << 3) & 0x38) | ((byte1 >> 5) & 0x07);
+                    blue = (byte0 >> 3) & 0x1F;
 
-                blue = blue * 255 / 31;
-                green = green * 255 / 63;
-                red = red * 255 / 31;
+                    blue = blue * 255 / 31;
+                    green = green * 255 / 63;
+                    red = red * 255 / 31;
 
-                color = Color.FromArgb(red, green, blue);
+                    color = Color.FromArgb(red, green, blue);
 
-                return color;
-            }
-            //RGBA 4444
-            else if (format == ColorFormat.RGBA4444)
-            {
-                blue = byte0 & 0x0F;
-                green = (byte0 >> 4) & 0x0F;
-                red = byte1 & 0x0F;
-                alpha = (byte1 >> 4) & 0x0F;
+                    return color;
+                //RGBA 4444
+                case ColorFormat.RGBA4444:
+                    blue = byte0 & 0x0F;
+                    green = (byte0 >> 4) & 0x0F;
+                    red = byte1 & 0x0F;
+                    alpha = (byte1 >> 4) & 0x0F;
 
-                blue = blue * 255 / 15;
-                green = green * 255 / 15;
-                red = red * 255 / 15;
-                alpha = alpha * 255 / 15;
+                    blue = blue * 255 / 15;
+                    green = green * 255 / 15;
+                    red = red * 255 / 15;
+                    alpha = alpha * 255 / 15;
 
-                color = Color.FromArgb(alpha, red, green, blue);
+                    color = Color.FromArgb(alpha, red, green, blue);
 
-                return color;
-            }
-            //RGBA 4444 Bytes Exchanged
-            else if (format == ColorFormat.RGBA4444Flipped)
-            {
-                blue = byte1 & 0x0F;
-                green = (byte1 >> 4) & 0x0F;
-                red = byte0 & 0x0F;
-                alpha = (byte0 >> 4) & 0x0F;
+                    return color;
+                //RGBA 4444 Bytes Exchanged
+                case ColorFormat.RGBA4444Flipped:
+                    blue = byte1 & 0x0F;
+                    green = (byte1 >> 4) & 0x0F;
+                    red = byte0 & 0x0F;
+                    alpha = (byte0 >> 4) & 0x0F;
 
-                blue = blue * 255 / 15;
-                green = green * 255 / 15;
-                red = red * 255 / 15;
-                alpha = alpha * 255 / 15;
+                    blue = blue * 255 / 15;
+                    green = green * 255 / 15;
+                    red = red * 255 / 15;
+                    alpha = alpha * 255 / 15;
 
-                color = Color.FromArgb(alpha, red, green, blue);
+                    color = Color.FromArgb(alpha, red, green, blue);
 
-                return color;
-            }
-            //ARGB 4444
-            else if (format == ColorFormat.ARGB4444)
-            {
-                alpha = byte0 & 0x0F;
-                blue = (byte0 >> 4) & 0x0F;
-                green = byte1 & 0x0F;
-                red = (byte1 >> 4) & 0x0F;
+                    return color;
+                //ARGB 4444
+                case ColorFormat.ARGB4444:
+                    alpha = byte0 & 0x0F;
+                    blue = (byte0 >> 4) & 0x0F;
+                    green = byte1 & 0x0F;
+                    red = (byte1 >> 4) & 0x0F;
 
-                blue = blue * 255 / 15;
-                green = green * 255 / 15;
-                red = red * 255 / 15;
-                alpha = alpha * 255 / 15;
+                    blue = blue * 255 / 15;
+                    green = green * 255 / 15;
+                    red = red * 255 / 15;
+                    alpha = alpha * 255 / 15;
 
-                color = Color.FromArgb(alpha, red, green, blue);
+                    color = Color.FromArgb(alpha, red, green, blue);
 
-                return color;
-            }
-            //ARGB 4444 Bytes Exchanged
-            else if (format == ColorFormat.ARGB4444Flipped)
-            {
-                alpha = byte1 & 0x0F;
-                blue = (byte1 >> 4) & 0x0F;
-                green = byte0 & 0x0F;
-                red = (byte0 >> 4) & 0x0F;
+                    return color;
+                //ARGB 4444 Bytes Exchanged
+                case ColorFormat.ARGB4444Flipped:
+                    alpha = byte1 & 0x0F;
+                    blue = (byte1 >> 4) & 0x0F;
+                    green = byte0 & 0x0F;
+                    red = (byte0 >> 4) & 0x0F;
 
-                blue = blue * 255 / 15;
-                green = green * 255 / 15;
-                red = red * 255 / 15;
-                alpha = alpha * 255 / 15;
+                    blue = blue * 255 / 15;
+                    green = green * 255 / 15;
+                    red = red * 255 / 15;
+                    alpha = alpha * 255 / 15;
 
-                //alpha = 255;
+                    //alpha = 255;
 
-                color = Color.FromArgb(alpha, red, green, blue);
+                    color = Color.FromArgb(alpha, red, green, blue);
 
-                return color;
-            }
-            else if (format == ColorFormat.Gray16)
-            {
-                int grayscale = (int)Math.Ceiling(0.2989 * (byte0 + byte1) + 0.5870 * (byte0 + byte1) + 0.1140 * (byte0 + byte1));
-                grayscale /= 255;
+                    return color;
+                //Gray 16
+                case ColorFormat.Gray16:
+                    grayscale = (int)Math.Ceiling(0.2989 * (byte0 + byte1) + 0.5870 * (byte0 + byte1) + 0.1140 * (byte0 + byte1));
+                    grayscale /= 255;
 
-                color = Color.FromArgb(grayscale, grayscale, grayscale);
+                    color = Color.FromArgb(grayscale, grayscale, grayscale);
 
-                return color;
-            }
-            else if (format == ColorFormat.Gray12)
-            {
-                int grayscale = (int)Math.Ceiling(0.2989 * (byte1 & 0x0F) + 0.5870 * ((byte0 >> 4) & 0x0F) + 0.1140 * (byte0 & 0x0F));
-                grayscale = grayscale * 255 / 15;
+                    return color;
+                //Gray 12 (4 highest bits are ignored)
+                case ColorFormat.Gray12:
+                    grayscale = (int)Math.Ceiling(0.2989 * (byte1 & 0x0F) + 0.5870 * ((byte0 >> 4) & 0x0F) + 0.1140 * (byte0 & 0x0F));
+                    grayscale = grayscale * 255 / 15;
 
-                color = Color.FromArgb(grayscale, grayscale, grayscale);
+                    color = Color.FromArgb(grayscale, grayscale, grayscale);
 
-                return color;
-            }
-            else
-            {
-                return Color.Black;
+                    return color;
+                default:
+                    return Color.Black;
             }
         }
 
@@ -802,71 +779,73 @@ namespace Overlord_Map_Visualizer
             int xCoordinate = (int)e.GetPosition(Map).X;
             int yCoordinate = 512 - (int)e.GetPosition(Map).Y;
 
-            if (currentCursorMode == CursorMode.Normal)
+            switch (currentCursorMode)
             {
-                MessageBox.Show("Location : X:" + xCoordinate + " | Y:" + yCoordinate);
-            }
-            else if(currentCursorMode == CursorMode.Pipette)
-            {   
-                switch (currentMapMode)
-                {
-                    case MapMode.HeightMap:
-                        SelectedColorCode.Text = HeightMapDigitsThreeAndFour[xCoordinate, yCoordinate].ToString("X2") + HeightMapDigitsOneAndTwo[xCoordinate, yCoordinate].ToString("X2");
-                        break;
-                    case MapMode.TextureDistributionMap:
-                        SelectedColorCode.Text = TextureDistributionDigitsThreeAndFour[xCoordinate, yCoordinate].ToString("X2") + TextureDistributionDigitsOneAndTwo[xCoordinate, yCoordinate].ToString("X2");
-                        break;
-                    default:
-                        SelectedColorCode.Text = "0000";
-                        break;
-                }
-            }
-            else if (currentCursorMode == CursorMode.Square)
-            {
-                int yMin = 0;
-                int xMin = 0;
-                int xMax = 512;
-                int yMax = 512;
-
-                if ((xCoordinate - (cursorDiameter / 2)) >= xMin)
-                {
-                    xMin = xCoordinate - (cursorDiameter / 2);
-                }
-                if ((xCoordinate + (cursorDiameter / 2)) <= xMax)
-                {
-                    xMax = xCoordinate + (cursorDiameter / 2);
-                }
-
-                if ((yCoordinate - (cursorDiameter / 2)) >= yMin)
-                {
-                    yMin = yCoordinate - (cursorDiameter / 2);
-                }
-                if ((yCoordinate + (cursorDiameter / 2)) <= yMax)
-                {
-                    yMax = yCoordinate + (cursorDiameter / 2);
-                }
-
-                for (int y = yMin; y < yMax; y++)
-                {
-                    for (int x = xMin; x < xMax; x++)
+                case CursorMode.Normal:
+                    MessageBox.Show("Location : X:" + xCoordinate + " | Y:" + yCoordinate);
+                    break;
+                case CursorMode.Pipette:
+                    switch (currentMapMode)
                     {
-                        byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
-                        switch (currentMapMode)
+                        case MapMode.HeightMap:
+                            SelectedColorCode.Text = HeightMapDigitsThreeAndFour[xCoordinate, yCoordinate].ToString("X2") + HeightMapDigitsOneAndTwo[xCoordinate, yCoordinate].ToString("X2");
+                            break;
+                        case MapMode.TextureDistributionMap:
+                            SelectedColorCode.Text = TextureDistributionDigitsThreeAndFour[xCoordinate, yCoordinate].ToString("X2") + TextureDistributionDigitsOneAndTwo[xCoordinate, yCoordinate].ToString("X2");
+                            break;
+                        default:
+                            SelectedColorCode.Text = "0000";
+                            break;
+                    }
+                    break;
+                case CursorMode.Square:
+                    int yMin = 0;
+                    int xMin = 0;
+                    int xMax = 512;
+                    int yMax = 512;
+
+                    if ((xCoordinate - (cursorDiameter / 2)) >= xMin)
+                    {
+                        xMin = xCoordinate - (cursorDiameter / 2);
+                    }
+                    if ((xCoordinate + (cursorDiameter / 2)) <= xMax)
+                    {
+                        xMax = xCoordinate + (cursorDiameter / 2);
+                    }
+
+                    if ((yCoordinate - (cursorDiameter / 2)) >= yMin)
+                    {
+                        yMin = yCoordinate - (cursorDiameter / 2);
+                    }
+                    if ((yCoordinate + (cursorDiameter / 2)) <= yMax)
+                    {
+                        yMax = yCoordinate + (cursorDiameter / 2);
+                    }
+
+                    for (int y = yMin; y < yMax; y++)
+                    {
+                        for (int x = xMin; x < xMax; x++)
                         {
-                            case MapMode.HeightMap:
-                                HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
-                                HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
-                                break;
-                            case MapMode.TextureDistributionMap:
-                                TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
-                                TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
-                                break;
-                            default:
-                                break;
+                            byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
+                            switch (currentMapMode)
+                            {
+                                case MapMode.HeightMap:
+                                    HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                    HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                    break;
+                                case MapMode.TextureDistributionMap:
+                                    TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                    TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                     }
-                }
-                Render();
+                    Render();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -962,30 +941,27 @@ namespace Overlord_Map_Visualizer
 
             SelectedColorHeight.Content = "This color corresponds to a height of\r\n" + (((digitThree * Math.Pow(16, 1)) + (digitTwo * Math.Pow(16, 0)) + (digitOne * Math.Pow(16, -1))) / 2);
 
-            if (currentMapMode == MapMode.HeightMap)
+            switch (currentMapMode)
             {
-                int grayscale = (int)Math.Ceiling(0.2989 * (digitThreeAndFourNumber & 0x0F) + 0.5870 * ((digitOneAndTwoNumber >> 4) & 0x0F) + 0.1140 * (digitOneAndTwoNumber & 0x0F));
-                grayscale = grayscale * 255 / 15;
+                case MapMode.HeightMap:
+                    int grayscale = (int)Math.Ceiling(0.2989 * (digitThreeAndFourNumber & 0x0F) + 0.5870 * ((digitOneAndTwoNumber >> 4) & 0x0F) + 0.1140 * (digitOneAndTwoNumber & 0x0F));
+                    grayscale = grayscale * 255 / 15;
 
-                return Color.FromArgb(grayscale, grayscale, grayscale);
-            }
-            else if (currentMapMode == MapMode.TextureDistributionMap)
-            {
-                int blue, green, red;
+                    return Color.FromArgb(grayscale, grayscale, grayscale);
+                case MapMode.TextureDistributionMap:
+                    int blue, green, red;
 
-                red = digitOneAndTwoNumber & 0x1F;
-                green = ((digitThreeAndFourNumber << 3) & 0x38) | ((digitOneAndTwoNumber >> 5) & 0x07);
-                blue = (digitThreeAndFourNumber >> 3) & 0x1F;
+                    red = digitOneAndTwoNumber & 0x1F;
+                    green = ((digitThreeAndFourNumber << 3) & 0x38) | ((digitOneAndTwoNumber >> 5) & 0x07);
+                    blue = (digitThreeAndFourNumber >> 3) & 0x1F;
 
-                blue = blue * 255 / 31;
-                green = green * 255 / 63;
-                red = red * 255 / 31;
+                    blue = blue * 255 / 31;
+                    green = green * 255 / 63;
+                    red = red * 255 / 31;
 
-                return Color.FromArgb(red, green, blue);
-            }
-            else
-            {
-                return Color.Black;
+                    return Color.FromArgb(red, green, blue);
+                default:
+                    return Color.Black;
             }
         }
 
