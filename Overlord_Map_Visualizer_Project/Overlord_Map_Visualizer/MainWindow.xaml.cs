@@ -807,8 +807,19 @@ namespace Overlord_Map_Visualizer
                 MessageBox.Show("Location : X:" + xCoordinate + " | Y:" + yCoordinate);
             }
             else if(currentCursorMode == CursorMode.Pipette)
-            {
-
+            {   
+                switch (currentMapMode)
+                {
+                    case MapMode.HeightMap:
+                        SelectedColorCode.Text = HeightMapDigitsThreeAndFour[xCoordinate, yCoordinate].ToString("X2") + HeightMapDigitsOneAndTwo[xCoordinate, yCoordinate].ToString("X2");
+                        break;
+                    case MapMode.TextureDistributionMap:
+                        SelectedColorCode.Text = TextureDistributionDigitsThreeAndFour[xCoordinate, yCoordinate].ToString("X2") + TextureDistributionDigitsOneAndTwo[xCoordinate, yCoordinate].ToString("X2");
+                        break;
+                    default:
+                        SelectedColorCode.Text = "0000";
+                        break;
+                }
             }
             else if (currentCursorMode == CursorMode.Square)
             {
