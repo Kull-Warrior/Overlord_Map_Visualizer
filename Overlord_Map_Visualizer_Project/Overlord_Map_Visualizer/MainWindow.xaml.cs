@@ -89,6 +89,7 @@ namespace Overlord_Map_Visualizer
             TextureDistributionDigitsThreeAndFour = new byte[MapWidth, MapHeight];
 
             SelectedColorCode.Text = "0000";
+            cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
         }
 
         private void DrawCoordinateSystem()
@@ -215,7 +216,7 @@ namespace Overlord_Map_Visualizer
 
                 Render();
 
-                if(IsAnyMapLoaded == false)
+                if (!IsAnyMapLoaded)
                 {
                     MapModeDropDown.SelectedIndex = 0;
                     MapModeDropDown.IsEnabled = true;
@@ -225,8 +226,10 @@ namespace Overlord_Map_Visualizer
                     SelectedColorCode.IsEnabled = true;
                     SelectedColorCode.Visibility = Visibility.Visible;
                     SelectedColorImage.Visibility = Visibility.Visible;
+                    SelectedColorBorder.Visibility = Visibility.Visible;
                     SelectedColorHeight.Visibility = Visibility.Visible;
                     cursorModeSelect.Visibility = Visibility.Visible;
+                    cursorModePipette.Visibility = Visibility.Visible;
                     cursorModeSquare.Visibility = Visibility.Visible;
                     IsAnyMapLoaded = true;
                 }
@@ -874,6 +877,7 @@ namespace Overlord_Map_Visualizer
                     ExportMapButton.Content = "Export Heightmap";
                     Render();
                     UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
+                    SelectedColorHeight.Visibility = Visibility.Visible;
                     break;
                 case 1:
                     currentMapMode = MapMode.TextureDistributionMap;
@@ -881,6 +885,7 @@ namespace Overlord_Map_Visualizer
                     ExportMapButton.Content = "Export Texture Distribution";
                     Render();
                     UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
+                    SelectedColorHeight.Visibility = Visibility.Hidden;
                     break;
                 default:
                     break;
@@ -912,11 +917,10 @@ namespace Overlord_Map_Visualizer
             if (SelectedColorCode.Text.Length == 4)
             {
                 UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
-            }
-
-            if(currentCursorMode == CursorMode.Square)
-            {
-                ShowSquareCursor();
+                if (currentCursorMode == CursorMode.Square)
+                {
+                    ShowSquareCursor();
+                }
             }
         }
 
@@ -1064,18 +1068,24 @@ namespace Overlord_Map_Visualizer
         {
             currentCursorMode = CursorMode.Normal;
             Mouse.OverrideCursor = null;
+            CursorSizeSlider.Visibility = Visibility.Hidden;
+            cursorDiameterLabel.Visibility = Visibility.Hidden;
         }
 
         private void CursorModePipette_Click(object sender, RoutedEventArgs e)
         {
             currentCursorMode = CursorMode.Pipette;
             ShowPipetteCursor();
+            CursorSizeSlider.Visibility = Visibility.Hidden;
+            cursorDiameterLabel.Visibility = Visibility.Hidden;
         }
 
         private void CursorModeSquare_Click(object sender, RoutedEventArgs e)
         {
             currentCursorMode = CursorMode.Square;
             ShowSquareCursor();
+            CursorSizeSlider.Visibility = Visibility.Visible;
+            cursorDiameterLabel.Visibility = Visibility.Visible;
         }
 
         private void ShowSquareCursor()
@@ -1096,8 +1106,8 @@ namespace Overlord_Map_Visualizer
         {
             if (IsAnyMapLoaded)
             {
-                CursorRadiosLabel.Content = "Cursor Radius: " + slider.Value;
-                cursorDiameter = (int) slider.Value;
+                cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
+                cursorDiameter = (int) CursorSizeSlider.Value;
                 if (currentCursorMode == CursorMode.Square)
                 {
                     ShowSquareCursor();
