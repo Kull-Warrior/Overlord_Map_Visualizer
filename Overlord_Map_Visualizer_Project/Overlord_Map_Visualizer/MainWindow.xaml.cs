@@ -802,50 +802,57 @@ namespace Overlord_Map_Visualizer
                     }
                     break;
                 case CursorMode.Square:
-                    int yMin = 0;
-                    int xMin = 0;
-                    int xMax = 512;
-                    int yMax = 512;
+                    if (SelectedColorCode.Text.Length == 4)
+                    {
+                        int yMin = 0;
+                        int xMin = 0;
+                        int xMax = 512;
+                        int yMax = 512;
 
-                    if ((xCoordinate - (cursorDiameter / 2)) >= xMin)
-                    {
-                        xMin = xCoordinate - (cursorDiameter / 2);
-                    }
-                    if ((xCoordinate + (cursorDiameter / 2)) <= xMax)
-                    {
-                        xMax = xCoordinate + (cursorDiameter / 2);
-                    }
-
-                    if ((yCoordinate - (cursorDiameter / 2)) >= yMin)
-                    {
-                        yMin = yCoordinate - (cursorDiameter / 2);
-                    }
-                    if ((yCoordinate + (cursorDiameter / 2)) <= yMax)
-                    {
-                        yMax = yCoordinate + (cursorDiameter / 2);
-                    }
-
-                    for (int y = yMin; y < yMax; y++)
-                    {
-                        for (int x = xMin; x < xMax; x++)
+                        if ((xCoordinate - (cursorDiameter / 2)) >= xMin)
                         {
-                            byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
-                            switch (currentMapMode)
+                            xMin = xCoordinate - (cursorDiameter / 2);
+                        }
+                        if ((xCoordinate + (cursorDiameter / 2)) <= xMax)
+                        {
+                            xMax = xCoordinate + (cursorDiameter / 2);
+                        }
+
+                        if ((yCoordinate - (cursorDiameter / 2)) >= yMin)
+                        {
+                            yMin = yCoordinate - (cursorDiameter / 2);
+                        }
+                        if ((yCoordinate + (cursorDiameter / 2)) <= yMax)
+                        {
+                            yMax = yCoordinate + (cursorDiameter / 2);
+                        }
+
+                        for (int y = yMin; y < yMax; y++)
+                        {
+                            for (int x = xMin; x < xMax; x++)
                             {
-                                case MapMode.HeightMap:
-                                    HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
-                                    HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
-                                    break;
-                                case MapMode.TextureDistributionMap:
-                                    TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
-                                    TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
-                                    break;
-                                default:
-                                    break;
+                                byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
+                                switch (currentMapMode)
+                                {
+                                    case MapMode.HeightMap:
+                                        HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                        HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                        break;
+                                    case MapMode.TextureDistributionMap:
+                                        TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                        TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                        break;
+                                    default:
+                                        break;
+                                }
                             }
                         }
+                        Render();
                     }
-                    Render();
+                    else
+                    {
+                        MessageBox.Show("Error\nThe selected color has to be 4 digits long.");
+                    }
                     break;
                 case CursorMode.Rotate:
                     byte[,] rotatedHeightMapDigitsOneAndTwo = new byte[MapWidth, MapHeight];
