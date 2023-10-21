@@ -12,7 +12,7 @@
         <Button x:Name="ExportMapButton" Content="Save Heightmap" HorizontalAlignment="Left" Margin="640,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Click="ExportToFile" Visibility="Visible" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>
         <Button x:Name="ImportMapButton" Content="Import Heightmap" HorizontalAlignment="Left" Margin="290,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Visibility="Visible" Click="ImportfromFile" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>
         <Button x:Name="ExportToOMPFileButton" Content="Export to OMP File" HorizontalAlignment="Left" Margin="920,675,0,0" VerticalAlignment="Top" Width="164" Height="24" Click="ExportToFile" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False" Grid.ColumnSpan="2"/>
-        <Image x:Name="Map" HorizontalAlignment="Left" Height="512" Margin="293,63,0,0" VerticalAlignment="Top" Width="512" MouseDown="GetCoordinates"/>
+        <Image x:Name="Map" HorizontalAlignment="Left" Height="512" Margin="293,63,0,0" VerticalAlignment="Top" Width="512" MouseDown="ToolClick"/>
         <ComboBox x:Name="MapModeDropDown" HorizontalAlignment="Left" Margin="292,19,0,0" VerticalAlignment="Top" Width="512" Height="23" SelectionChanged="MapModeChanged" IsEnabled="False">
             <ComboBoxItem Content="Height Map"/>
             <ComboBoxItem Content="Texture Distribution Map"/>
@@ -26,5 +26,6 @@
         <Slider x:Name="CursorSizeSlider" HorizontalAlignment="Left" Margin="13,132,0,0" VerticalAlignment="Top" Width="256" Value="50" Minimum="2" Maximum="255" SmallChange="1" TickPlacement="Both" Cursor="Arrow" Height="35" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True" Visibility="Hidden"/>
         <Label x:Name="cursorDiameterLabel" Content="Cursor Radius : 1" HorizontalAlignment="Left" Margin="13,172,0,0" VerticalAlignment="Top" Width="256" Visibility="Hidden"/>
         <Button x:Name="cursorModeSquare" Content="Square" HorizontalAlignment="Left" Margin="120,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeSquare_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModeRotate" Content="Rotate" HorizontalAlignment="Left" Margin="175,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeRotate_Click" Visibility="Hidden"/>
     </Grid>
 </Window>
