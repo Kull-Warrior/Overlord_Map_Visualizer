@@ -134,5 +134,8 @@
   <ItemGroup>
     <Resource Include="Pipette.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Rotate.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

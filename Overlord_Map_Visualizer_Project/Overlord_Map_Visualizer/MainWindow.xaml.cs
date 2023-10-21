@@ -51,7 +51,8 @@ namespace Overlord_Map_Visualizer
         {
             Normal,
             Pipette,
-            Square
+            Square,
+            Rotate
         }
 
         private MapMode currentMapMode;
@@ -229,6 +230,7 @@ namespace Overlord_Map_Visualizer
                     cursorModeSelect.Visibility = Visibility.Visible;
                     cursorModePipette.Visibility = Visibility.Visible;
                     cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeRotate.Visibility = Visibility.Visible;
                     IsAnyMapLoaded = true;
                 }
             }
@@ -775,7 +777,7 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private void GetCoordinates(object sender, MouseButtonEventArgs e)
+        private void ToolClick(object sender, MouseButtonEventArgs e)
         {
             int xCoordinate = (int)e.GetPosition(Map).X;
             int yCoordinate = 512 - (int)e.GetPosition(Map).Y;
@@ -843,6 +845,42 @@ namespace Overlord_Map_Visualizer
                             }
                         }
                     }
+                    Render();
+                    break;
+                case CursorMode.Rotate:
+                    byte[,] rotatedHeightMapDigitsOneAndTwo = new byte[MapWidth, MapHeight];
+                    byte[,] rotatedHeightMapDigitsThreeAndFour = new byte[MapWidth, MapHeight];
+                    byte[,] rotatedTextureDistributionDigitsOneAndTwo = new byte[MapWidth, MapHeight];
+                    byte[,] rotatedTextureDistributionDigitsThreeAndFour = new byte[MapWidth, MapHeight];
+
+                    int i = 0;
+                    for (int x = 0; x < MapHeight; x++)
+                    {
+                        for (int y = 512 - 1; y >= 0; y--)
+                        {
+                            switch (currentMapMode)
+                            {
+                                case MapMode.HeightMap:
+                                    rotatedHeightMapDigitsOneAndTwo[x, i] = HeightMapDigitsOneAndTwo[y, x];
+                                    rotatedHeightMapDigitsThreeAndFour[x, i] = HeightMapDigitsThreeAndFour[y, x];
+                                    break;
+                                case MapMode.TextureDistributionMap:
+                                    rotatedTextureDistributionDigitsOneAndTwo[x, i] = TextureDistributionDigitsOneAndTwo[y, x];
+                                    rotatedTextureDistributionDigitsThreeAndFour[x, i] = TextureDistributionDigitsThreeAndFour[y, x];
+                                    break;
+                                default:
+                                    break;
+                            }
+                            i++;
+                        }
+                        i = 0;
+                    }
+
+                    HeightMapDigitsOneAndTwo = rotatedHeightMapDigitsOneAndTwo;
+                    HeightMapDigitsThreeAndFour = rotatedHeightMapDigitsThreeAndFour;
+                    TextureDistributionDigitsOneAndTwo = rotatedTextureDistributionDigitsOneAndTwo;
+                    TextureDistributionDigitsThreeAndFour = rotatedTextureDistributionDigitsThreeAndFour;
+
                     Render();
                     break;
                 default:
@@ -1013,6 +1051,12 @@ namespace Overlord_Map_Visualizer
                         drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Pipette.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
                         drawingContext.Close();
                         break;
+                    case CursorMode.Rotate:
+                        centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
+                        borderWidth = 0;
+                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Rotate.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
+                        drawingContext.Close();
+                        break;
                     default:
                         centrePoint = new System.Windows.Point(0, 0);
                         borderWidth = 0;
@@ -1085,6 +1129,14 @@ namespace Overlord_Map_Visualizer
             cursorDiameterLabel.Visibility = Visibility.Visible;
         }
 
+        private void CursorModeRotate_Click(object sender, RoutedEventArgs e)
+        {
+            currentCursorMode = CursorMode.Rotate;
+            ShowRotateCursor();
+            CursorSizeSlider.Visibility = Visibility.Hidden;
+            cursorDiameterLabel.Visibility = Visibility.Hidden;
+        }
+
         private void ShowSquareCursor()
         {
             SolidColorBrush fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, SelectedColor.R, SelectedColor.G, SelectedColor.B));
@@ -1097,6 +1149,13 @@ namespace Overlord_Map_Visualizer
             SolidColorBrush fillBrush = MediaBrushes.Black;
 
             Mouse.OverrideCursor = CreateCursor(26, 26, fillBrush, null, null);
+        }
+
+        private void ShowRotateCursor()
+        {
+            SolidColorBrush fillBrush = MediaBrushes.Black;
+
+            Mouse.OverrideCursor = CreateCursor(26, 30, fillBrush, null, null);
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
