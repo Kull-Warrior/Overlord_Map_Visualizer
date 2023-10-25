@@ -132,10 +132,14 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Pipette.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Rotate.ico" />
+    <Resource Include="Pipette_Black_Border_None.ico" />
+    <Resource Include="Pipette_Black_Border_White.ico" />
+    <Resource Include="Pipette_White_Border_Black.ico" />
+    <Resource Include="Pipette_White_Border_None.ico" />
+    <Resource Include="Rotate_Black_Border_None.ico" />
+    <Resource Include="Rotate_Black_Border_White.ico" />
+    <Resource Include="Rotate_White_Border_Black.ico" />
+    <Resource Include="Rotate_White_Border_None.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
