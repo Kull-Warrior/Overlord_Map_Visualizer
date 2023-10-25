@@ -1121,13 +1121,13 @@ namespace Overlord_Map_Visualizer
                     case CursorMode.Pipette:
                         centrePoint = new System.Windows.Point(0, 0);
                         borderWidth = 0;
-                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Pipette.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
+                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Pipette_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
                         drawingContext.Close();
                         break;
                     case CursorMode.Rotate:
                         centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
                         borderWidth = 0;
-                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Rotate.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
+                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Rotate_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
                         drawingContext.Close();
                         break;
                     default:
@@ -1221,14 +1221,14 @@ namespace Overlord_Map_Visualizer
         {
             SolidColorBrush fillBrush = MediaBrushes.Black;
 
-            Mouse.OverrideCursor = CreateCursor(26, 26, fillBrush, null, null);
+            Mouse.OverrideCursor = CreateCursor(28, 28, fillBrush, null, null);
         }
 
         private void ShowRotateCursor()
         {
             SolidColorBrush fillBrush = MediaBrushes.Black;
 
-            Mouse.OverrideCursor = CreateCursor(26, 30, fillBrush, null, null);
+            Mouse.OverrideCursor = CreateCursor(28, 32, fillBrush, null, null);
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
