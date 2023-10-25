@@ -943,11 +943,17 @@ namespace Overlord_Map_Visualizer
                         i = 0;
                     }
 
-                    HeightMapDigitsOneAndTwo = rotatedHeightMapDigitsOneAndTwo;
-                    HeightMapDigitsThreeAndFour = rotatedHeightMapDigitsThreeAndFour;
-                    TextureDistributionDigitsOneAndTwo = rotatedTextureDistributionDigitsOneAndTwo;
-                    TextureDistributionDigitsThreeAndFour = rotatedTextureDistributionDigitsThreeAndFour;
-
+                    switch (currentMapMode)
+                    {
+                        case MapMode.HeightMap:
+                            HeightMapDigitsOneAndTwo = rotatedHeightMapDigitsOneAndTwo;
+                            HeightMapDigitsThreeAndFour = rotatedHeightMapDigitsThreeAndFour;
+                            break;
+                        case MapMode.TextureDistributionMap:
+                            TextureDistributionDigitsOneAndTwo = rotatedTextureDistributionDigitsOneAndTwo;
+                            TextureDistributionDigitsThreeAndFour = rotatedTextureDistributionDigitsThreeAndFour;
+                            break;
+                    }
                     Render();
                     break;
                 default:
