@@ -14,6 +14,7 @@ using MediaBrushes = System.Windows.Media.Brushes;
 using MediaColor = System.Windows.Media.Color;
 using MediaPen = System.Windows.Media.Pen;
 using Pen = System.Drawing.Pen;
+using PixelFormat = System.Windows.Media.PixelFormat;
 
 namespace Overlord_Map_Visualizer
 {
@@ -729,7 +730,16 @@ namespace Overlord_Map_Visualizer
         {
             using (MemoryStream memoryStream = new MemoryStream())
             {
-                bitMap.Save(memoryStream, ImageFormat.Png);
+                switch (currentMapMode)
+                {
+                    case MapMode.HeightMap:
+                        bitMap.Save(memoryStream, ImageFormat.Tiff);
+                        break;
+                    case MapMode.TextureDistributionMap:
+                        bitMap.Save(memoryStream, ImageFormat.Png);
+                        break;
+                }
+
                 memoryStream.Position = 0;
 
                 BitmapImage bitmapImage = new BitmapImage();
@@ -745,36 +755,86 @@ namespace Overlord_Map_Visualizer
 
         private void Render()
         {
-            Bitmap map = new Bitmap(MapWidth, MapHeight);
-            using (Graphics MapGraphics = Graphics.FromImage(map))
+            switch (currentMapMode)
             {
-                for (int x = 0; x < MapWidth; x++)
-                {
+                case MapMode.HeightMap:
+                    int totalNumberOfBytes = MapWidth * MapHeight * 6;
+                    byte[] data = new byte[totalNumberOfBytes];
+                    int xOffset = 6;
+                    int yOffset = 0;
+                    int numberOfBytesInRow = MapWidth * 6; //One point is described by six bytes
+                    int totalOffset;
+                    double dpi = 50;
+                    PixelFormat format = PixelFormats.Rgb48;
+                    int stride = ((MapWidth * format.BitsPerPixel) + 7) / 8;
+                    int tempNumber;
+
                     for (int y = 0; y < MapHeight; y++)
                     {
-                        Brush MapBrush;
-                        switch (currentMapMode)
+                        if (y != 0)
                         {
-                            case MapMode.HeightMap:
-                                MapBrush = new SolidBrush(GetColor(HeightMapDigitsOneAndTwo[x, y], HeightMapDigitsThreeAndFour[x, y], ColorFormat.Gray12));
-                                break;
-                            case MapMode.TextureDistributionMap:
-                                MapBrush = new SolidBrush(GetColor(TextureDistributionDigitsOneAndTwo[x, y], TextureDistributionDigitsThreeAndFour[x, y], ColorFormat.BGR565));
-                                break;
-                            default:
-                                MapBrush = new SolidBrush(Color.Black);
-                                break;
+                            yOffset = y * numberOfBytesInRow;
+                        }
+                        for (int x = 0; x < MapWidth; x++)
+                        {
+                            totalOffset = x * xOffset + yOffset;
+                            tempNumber = ((HeightMapDigitsThreeAndFour[x, y] << 8) & 0x0FFF) + HeightMapDigitsOneAndTwo[x, y];
+                            tempNumber = tempNumber * 65535 / 4095;
+
+                            data[totalOffset] = (byte)(tempNumber & 0x00FF);
+                            data[totalOffset + 1] = (byte)((tempNumber & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(tempNumber & 0x00FF);
+                            data[totalOffset + 3] = (byte)((tempNumber & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(tempNumber & 0x00FF);
+                            data[totalOffset + 5] = (byte)((tempNumber & 0xFF00) >> 8);
+                        }
+                    }
+
+                    WriteableBitmap wb = new WriteableBitmap(MapWidth, MapHeight, dpi, dpi, format, null);
+                    wb.WritePixels(new Int32Rect(0, 0, MapWidth, MapHeight), data, stride, 0);
+
+                    // Encode as a TIFF
+                    TiffBitmapEncoder enc = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
+                    enc.Frames.Add(BitmapFrame.Create(wb));
+
+                    // Convert to a bitmap
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        enc.Save(ms);
+
+                        using (Bitmap map = new Bitmap(ms))
+                        {
+                            //Set Origin Bottom Left
+                            map.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+                            Map.Source = GetBmpImageFromBmp(map);
+                        }
+                    }
+                    break;
+                case MapMode.TextureDistributionMap:
+                    using (Bitmap map = new Bitmap(MapWidth, MapHeight))
+                    using (Graphics MapGraphics = Graphics.FromImage(map))
+                    {
+                        for (int x = 0; x < MapWidth; x++)
+                        {
+                            for (int y = 0; y < MapHeight; y++)
+                            {
+                                Brush mapBrush = new SolidBrush(GetColor(TextureDistributionDigitsOneAndTwo[x, y], TextureDistributionDigitsThreeAndFour[x, y], ColorFormat.BGR565));
+
+                                MapGraphics.FillRectangle(mapBrush, x, y, 1, 1);
+                            }
                         }
 
-                        MapGraphics.FillRectangle(MapBrush, x, y, 1, 1);
+                        //Set Origin Bottom Left
+                        map.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+                        Map.Source = GetBmpImageFromBmp(map);
                     }
-                }
-
-                //Set Origin Bottom Left
-                map.RotateFlip(RotateFlipType.RotateNoneFlipY);
-
-                Map.Source = GetBmpImageFromBmp(map);
+                    break;
+                default:
+                    break;
             }
+
         }
 
         private void ToolClick(object sender, MouseButtonEventArgs e)
