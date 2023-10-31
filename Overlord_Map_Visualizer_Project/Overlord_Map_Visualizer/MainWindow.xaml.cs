@@ -8,7 +8,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Brush = System.Drawing.Brush;
 using Color = System.Drawing.Color;
 using MediaBrushes = System.Windows.Media.Brushes;
 using MediaColor = System.Windows.Media.Color;
@@ -57,6 +56,12 @@ namespace Overlord_Map_Visualizer
             Rotate
         }
 
+        private enum DrawingType
+        {
+            Map,
+            SelectedColor
+        }
+
         private MapMode currentMapMode;
         private readonly int MapWidth = 512;
         private readonly int MapHeight = 512;
@@ -70,7 +75,6 @@ namespace Overlord_Map_Visualizer
         private bool IsAnyMapLoaded = false;
 
         private CursorMode currentCursorMode;
-        private Color SelectedColor;
         private int cursorDiameter = 50;
 
         public MainWindow()
@@ -78,7 +82,6 @@ namespace Overlord_Map_Visualizer
             InitializeComponent();
             Initialise();
             DrawCoordinateSystem();
-            UpdateSelectedColor(Color.Black);
         }
 
         private void Initialise()
@@ -480,213 +483,11 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private Color GetColor(byte byte0, byte byte1, ColorFormat format)
-        {
-            int blue, green, red, alpha, grayscale;
-            Color color;
-
-            switch (format)
-            {
-                //RGB 555
-                case ColorFormat.RGB555:
-                    blue = byte0 & 0x1F;
-                    green = ((byte1 << 2) & 0x18) | ((byte0 >> 5) & 0x07);
-                    red = (byte1 >> 2) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 31;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //RGB 555 Bytes Exchanged
-                case ColorFormat.RGB555Flipped:
-                    blue = byte1 & 0x1F;
-                    green = ((byte0 << 2) & 0x18) | ((byte1 >> 5) & 0x07);
-                    red = (byte0 >> 2) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 31;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //RGB 565
-                case ColorFormat.RGB565:
-                    blue = byte0 & 0x1F;
-                    green = ((byte1 << 3) & 0x18) | ((byte0 >> 5) & 0x07);
-                    red = (byte1 >> 3) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 63;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //RGB 565 Bytes Exchanged
-                case ColorFormat.RGB565Flipped:
-                    blue = byte1 & 0x1F;
-                    green = ((byte0 << 3) & 0x18) | ((byte1 >> 5) & 0x07);
-                    red = (byte0 >> 3) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 63;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //BGR 555
-                case ColorFormat.BGR555:
-                    red = byte0 & 0x1F;
-                    green = ((byte1 << 2) & 0x18) | ((byte0 >> 5) & 0x07);
-                    blue = (byte1 >> 2) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 31;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //BGR 555 Bytes Exchanged
-                case ColorFormat.BGR555Flipped:
-                    red = byte1 & 0x1F;
-                    green = ((byte0 << 2) & 0x18) | ((byte1 >> 5) & 0x07);
-                    blue = (byte0 >> 2) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 31;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //BGR 565
-                case ColorFormat.BGR565:
-                    red = byte0 & 0x1F;
-                    green = ((byte1 << 3) & 0x38) | ((byte0 >> 5) & 0x07);
-                    blue = (byte1 >> 3) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 63;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //BGR 565 Bytes Exchanged
-                case ColorFormat.BGR565Flipped:
-                    red = byte1 & 0x1F;
-                    green = ((byte0 << 3) & 0x38) | ((byte1 >> 5) & 0x07);
-                    blue = (byte0 >> 3) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 63;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //RGBA 4444
-                case ColorFormat.RGBA4444:
-                    blue = byte0 & 0x0F;
-                    green = (byte0 >> 4) & 0x0F;
-                    red = byte1 & 0x0F;
-                    alpha = (byte1 >> 4) & 0x0F;
-
-                    blue = blue * 255 / 15;
-                    green = green * 255 / 15;
-                    red = red * 255 / 15;
-                    alpha = alpha * 255 / 15;
-
-                    color = Color.FromArgb(alpha, red, green, blue);
-
-                    return color;
-                //RGBA 4444 Bytes Exchanged
-                case ColorFormat.RGBA4444Flipped:
-                    blue = byte1 & 0x0F;
-                    green = (byte1 >> 4) & 0x0F;
-                    red = byte0 & 0x0F;
-                    alpha = (byte0 >> 4) & 0x0F;
-
-                    blue = blue * 255 / 15;
-                    green = green * 255 / 15;
-                    red = red * 255 / 15;
-                    alpha = alpha * 255 / 15;
-
-                    color = Color.FromArgb(alpha, red, green, blue);
-
-                    return color;
-                //ARGB 4444
-                case ColorFormat.ARGB4444:
-                    alpha = byte0 & 0x0F;
-                    blue = (byte0 >> 4) & 0x0F;
-                    green = byte1 & 0x0F;
-                    red = (byte1 >> 4) & 0x0F;
-
-                    blue = blue * 255 / 15;
-                    green = green * 255 / 15;
-                    red = red * 255 / 15;
-                    alpha = alpha * 255 / 15;
-
-                    color = Color.FromArgb(alpha, red, green, blue);
-
-                    return color;
-                //ARGB 4444 Bytes Exchanged
-                case ColorFormat.ARGB4444Flipped:
-                    alpha = byte1 & 0x0F;
-                    blue = (byte1 >> 4) & 0x0F;
-                    green = byte0 & 0x0F;
-                    red = (byte0 >> 4) & 0x0F;
-
-                    blue = blue * 255 / 15;
-                    green = green * 255 / 15;
-                    red = red * 255 / 15;
-                    alpha = alpha * 255 / 15;
-
-                    //alpha = 255;
-
-                    color = Color.FromArgb(alpha, red, green, blue);
-
-                    return color;
-                //Gray 16
-                case ColorFormat.Gray16:
-                    grayscale = (int)Math.Ceiling(0.2989 * (byte0 + byte1) + 0.5870 * (byte0 + byte1) + 0.1140 * (byte0 + byte1));
-                    grayscale /= 255;
-
-                    color = Color.FromArgb(grayscale, grayscale, grayscale);
-
-                    return color;
-                //Gray 12 (4 highest bits are ignored)
-                case ColorFormat.Gray12:
-                    grayscale = (int)Math.Ceiling(0.2989 * (byte1 & 0x0F) + 0.5870 * ((byte0 >> 4) & 0x0F) + 0.1140 * (byte0 & 0x0F));
-                    grayscale = grayscale * 255 / 15;
-
-                    color = Color.FromArgb(grayscale, grayscale, grayscale);
-
-                    return color;
-                default:
-                    return Color.Black;
-            }
-        }
-
         private BitmapImage GetBmpImageFromBmp(Bitmap bitMap)
         {
             using (MemoryStream memoryStream = new MemoryStream())
             {
-                switch (currentMapMode)
-                {
-                    case MapMode.HeightMap:
-                        bitMap.Save(memoryStream, ImageFormat.Tiff);
-                        break;
-                    case MapMode.TextureDistributionMap:
-                        bitMap.Save(memoryStream, ImageFormat.Png);
-                        break;
-                }
+                bitMap.Save(memoryStream, ImageFormat.Tiff);
 
                 memoryStream.Position = 0;
 
@@ -706,83 +507,161 @@ namespace Overlord_Map_Visualizer
             switch (currentMapMode)
             {
                 case MapMode.HeightMap:
-                    int totalNumberOfBytes = MapWidth * MapHeight * 6;
-                    byte[] data = new byte[totalNumberOfBytes];
-                    int xOffset = 6;
-                    int yOffset = 0;
-                    int numberOfBytesInRow = MapWidth * 6; //One point is described by six bytes
-                    int totalOffset;
-                    double dpi = 50;
-                    PixelFormat format = PixelFormats.Rgb48;
-                    int stride = ((MapWidth * format.BitsPerPixel) + 7) / 8;
-                    int tempNumber;
-
-                    for (int y = 0; y < MapHeight; y++)
-                    {
-                        if (y != 0)
-                        {
-                            yOffset = y * numberOfBytesInRow;
-                        }
-                        for (int x = 0; x < MapWidth; x++)
-                        {
-                            totalOffset = x * xOffset + yOffset;
-                            tempNumber = ((HeightMapDigitsThreeAndFour[x, y] << 8) & 0x0FFF) + HeightMapDigitsOneAndTwo[x, y];
-                            tempNumber = tempNumber * 65535 / 4095;
-
-                            data[totalOffset] = (byte)(tempNumber & 0x00FF);
-                            data[totalOffset + 1] = (byte)((tempNumber & 0xFF00) >> 8);
-                            data[totalOffset + 2] = (byte)(tempNumber & 0x00FF);
-                            data[totalOffset + 3] = (byte)((tempNumber & 0xFF00) >> 8);
-                            data[totalOffset + 4] = (byte)(tempNumber & 0x00FF);
-                            data[totalOffset + 5] = (byte)((tempNumber & 0xFF00) >> 8);
-                        }
-                    }
-
-                    WriteableBitmap wb = new WriteableBitmap(MapWidth, MapHeight, dpi, dpi, format, null);
-                    wb.WritePixels(new Int32Rect(0, 0, MapWidth, MapHeight), data, stride, 0);
-
-                    // Encode as a TIFF
-                    TiffBitmapEncoder enc = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
-                    enc.Frames.Add(BitmapFrame.Create(wb));
-
-                    // Convert to a bitmap
-                    using (MemoryStream ms = new MemoryStream())
-                    {
-                        enc.Save(ms);
-
-                        using (Bitmap map = new Bitmap(ms))
-                        {
-                            //Set Origin Bottom Left
-                            map.RotateFlip(RotateFlipType.RotateNoneFlipY);
-
-                            Map.Source = GetBmpImageFromBmp(map);
-                        }
-                    }
+                    DrawTiffImage(MapWidth,MapHeight,CreateTiffData(MapWidth,MapHeight, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour), DrawingType.Map);
                     break;
                 case MapMode.TextureDistributionMap:
-                    using (Bitmap map = new Bitmap(MapWidth, MapHeight))
-                    using (Graphics MapGraphics = Graphics.FromImage(map))
-                    {
-                        for (int x = 0; x < MapWidth; x++)
-                        {
-                            for (int y = 0; y < MapHeight; y++)
-                            {
-                                Brush mapBrush = new SolidBrush(GetColor(TextureDistributionDigitsOneAndTwo[x, y], TextureDistributionDigitsThreeAndFour[x, y], ColorFormat.BGR565));
-
-                                MapGraphics.FillRectangle(mapBrush, x, y, 1, 1);
-                            }
-                        }
-
-                        //Set Origin Bottom Left
-                        map.RotateFlip(RotateFlipType.RotateNoneFlipY);
-
-                        Map.Source = GetBmpImageFromBmp(map);
-                    }
+                    DrawTiffImage(MapWidth, MapHeight, CreateTiffData(MapWidth, MapHeight, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour), DrawingType.Map);
                     break;
                 default:
                     break;
             }
 
+        }
+
+        private byte[] CreateTiffData(int width, int height, byte[,] lowerByteData, byte[,] higherByteData)
+        {
+            int xOffset = 6;
+            int yOffset = 0;
+            int numberOfBytesInRow = width * 6; //One point is described by six bytes
+            int totalOffset;
+            byte[] data = new byte[width * height * 6];
+
+            for (int y = 0; y < height; y++)
+            {
+                if (y != 0)
+                {
+                    yOffset = y * numberOfBytesInRow;
+                }
+                for (int x = 0; x < width; x++)
+                {
+                    totalOffset = x * xOffset + yOffset;
+                    switch (currentMapMode)
+                    {
+                        case MapMode.HeightMap:
+                            int grayScale = ((higherByteData[x, y] << 8) & 0x0FFF) + lowerByteData[x, y];
+                            grayScale = grayScale * 65535 / 4095;
+
+                            data[totalOffset] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 1] = (byte)((grayScale & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 3] = (byte)((grayScale & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 5] = (byte)((grayScale & 0xFF00) >> 8);
+                            break;
+                        case MapMode.TextureDistributionMap:
+                            int blue = lowerByteData[x,y] & 0x1F;
+                            int green = ((higherByteData[x, y] << 3) & 0x38) | ((lowerByteData[x, y] >> 5) & 0x07);
+                            int red = (higherByteData[x, y] >> 3) & 0x1F;
+
+                            blue = blue * 65535 / 31;
+                            green = green * 65535 / 63;
+                            red = red * 65535 / 31;
+
+                            data[totalOffset] = (byte)(blue & 0x00FF);
+                            data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(green & 0x00FF);
+                            data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(red & 0x00FF);
+                            data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            return data;
+        }
+
+        private byte[] CreateTiffData(int width, int height, byte[] singleColorData)
+        {
+            int xOffset = 6;
+            int yOffset = 0;
+            int numberOfBytesInRow = width * 6; //One point is described by six bytes
+            int totalOffset;
+            byte[] data = new byte[width * height * 6];
+
+            for (int y = 0; y < height; y++)
+            {
+                if (y != 0)
+                {
+                    yOffset = y * numberOfBytesInRow;
+                }
+                for (int x = 0; x < width; x++)
+                {
+                    totalOffset = x * xOffset + yOffset;
+                    switch (currentMapMode)
+                    {
+                        case MapMode.HeightMap:
+                            int grayScale = ((singleColorData[1] << 8) & 0x0FFF) + singleColorData[0];
+                            grayScale = grayScale * 65535 / 4095;
+
+                            data[totalOffset] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 1] = (byte)((grayScale & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 3] = (byte)((grayScale & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 5] = (byte)((grayScale & 0xFF00) >> 8);
+                            break;
+                        case MapMode.TextureDistributionMap:
+                            int blue = singleColorData[0] & 0x1F;
+                            int green = ((singleColorData[1] << 3) & 0x38) | ((singleColorData[0] >> 5) & 0x07);
+                            int red = (singleColorData[1] >> 3) & 0x1F;
+
+                            blue = blue * 65535 / 31;
+                            green = green * 65535 / 63;
+                            red = red * 65535 / 31;
+
+                            data[totalOffset] = (byte)(blue & 0x00FF);
+                            data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(green & 0x00FF);
+                            data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(red & 0x00FF);
+                            data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                            break;
+                        default:
+                            break;
+                    }
+
+                }
+            }
+            return data;
+        }
+
+        private void DrawTiffImage(int width, int height, byte[] data, DrawingType type)
+        {
+            double dpi = 50;
+            PixelFormat format = PixelFormats.Rgb48;
+            int stride = ((width * format.BitsPerPixel) + 7) / 8;
+
+            WriteableBitmap wb = new WriteableBitmap(width, height, dpi, dpi, format, null);
+            wb.WritePixels(new Int32Rect(0, 0, width, height), data, stride, 0);
+
+            // Encode as a TIFF
+            TiffBitmapEncoder enc = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
+            enc.Frames.Add(BitmapFrame.Create(wb));
+
+            // Convert to a bitmap
+            using (MemoryStream ms = new MemoryStream())
+            {
+                enc.Save(ms);
+
+                using (Bitmap map = new Bitmap(ms))
+                {
+                    //Set Origin Bottom Left
+                    map.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+                    switch (type)
+                    {
+                        case DrawingType.Map:
+                            Map.Source = GetBmpImageFromBmp(map);
+                            break;
+                        case DrawingType.SelectedColor:
+                            SelectedColorImage.Source = GetBmpImageFromBmp(map);
+                            break;
+                    }
+                    
+                }
+            }
         }
 
         private void ToolClick(object sender, MouseButtonEventArgs e)
@@ -924,6 +803,7 @@ namespace Overlord_Map_Visualizer
 
         private void MapModeChanged(object sender, SelectionChangedEventArgs e)
         {
+            byte[] singleColorData;
             switch (MapModeDropDown.SelectedIndex)
             {
                 case 0:
@@ -931,7 +811,8 @@ namespace Overlord_Map_Visualizer
                     ImportMapButton.Content = "Import Heightmap";
                     ExportMapButton.Content = "Export Heightmap";
                     Render();
-                    UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
+                    singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
+                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
                     SelectedColorHeight.Visibility = Visibility.Visible;
                     break;
                 case 1:
@@ -939,7 +820,8 @@ namespace Overlord_Map_Visualizer
                     ImportMapButton.Content = "Import Texture Distribution";
                     ExportMapButton.Content = "Export Texture Distribution";
                     Render();
-                    UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
+                    singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
+                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
                     SelectedColorHeight.Visibility = Visibility.Hidden;
                     break;
                 default:
@@ -971,61 +853,17 @@ namespace Overlord_Map_Visualizer
 
             if (SelectedColorCode.Text.Length == 4)
             {
-                UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
+                byte[] singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
+                DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
+
+                int digitOne = Convert.ToInt32("" + SelectedColorCode.Text[3], 16);
+                int digitTwo = Convert.ToInt32("" + SelectedColorCode.Text[2], 16);
+                int digitThree = Convert.ToInt32("" + SelectedColorCode.Text[1], 16);
+                SelectedColorHeight.Content = "This color corresponds to a height of\r\n" + (((digitThree * Math.Pow(16, 1)) + (digitTwo * Math.Pow(16, 0)) + (digitOne * Math.Pow(16, -1))) / 2);
                 if (currentCursorMode == CursorMode.Square)
                 {
                     UpdateCursor();
                 }
-            }
-        }
-
-        private void UpdateSelectedColor(Color color)
-        {
-            SelectedColor = color;
-            SolidBrush selectedColorBrush = new SolidBrush(color);
-            Bitmap selectedColorBitmap = new Bitmap((int)SelectedColorImage.Width, (int)SelectedColorImage.Height);
-            using (Graphics MapGraphics = Graphics.FromImage(selectedColorBitmap))
-            {
-                MapGraphics.FillRectangle(selectedColorBrush, 0, 0, (int)SelectedColorImage.Width, (int)SelectedColorImage.Height);
-                SelectedColorImage.Source = GetBmpImageFromBmp(selectedColorBitmap);
-            }
-        }
-
-        private Color GetColorFromHexString(string fullHexStumber)
-        {
-            string digitOneAndTwoString = "" + fullHexStumber[2] + fullHexStumber[3];
-            string digitThreeAndFourString = "" + fullHexStumber[0] + fullHexStumber[1];
-
-            int digitOne = Convert.ToInt32("" + fullHexStumber[3], 16);
-            int digitTwo = Convert.ToInt32("" + fullHexStumber[2], 16);
-            int digitThree = Convert.ToInt32("" + fullHexStumber[1], 16);
-
-            byte digitOneAndTwoNumber = Convert.ToByte(digitOneAndTwoString, 16);
-            byte digitThreeAndFourNumber = Convert.ToByte(digitThreeAndFourString, 16);
-
-            SelectedColorHeight.Content = "This color corresponds to a height of\r\n" + (((digitThree * Math.Pow(16, 1)) + (digitTwo * Math.Pow(16, 0)) + (digitOne * Math.Pow(16, -1))) / 2);
-
-            switch (currentMapMode)
-            {
-                case MapMode.HeightMap:
-                    int grayscale = (int)Math.Ceiling(0.2989 * (digitThreeAndFourNumber & 0x0F) + 0.5870 * ((digitOneAndTwoNumber >> 4) & 0x0F) + 0.1140 * (digitOneAndTwoNumber & 0x0F));
-                    grayscale = grayscale * 255 / 15;
-
-                    return Color.FromArgb(grayscale, grayscale, grayscale);
-                case MapMode.TextureDistributionMap:
-                    int blue, green, red;
-
-                    red = digitOneAndTwoNumber & 0x1F;
-                    green = ((digitThreeAndFourNumber << 3) & 0x38) | ((digitOneAndTwoNumber >> 5) & 0x07);
-                    blue = (digitThreeAndFourNumber >> 3) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 63;
-                    red = red * 255 / 31;
-
-                    return Color.FromArgb(red, green, blue);
-                default:
-                    return Color.Black;
             }
         }
 
@@ -1169,7 +1007,7 @@ namespace Overlord_Map_Visualizer
                     Mouse.OverrideCursor = CreateCursor(28, 28, fillBrush, null, null);
                     break;
                 case CursorMode.Square:
-                    fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, SelectedColor.R, SelectedColor.G, SelectedColor.B));
+                    fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, 0xFF, 0xFF, 0xFF));
                     Mouse.OverrideCursor = CreateCursor(cursorDiameter, cursorDiameter, fillBrush, MediaBrushes.Black, null);
                     break;
                 case CursorMode.Rotate:
