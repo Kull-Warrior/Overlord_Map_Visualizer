@@ -905,13 +905,13 @@ namespace Overlord_Map_Visualizer
                     case CursorMode.Pipette:
                         centrePoint = new System.Windows.Point(0, 0);
                         borderWidth = 0;
-                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Pipette_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
+                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/resources/cursor/Pipette_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
                         drawingContext.Close();
                         break;
                     case CursorMode.Rotate:
                         centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
                         borderWidth = 0;
-                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Rotate_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
+                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/resources/cursor/Rotate_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
                         drawingContext.Close();
                         break;
                     default:
