@@ -16,6 +16,7 @@
         <ComboBox x:Name="MapModeDropDown" HorizontalAlignment="Left" Margin="292,19,0,0" VerticalAlignment="Top" Width="512" Height="23" SelectionChanged="MapModeChanged" IsEnabled="False">
             <ComboBoxItem Content="Height Map"/>
             <ComboBoxItem Content="Texture Distribution Map"/>
+            <ComboBoxItem Content="Official Map Style"/>
         </ComboBox>
         <TextBox x:Name="SelectedColorCode" HorizontalAlignment="Left" Height="23" Margin="10,63,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="SelectedColorCode_TextChanged" MaxLines="1" MaxLength="4" IsEnabled="False" TextAlignment="Center" CharacterCasing="Upper" Visibility="Hidden" PreviewKeyDown="SelectedColorCode_PreviewKeyDown"/>
         <Image x:Name="SelectedColorImage" HorizontalAlignment="Left" Height="23" Margin="135,63,0,0" VerticalAlignment="Top" Width="120" Visibility="Hidden"/>

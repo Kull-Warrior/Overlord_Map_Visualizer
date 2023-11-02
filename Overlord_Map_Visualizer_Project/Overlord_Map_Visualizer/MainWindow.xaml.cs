@@ -512,10 +512,65 @@ namespace Overlord_Map_Visualizer
                 case MapMode.TextureDistributionMap:
                     DrawTiffImage(MapWidth, MapHeight, CreateTiffData(MapWidth, MapHeight, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour), DrawingType.Map);
                     break;
+                case MapMode.Full:
+                    DrawTiffImage(MapWidth, MapHeight, CreateTiffData(MapWidth, MapHeight), DrawingType.Map);
+                    break;
                 default:
                     break;
             }
 
+        }
+
+        private byte[] CreateTiffData(int width, int height)
+        {
+            int red;
+            int blue;
+            int green;
+            int xOffset = 6;
+            int yOffset = 0;
+            int numberOfBytesInRow = width * 6; //One point is described by six bytes
+            int totalOffset;
+            byte[] data = new byte[width * height * 6];
+            
+            for (int y = 0; y < height; y++)
+            {
+                if (y != 0)
+                {
+                    yOffset = y * numberOfBytesInRow;
+                }
+                for (int x = 0; x < width; x++)
+                {
+                    totalOffset = x * xOffset + yOffset;
+                    double highestDigit = Math.Pow(16, 1) * (HeightMapDigitsThreeAndFour[x, y] & 0x0F);
+                    double middleDigit = Math.Pow(16, 0) * ((HeightMapDigitsOneAndTwo[x, y] & 0xF0) >> 4);
+                    double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
+                    double heightValue = (highestDigit + middleDigit + smallestDigit) / 2;
+
+                    if (heightValue >= 15.625)
+                    {
+                        blue = 0xBA;
+                        green = 0xA9;
+                        red = 0x7C;
+                    }
+                    else
+                    {
+                        red = 0x38;
+                        green = 0x6C;
+                        blue = 0x78;
+                    }
+                    blue = blue * 65535 / 255;
+                    green = green * 65535 / 255;
+                    red = red * 65535 / 255;
+
+                    data[totalOffset] = (byte)(blue & 0x00FF);
+                    data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                    data[totalOffset + 2] = (byte)(green & 0x00FF);
+                    data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                    data[totalOffset + 4] = (byte)(red & 0x00FF);
+                    data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                }
+            }
+            return data;
         }
 
         private byte[] CreateTiffData(int width, int height, byte[,] lowerByteData, byte[,] higherByteData)
@@ -813,7 +868,19 @@ namespace Overlord_Map_Visualizer
                     Render();
                     singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
+                    
+                    ImportMapButton.Visibility = Visibility.Visible;
+                    ExportMapButton.Visibility = Visibility.Visible;
+                    SelectedColorCode.Visibility = Visibility.Visible;
+                    SelectedColorImage.Visibility = Visibility.Visible;
+                    SelectedColorBorder.Visibility = Visibility.Visible;
                     SelectedColorHeight.Visibility = Visibility.Visible;
+                    cursorModeSelect.Visibility = Visibility.Visible;
+                    cursorModePipette.Visibility = Visibility.Visible;
+                    CursorSizeSlider.Visibility = Visibility.Visible;
+                    cursorDiameterLabel.Visibility = Visibility.Visible;
+                    cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeRotate.Visibility = Visibility.Visible;
                     break;
                 case 1:
                     currentMapMode = MapMode.TextureDistributionMap;
@@ -822,7 +889,35 @@ namespace Overlord_Map_Visualizer
                     Render();
                     singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
+                    ImportMapButton.Visibility = Visibility.Visible;
+                    ExportMapButton.Visibility = Visibility.Visible;
+                    SelectedColorCode.Visibility = Visibility.Visible;
+                    SelectedColorImage.Visibility = Visibility.Visible;
+                    SelectedColorBorder.Visibility = Visibility.Visible;
                     SelectedColorHeight.Visibility = Visibility.Hidden;
+                    cursorModeSelect.Visibility = Visibility.Visible;
+                    cursorModePipette.Visibility = Visibility.Visible;
+                    CursorSizeSlider.Visibility = Visibility.Visible;
+                    cursorDiameterLabel.Visibility = Visibility.Visible;
+                    cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeRotate.Visibility = Visibility.Visible;
+                    break;
+                case 2:
+                    currentMapMode = MapMode.Full;
+                    Render();
+                    ImportMapButton.Visibility = Visibility.Hidden;
+                    ExportMapButton.Visibility = Visibility.Hidden;
+                    SelectedColorCode.Visibility = Visibility.Hidden;
+                    SelectedColorImage.Visibility = Visibility.Hidden;
+                    SelectedColorBorder.Visibility = Visibility.Hidden;
+                    SelectedColorHeight.Visibility = Visibility.Hidden;
+                    cursorModeSelect.Visibility = Visibility.Hidden;
+                    cursorModePipette.Visibility = Visibility.Hidden;
+                    CursorSizeSlider.Visibility = Visibility.Hidden;
+                    cursorDiameterLabel.Visibility = Visibility.Hidden;
+                    cursorModeSquare.Visibility = Visibility.Hidden;
+                    cursorModeRotate.Visibility = Visibility.Hidden;
+                    
                     break;
                 default:
                     break;
