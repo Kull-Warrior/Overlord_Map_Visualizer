@@ -19,28 +19,6 @@ namespace Overlord_Map_Visualizer
 {
     public partial class MainWindow : Window
     {
-        private enum ColorFormat
-        {
-            RGB555,
-            RGB555Flipped,
-            RGB565,
-            RGB565Flipped,
-            BGR555,
-            BGR555Flipped,
-            BGR565,
-            BGR565Flipped,
-            RGBA4444,
-            RGBA4444Flipped,
-            ARGB4444,
-            ARGB4444Flipped,
-            Gray16,
-            RGB888,
-            RGB888Flipped,
-            BGR888,
-            BGR888Flipped,
-            Gray12
-        }
-
         private enum MapMode
         {
             HeightMap,
@@ -518,7 +496,6 @@ namespace Overlord_Map_Visualizer
                 default:
                     break;
             }
-
         }
 
         private byte[] CreateTiffData(int width, int height)
@@ -531,7 +508,7 @@ namespace Overlord_Map_Visualizer
             int numberOfBytesInRow = width * 6; //One point is described by six bytes
             int totalOffset;
             byte[] data = new byte[width * height * 6];
-            
+
             for (int y = 0; y < height; y++)
             {
                 if (y != 0)
@@ -676,7 +653,6 @@ namespace Overlord_Map_Visualizer
                         default:
                             break;
                     }
-
                 }
             }
             return data;
@@ -714,7 +690,6 @@ namespace Overlord_Map_Visualizer
                             SelectedColorImage.Source = GetBmpImageFromBmp(map);
                             break;
                     }
-                    
                 }
             }
         }
@@ -868,7 +843,7 @@ namespace Overlord_Map_Visualizer
                     Render();
                     singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
-                    
+
                     ImportMapButton.Visibility = Visibility.Visible;
                     ExportMapButton.Visibility = Visibility.Visible;
                     SelectedColorCode.Visibility = Visibility.Visible;
