@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -162,10 +163,15 @@ namespace Overlord_Map_Visualizer
                     fileExtension = "omp";
                     filter = "omp files (*.omp)|*.omp";
                     break;
-                case string a when a.Equals("ImportMapButton"):
+                case string a when a.Equals("ImportMapData"):
                     dialogTitle = "Browse overlord map data";
                     fileExtension = "mapdata";
                     filter = "mapdata files (*.mapdata)|*.mapdata";
+                    break;
+                case string a when a.Equals("ImportMapImage"):
+                    dialogTitle = "Browse overlord map image";
+                    fileExtension = "Tiff";
+                    filter = "mapdata files (*.tiff)|*.tiff";
                     break;
                 default:
                     dialogTitle = "";
@@ -185,15 +191,48 @@ namespace Overlord_Map_Visualizer
 
             if (openFileDialog.ShowDialog() == true)
             {
-                if(fileExtension == "omp")
+                switch (fileExtension)
                 {
-                    FilePath.Text = openFileDialog.FileName;
-                    OMPFilePathString = openFileDialog.FileName;
-                    GetMapData(GetMapDataOffset(), openFileDialog.FileName, 4, MapMode.Full);
-                }
-                else
-                {
-                    GetMapData(0, openFileDialog.FileName, 2, currentMapMode);
+                    case "omp":
+                        FilePath.Text = openFileDialog.FileName;
+                        OMPFilePathString = openFileDialog.FileName;
+                        GetMapData(GetMapDataOffset(), openFileDialog.FileName, 4, MapMode.Full);
+                        break;
+                    case "tiff":
+                        Bitmap img = new Bitmap(openFileDialog.FileName);
+
+                        BitmapData sourceData = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format48bppRgb);
+                        Byte[] data = new Byte[sourceData.Stride * img.Height];
+                        Marshal.Copy(sourceData.Scan0, data, 0, data.Length);
+                        img.UnlockBits(sourceData);
+
+                        for (int x = 0; x < MapWidth; x++)
+                        {
+                            for (int y = 0; y < MapHeight; y++)
+                            {
+                                switch (currentMapMode)
+                                {
+                                    case MapMode.HeightMap:
+                                        HeightMapDigitsOneAndTwo[x, y] = img.
+                                        HeightMapDigitsThreeAndFour[x, y] =
+                                        break;
+                                    case MapMode.TextureDistributionMap:
+                                        TextureDistributionDigitsOneAndTwo[x, y] =
+                                        TextureDistributionDigitsThreeAndFour[x, y] =
+                                        break;
+                                    case MapMode.Full:
+                                        HeightMapDigitsOneAndTwo[x, y] =
+                                        HeightMapDigitsThreeAndFour[x, y] = ;
+                                        TextureDistributionDigitsOneAndTwo[x, y] =
+                                        TextureDistributionDigitsThreeAndFour[x, y] =
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        GetMapData(0, openFileDialog.FileName, 2, currentMapMode);
+                        break;
                 }
 
                 Render();
@@ -202,8 +241,10 @@ namespace Overlord_Map_Visualizer
                 {
                     MapModeDropDown.SelectedIndex = 0;
                     MapModeDropDown.IsEnabled = true;
-                    ImportMapButton.IsEnabled = true;
-                    ExportMapButton.IsEnabled = true;
+                    ImportMapData.IsEnabled = true;
+                    ImportMapImage.IsEnabled = true;
+                    ExportMapData.IsEnabled = true;
+                    ExportMapImage.IsEnabled = true;
                     ExportToOMPFileButton.IsEnabled = true;
                     SelectedColorCode.IsEnabled = true;
                     SelectedColorCode.Visibility = Visibility.Visible;
@@ -268,27 +309,51 @@ namespace Overlord_Map_Visualizer
         private void ExportToFile(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
-            if(button.Name == "ExportToOMPFileButton")
-            {
-                WriteMapData(GetMapDataOffset(), OMPFilePathString, 4, MapMode.Full);
-            }
-            else if (button.Name == "ExportMapButton")
-            {
-                SaveFileDialog saveFileDialog;
+            SaveFileDialog saveFileDialog;
 
-                saveFileDialog = new SaveFileDialog
-                {
-                    InitialDirectory = @"C:\",
-                    RestoreDirectory = true,
-                    Title = "Select Directory and file name for the overlord map data",
-                    DefaultExt = "mapdata",
-                    Filter = "mapdata files (*.mapdata)|*.mapdata"
-                };
+            switch (button.Name)
+            {
+                case "ExportToOMPFileButton":
+                    WriteMapData(GetMapDataOffset(), OMPFilePathString, 4, MapMode.Full);
+                    break;
+                case "ExportMapData":
+                    saveFileDialog = new SaveFileDialog
+                    {
+                        InitialDirectory = @"C:\",
+                        RestoreDirectory = true,
+                        Title = "Select Directory and file name for the overlord map data",
+                        DefaultExt = "mapdata",
+                        Filter = "mapdata files (*.mapdata)|*.mapdata"
+                    };
 
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    WriteMapData(0, saveFileDialog.FileName, 2, currentMapMode);
-                }
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        WriteMapData(0, saveFileDialog.FileName, 2, currentMapMode);
+                    }
+                    break;
+                case "ExportMapImage":
+                    saveFileDialog = new SaveFileDialog
+                    {
+                        InitialDirectory = @"C:\",
+                        RestoreDirectory = true,
+                        Title = "Select Directory and file name for the overlord map image",
+                        DefaultExt = "tiff",
+                        Filter = "tiff image files (*.tiff)|*.tiff"
+                    };
+
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        TiffBitmapEncoder tiffBitmapEncoder = new TiffBitmapEncoder();
+                        tiffBitmapEncoder.Compression = TiffCompressOption.None;
+                        tiffBitmapEncoder.Frames.Add(BitmapFrame.Create((BitmapSource)Map.Source));
+                        using (FileStream fileStream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                        {
+                            tiffBitmapEncoder.Save(fileStream);
+                            fileStream.Flush();
+                            fileStream.Close();
+                        }
+                    }
+                    break;
             }
         }
 
@@ -838,14 +903,18 @@ namespace Overlord_Map_Visualizer
             {
                 case 0:
                     currentMapMode = MapMode.HeightMap;
-                    ImportMapButton.Content = "Import Heightmap";
-                    ExportMapButton.Content = "Export Heightmap";
+                    ImportMapData.Content = "Import Heightmap as Data";
+                    ImportMapImage.Content = "Import Heightmap as Image";
+                    ExportMapData.Content = "Export Heightmap as Data";
+                    ExportMapImage.Content = "Export Heightmap as Image";
                     Render();
                     singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
 
-                    ImportMapButton.Visibility = Visibility.Visible;
-                    ExportMapButton.Visibility = Visibility.Visible;
+                    ImportMapData.Visibility = Visibility.Visible;
+                    ImportMapImage.Visibility = Visibility.Visible;
+                    ExportMapData.Visibility = Visibility.Visible;
+                    ExportMapImage.Visibility = Visibility.Visible;
                     SelectedColorCode.Visibility = Visibility.Visible;
                     SelectedColorImage.Visibility = Visibility.Visible;
                     SelectedColorBorder.Visibility = Visibility.Visible;
@@ -859,13 +928,17 @@ namespace Overlord_Map_Visualizer
                     break;
                 case 1:
                     currentMapMode = MapMode.TextureDistributionMap;
-                    ImportMapButton.Content = "Import Texture Distribution";
-                    ExportMapButton.Content = "Export Texture Distribution";
+                    ImportMapData.Content = "Import Texture Distribution as Data";
+                    ImportMapImage.Content = "Import Texture Distribution as Image";
+                    ExportMapData.Content = "Export Texture Distribution as Data";
+                    ExportMapImage.Content = "Export Texture Distribution as Image";
                     Render();
                     singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
-                    ImportMapButton.Visibility = Visibility.Visible;
-                    ExportMapButton.Visibility = Visibility.Visible;
+                    ImportMapData.Visibility = Visibility.Visible;
+                    ImportMapImage.Visibility = Visibility.Visible;
+                    ExportMapData.Visibility = Visibility.Visible;
+                    ExportMapImage.Visibility = Visibility.Visible;
                     SelectedColorCode.Visibility = Visibility.Visible;
                     SelectedColorImage.Visibility = Visibility.Visible;
                     SelectedColorBorder.Visibility = Visibility.Visible;
@@ -880,8 +953,10 @@ namespace Overlord_Map_Visualizer
                 case 2:
                     currentMapMode = MapMode.Full;
                     Render();
-                    ImportMapButton.Visibility = Visibility.Hidden;
-                    ExportMapButton.Visibility = Visibility.Hidden;
+                    ImportMapData.Visibility = Visibility.Hidden;
+                    ImportMapImage.Visibility = Visibility.Hidden;
+                    ExportMapData.Visibility = Visibility.Hidden;
+                    ExportMapImage.Visibility = Visibility.Hidden;
                     SelectedColorCode.Visibility = Visibility.Hidden;
                     SelectedColorImage.Visibility = Visibility.Hidden;
                     SelectedColorBorder.Visibility = Visibility.Hidden;
