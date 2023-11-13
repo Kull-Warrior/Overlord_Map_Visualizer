@@ -81,42 +81,42 @@ namespace Overlord_Map_Visualizer
             using (Pen coordinatePen = new Pen(new SolidBrush(Color.Black)))
             {
                 //Y Axis Arrow
-                mapGraphics.DrawLine(coordinatePen, 13, 550, 18, 555);
-                mapGraphics.DrawLine(coordinatePen, 18, 36, 18, 555);
-                mapGraphics.DrawLine(coordinatePen, 23, 550, 18, 555);
+                mapGraphics.DrawLine(coordinatePen, 1, 8, 9, 0);
+                mapGraphics.DrawLine(coordinatePen, 9, 531, 9, 0);
+                mapGraphics.DrawLine(coordinatePen, 17, 8, 9, 0);
 
                 //X Axis Arrow
-                mapGraphics.DrawLine(coordinatePen, 531, 41, 536, 36);
-                mapGraphics.DrawLine(coordinatePen, 18, 36, 536, 36);
-                mapGraphics.DrawLine(coordinatePen, 531, 31, 536, 36);
+                mapGraphics.DrawLine(coordinatePen, 523,514, 531,522);
+                mapGraphics.DrawLine(coordinatePen, 0, 522, 531, 522);
+                mapGraphics.DrawLine(coordinatePen, 523, 530, 531, 522);
 
                 //Y Axis Marker
-                for (int y = 36; y < 568; y += 50)
+                for (int y = 522; y >= 21; y -= 50)
                 {
-                    mapGraphics.DrawLine(coordinatePen, 9, y, 18, y);
+                    mapGraphics.DrawLine(coordinatePen, 0, y, 8, y);
                 }
 
                 //X Axis Marker
-                for (int x = 18; x < 550; x += 50)
+                for (int x = 9; x <= 509; x += 50)
                 {
-                    mapGraphics.DrawLine(coordinatePen, x, 27, x, 36);
+                    mapGraphics.DrawLine(coordinatePen, x, 522, x, 531);
                 }
 
-                CreateNewLabel("CoordMarkerOrigin", "0", 274, 577);
+                CreateNewLabel("CoordMarkerOrigin", "  0", 257 + 560, 579);
 
-                CreateNewLabel("CoordMarkerX", "X", 811, 562);
+                CreateNewLabel("CoordMarkerX", "X", 811 - 540, 562);
 
-                for (int i = 1; i <= 10; i++)
+                for (int i = 10; i >= 1; i--)
                 {
                     string content = "" + i * 50;
                     if (i == 1)
                     {
                         content = " " + content;
                     }
-                    CreateNewLabel("CoordMarkerX" + i, content, 278 + (i * 50), 577);
+                    CreateNewLabel("CoordMarkerX" + i, content, 278 + 550 - (i * 50) - 37, 579);
                 }
 
-                CreateNewLabel("CoordMarkerY", "Y", 284, 35);
+                CreateNewLabel("CoordMarkerY", "Y", 284 + 513, 35);
 
                 for (int i = 1; i <= 10; i++)
                 {
@@ -125,11 +125,11 @@ namespace Overlord_Map_Visualizer
                     {
                         content = "  " + content;
                     }
-                    CreateNewLabel("CoordMarkerY" + i, content, 257, 561 - (i * 50));
+                    CreateNewLabel("CoordMarkerY" + i, content, 257 + 555, 561 - (i * 50));
                 }
 
-                //Set Origin Bottom Left
-                coordinateSystem.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                //Set Origin Bottom Right
+                coordinateSystem.RotateFlip(RotateFlipType.RotateNoneFlipX);
 
                 CoordinateSystem.Source = GetBmpImageFromBmp(coordinateSystem);
             }
@@ -523,7 +523,7 @@ namespace Overlord_Map_Visualizer
                     double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
                     double heightValue = (highestDigit + middleDigit + smallestDigit) / 2;
 
-                    if (heightValue >= 15.625)
+                    if (heightValue >= 15)
                     {
                         blue = 0xBA;
                         green = 0xA9;
@@ -678,8 +678,9 @@ namespace Overlord_Map_Visualizer
 
                 using (Bitmap map = new Bitmap(ms))
                 {
-                    //Set Origin Bottom Left
+                    //Set Origin Bottom Right
                     map.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                    map.RotateFlip(RotateFlipType.RotateNoneFlipX);
 
                     switch (type)
                     {
@@ -696,7 +697,7 @@ namespace Overlord_Map_Visualizer
 
         private void ToolClick(object sender, MouseButtonEventArgs e)
         {
-            int xCoordinate = (int)e.GetPosition(Map).X;
+            int xCoordinate = 512 - (int)e.GetPosition(Map).X;
             int yCoordinate = 512 - (int)e.GetPosition(Map).Y;
 
             switch (currentCursorMode)
