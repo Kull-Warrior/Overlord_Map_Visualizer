@@ -199,18 +199,20 @@ namespace Overlord_Map_Visualizer
                         GetMapData(GetMapDataOffset(), openFileDialog.FileName, 4, MapMode.Full);
                         break;
                     case "tiff":
-                        Bitmap img = new Bitmap(openFileDialog.FileName);
-                        int xOffset = 6;
+                        int OffsetMap = 8;
+                        int bytesPerPoint = 6;
+                        int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
+                        byte[] data = new byte[totalNumberOfBytes];
+                        int xOffset = bytesPerPoint;
                         int yOffset = 0;
-                        int numberOfBytesInRow = MapWidth * 6;
+                        int numberOfBytesInRow = MapWidth * bytesPerPoint;
                         int totalOffset;
-                        int lowerByte;
-                        int higherByte;
 
-                        BitmapData sourceData = img.LockBits(new Rectangle(0, 0, img.Width, img.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format48bppRgb);
-                        byte[] data = new byte[sourceData.Stride * img.Height];
-                        Marshal.Copy(sourceData.Scan0, data, 0, data.Length);
-                        img.UnlockBits(sourceData);
+                        using (BinaryReader reader = new BinaryReader(new FileStream(openFileDialog.FileName, FileMode.Open)))
+                        {
+                            reader.BaseStream.Seek(OffsetMap, SeekOrigin.Begin);
+                            reader.Read(data, 0, totalNumberOfBytes);
+                        }
 
                         for (int y = 0; y < MapHeight; y++)
                         {
@@ -224,22 +226,24 @@ namespace Overlord_Map_Visualizer
 
                                 switch (currentMapMode)
                                 {
-                                    case MapMode.HeightMap:
-                                        int blue = blue / 65535 * 31;
-                                        int green = green / 65535 * 63;
-                                        int red = red / 65535 * 31;
-                                        
-                                        blue = lowerByteData[x, y] & 0x1F;
-                                        green = ((higherByteData[x, y] << 3) & 0x38) | ((lowerByteData[x, y] >> 5) & 0x07);
-                                        red = (higherByteData[x, y] >> 3) & 0x1F;
+                                    case MapMode.HeightMap: 
+                                        int grayscale = (data[totalOffset + 1] << 8) + data[totalOffset];
+                                        grayscale = grayscale / 16;
 
-
-                                        HeightMapDigitsOneAndTwo[x, y] = data[totalOffset];
-                                        HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
+                                        HeightMapDigitsOneAndTwo[x, y] = (byte)(grayscale & 0x00FF);
+                                        HeightMapDigitsThreeAndFour[x, y] = (byte)((grayscale & 0x0F00) >> 8);
                                         break;
                                     case MapMode.TextureDistributionMap:
-                                        TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset];
-                                        TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 1];
+                                        int red = (data[totalOffset + 1] << 8) + data[totalOffset];
+                                        int green = (data[totalOffset + 3] << 8) + data[totalOffset + 2];
+                                        int blue = (data[totalOffset + 5] << 8) + data[totalOffset + 4];
+
+                                        red = red / 2114;
+                                        green = green / 1040;
+                                        blue = blue / 2114;
+
+                                        TextureDistributionDigitsOneAndTwo[x, y] = (byte)(((green << 5) & 0x00E0) + blue);
+                                        TextureDistributionDigitsThreeAndFour[x, y] = (byte)((red << 3) + (green >> 3));
                                         break;
                                 }
                             }
