@@ -3,7 +3,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -41,7 +40,7 @@ namespace Overlord_Map_Visualizer
             SelectedColor
         }
 
-        private MapMode currentMapMode;
+        private MapMode CurrentMapMode;
         private readonly int MapWidth = 512;
         private readonly int MapHeight = 512;
         private string OMPFilePathString;
@@ -53,8 +52,8 @@ namespace Overlord_Map_Visualizer
 
         private bool IsAnyMapLoaded = false;
 
-        private CursorMode currentCursorMode;
-        private int cursorDiameter = 50;
+        private CursorMode CurrentCursorMode;
+        private int CursorDiameter = 50;
 
         public MainWindow()
         {
@@ -199,7 +198,7 @@ namespace Overlord_Map_Visualizer
                         GetMapData(GetMapDataOffset(), openFileDialog.FileName, 4, MapMode.Full);
                         break;
                     case "tiff":
-                        int OffsetMap = 8;
+                        int offset = 8;
                         int bytesPerPoint = 6;
                         int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
                         byte[] data = new byte[totalNumberOfBytes];
@@ -210,7 +209,7 @@ namespace Overlord_Map_Visualizer
 
                         using (BinaryReader reader = new BinaryReader(new FileStream(openFileDialog.FileName, FileMode.Open)))
                         {
-                            reader.BaseStream.Seek(OffsetMap, SeekOrigin.Begin);
+                            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
                             reader.Read(data, 0, totalNumberOfBytes);
                         }
 
@@ -224,7 +223,7 @@ namespace Overlord_Map_Visualizer
                             {
                                 totalOffset = x * xOffset + yOffset;
 
-                                switch (currentMapMode)
+                                switch (CurrentMapMode)
                                 {
                                     case MapMode.HeightMap: 
                                         int grayscale = (data[totalOffset + 1] << 8) + data[totalOffset];
@@ -250,7 +249,7 @@ namespace Overlord_Map_Visualizer
                         }
                         break;
                     default:
-                        GetMapData(0, openFileDialog.FileName, 2, currentMapMode);
+                        GetMapData(0, openFileDialog.FileName, 2, CurrentMapMode);
                         break;
                 }
 
@@ -279,10 +278,10 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private void GetMapData(int OffsetMap, string filePath, int bytesPerPoint, MapMode mapMode)
+        private void GetMapData(int offsetMap, string filePath, int bytesPerPoint, MapMode mapMode)
         {
             int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
-            byte[] allMapBytes = new byte[totalNumberOfBytes];
+            byte[] data = new byte[totalNumberOfBytes];
             int xOffset = bytesPerPoint;
             int yOffset = 0;
             int numberOfBytesInRow = MapWidth * bytesPerPoint;
@@ -290,8 +289,8 @@ namespace Overlord_Map_Visualizer
 
             using (BinaryReader reader = new BinaryReader(new FileStream(filePath, FileMode.Open)))
             {
-                reader.BaseStream.Seek(OffsetMap, SeekOrigin.Begin);
-                reader.Read(allMapBytes, 0, totalNumberOfBytes);
+                reader.BaseStream.Seek(offsetMap, SeekOrigin.Begin);
+                reader.Read(data, 0, totalNumberOfBytes);
             }
 
             for (int y = 0; y < MapHeight; y++)
@@ -307,18 +306,18 @@ namespace Overlord_Map_Visualizer
                     switch (mapMode)
                     {
                         case MapMode.HeightMap:
-                            HeightMapDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
-                            HeightMapDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
+                            HeightMapDigitsOneAndTwo[x, y] = data[totalOffset];
+                            HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
                             break;
                         case MapMode.TextureDistributionMap:
-                            TextureDistributionDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
-                            TextureDistributionDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
+                            TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset];
+                            TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 1];
                             break;
                         case MapMode.Full:
-                            HeightMapDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
-                            HeightMapDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
-                            TextureDistributionDigitsOneAndTwo[x, y] = allMapBytes[totalOffset + 2];
-                            TextureDistributionDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 3];
+                            HeightMapDigitsOneAndTwo[x, y] = data[totalOffset];
+                            HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
+                            TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset + 2];
+                            TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 3];
                             break;
                     }
                 }
@@ -347,7 +346,7 @@ namespace Overlord_Map_Visualizer
 
                     if (saveFileDialog.ShowDialog() == true)
                     {
-                        WriteMapData(0, saveFileDialog.FileName, 2, currentMapMode);
+                        WriteMapData(0, saveFileDialog.FileName, 2, CurrentMapMode);
                     }
                     break;
                 case "ExportMapImage":
@@ -368,7 +367,7 @@ namespace Overlord_Map_Visualizer
                             PixelFormat format = PixelFormats.Rgb48;
                             int stride = ((MapWidth * format.BitsPerPixel) + 7) / 8;
                             byte[] data;
-                            switch (currentMapMode)
+                            switch (CurrentMapMode)
                             {
                                 case MapMode.HeightMap:
                                     data = CreateTiffData(MapWidth, MapHeight, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
@@ -380,12 +379,12 @@ namespace Overlord_Map_Visualizer
                                     data = null;
                                     break;
                             }
-                            WriteableBitmap wb = new WriteableBitmap(MapWidth, MapHeight, dpi, dpi, format, null);
-                            wb.WritePixels(new Int32Rect(0, 0, MapWidth, MapHeight), data, stride, 0);
+                            WriteableBitmap writableBitmap = new WriteableBitmap(MapWidth, MapHeight, dpi, dpi, format, null);
+                            writableBitmap.WritePixels(new Int32Rect(0, 0, MapWidth, MapHeight), data, stride, 0);
 
                             // Encode as a TIFF
                             TiffBitmapEncoder encoder = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
-                            encoder.Frames.Add(BitmapFrame.Create(wb));
+                            encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
 
                             encoder.Save(stream);
                         }
@@ -397,7 +396,7 @@ namespace Overlord_Map_Visualizer
         private void WriteMapData(int OffsetMap, string filePath, int bytesPerPoint, MapMode mapMode)
         {
             int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
-            byte[] allMapBytes = new byte[totalNumberOfBytes];
+            byte[] data = new byte[totalNumberOfBytes];
             int xOffset = bytesPerPoint;
             int yOffset = 0;
             int numberOfBytesInRow = MapWidth * bytesPerPoint;
@@ -416,18 +415,18 @@ namespace Overlord_Map_Visualizer
                     switch (mapMode)
                     {
                         case MapMode.HeightMap:
-                            allMapBytes[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
-                            allMapBytes[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
+                            data[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
+                            data[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
                             break;
                         case MapMode.TextureDistributionMap:
-                            allMapBytes[totalOffset] = TextureDistributionDigitsOneAndTwo[x, y];
-                            allMapBytes[totalOffset + 1] = TextureDistributionDigitsThreeAndFour[x, y];
+                            data[totalOffset] = TextureDistributionDigitsOneAndTwo[x, y];
+                            data[totalOffset + 1] = TextureDistributionDigitsThreeAndFour[x, y];
                             break;
                         case MapMode.Full:
-                            allMapBytes[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
-                            allMapBytes[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
-                            allMapBytes[totalOffset + 2] = TextureDistributionDigitsOneAndTwo[x, y];
-                            allMapBytes[totalOffset + 3] = TextureDistributionDigitsThreeAndFour[x, y];
+                            data[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
+                            data[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
+                            data[totalOffset + 2] = TextureDistributionDigitsOneAndTwo[x, y];
+                            data[totalOffset + 3] = TextureDistributionDigitsThreeAndFour[x, y];
                             break;
                     }
                 }
@@ -436,7 +435,7 @@ namespace Overlord_Map_Visualizer
             using (BinaryWriter writer = new BinaryWriter(new FileStream(filePath, FileMode.OpenOrCreate)))
             {
                 writer.BaseStream.Seek(OffsetMap, SeekOrigin.Begin);
-                writer.Write(allMapBytes, 0, totalNumberOfBytes);
+                writer.Write(data, 0, totalNumberOfBytes);
             }
         }
 
@@ -584,7 +583,7 @@ namespace Overlord_Map_Visualizer
 
         private void Render()
         {
-            switch (currentMapMode)
+            switch (CurrentMapMode)
             {
                 case MapMode.HeightMap:
                     DrawTiffImage(MapWidth,MapHeight,CreateTiffData(MapWidth,MapHeight, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour), DrawingType.Map);
@@ -669,7 +668,7 @@ namespace Overlord_Map_Visualizer
                 for (int x = 0; x < width; x++)
                 {
                     totalOffset = x * xOffset + yOffset;
-                    switch (currentMapMode)
+                    switch (CurrentMapMode)
                     {
                         case MapMode.HeightMap:
                             int grayScale = ((higherByteData[x, y] << 8) & 0x0FFF) + lowerByteData[x, y];
@@ -723,7 +722,7 @@ namespace Overlord_Map_Visualizer
                 for (int x = 0; x < width; x++)
                 {
                     totalOffset = x * xOffset + yOffset;
-                    switch (currentMapMode)
+                    switch (CurrentMapMode)
                     {
                         case MapMode.HeightMap:
                             int grayScale = ((singleColorData[1] << 8) & 0x0FFF) + singleColorData[0];
@@ -766,17 +765,17 @@ namespace Overlord_Map_Visualizer
             PixelFormat format = PixelFormats.Rgb48;
             int stride = ((width * format.BitsPerPixel) + 7) / 8;
 
-            WriteableBitmap wb = new WriteableBitmap(width, height, dpi, dpi, format, null);
-            wb.WritePixels(new Int32Rect(0, 0, width, height), data, stride, 0);
+            WriteableBitmap writableBitmap = new WriteableBitmap(width, height, dpi, dpi, format, null);
+            writableBitmap.WritePixels(new Int32Rect(0, 0, width, height), data, stride, 0);
 
             // Encode as a TIFF
-            TiffBitmapEncoder enc = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
-            enc.Frames.Add(BitmapFrame.Create(wb));
+            TiffBitmapEncoder encoder = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
+            encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
 
             // Convert to a bitmap
             using (MemoryStream ms = new MemoryStream())
             {
-                enc.Save(ms);
+                encoder.Save(ms);
 
                 using (Bitmap map = new Bitmap(ms))
                 {
@@ -802,13 +801,13 @@ namespace Overlord_Map_Visualizer
             int xCoordinate = 512 - (int)e.GetPosition(Map).X;
             int yCoordinate = 512 - (int)e.GetPosition(Map).Y;
 
-            switch (currentCursorMode)
+            switch (CurrentCursorMode)
             {
                 case CursorMode.Normal:
                     MessageBox.Show("Location : X:" + xCoordinate + " | Y:" + yCoordinate);
                     break;
                 case CursorMode.Pipette:
-                    switch (currentMapMode)
+                    switch (CurrentMapMode)
                     {
                         case MapMode.HeightMap:
                             SelectedColorCode.Text = HeightMapDigitsThreeAndFour[xCoordinate, yCoordinate].ToString("X2") + HeightMapDigitsOneAndTwo[xCoordinate, yCoordinate].ToString("X2");
@@ -829,22 +828,22 @@ namespace Overlord_Map_Visualizer
                         int xMax = 512;
                         int yMax = 512;
 
-                        if ((xCoordinate - (cursorDiameter / 2)) >= xMin)
+                        if ((xCoordinate - (CursorDiameter / 2)) >= xMin)
                         {
-                            xMin = xCoordinate - (cursorDiameter / 2);
+                            xMin = xCoordinate - (CursorDiameter / 2);
                         }
-                        if ((xCoordinate + (cursorDiameter / 2)) <= xMax)
+                        if ((xCoordinate + (CursorDiameter / 2)) <= xMax)
                         {
-                            xMax = xCoordinate + (cursorDiameter / 2);
+                            xMax = xCoordinate + (CursorDiameter / 2);
                         }
 
-                        if ((yCoordinate - (cursorDiameter / 2)) >= yMin)
+                        if ((yCoordinate - (CursorDiameter / 2)) >= yMin)
                         {
-                            yMin = yCoordinate - (cursorDiameter / 2);
+                            yMin = yCoordinate - (CursorDiameter / 2);
                         }
-                        if ((yCoordinate + (cursorDiameter / 2)) <= yMax)
+                        if ((yCoordinate + (CursorDiameter / 2)) <= yMax)
                         {
-                            yMax = yCoordinate + (cursorDiameter / 2);
+                            yMax = yCoordinate + (CursorDiameter / 2);
                         }
 
                         for (int y = yMin; y < yMax; y++)
@@ -852,7 +851,7 @@ namespace Overlord_Map_Visualizer
                             for (int x = xMin; x < xMax; x++)
                             {
                                 byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
-                                switch (currentMapMode)
+                                switch (CurrentMapMode)
                                 {
                                     case MapMode.HeightMap:
                                         HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
@@ -885,7 +884,7 @@ namespace Overlord_Map_Visualizer
                     {
                         for (int y = 512 - 1; y >= 0; y--)
                         {
-                            switch (currentMapMode)
+                            switch (CurrentMapMode)
                             {
                                 case MapMode.HeightMap:
                                     rotatedHeightMapDigitsOneAndTwo[x, i] = HeightMapDigitsOneAndTwo[y, x];
@@ -903,7 +902,7 @@ namespace Overlord_Map_Visualizer
                         i = 0;
                     }
 
-                    switch (currentMapMode)
+                    switch (CurrentMapMode)
                     {
                         case MapMode.HeightMap:
                             HeightMapDigitsOneAndTwo = rotatedHeightMapDigitsOneAndTwo;
@@ -921,15 +920,12 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private byte[] GetByteArrayFromHexString(string fullHexStumber)
+        private byte[] GetByteArrayFromHexString(string fullHexString)
         {
             byte[] tempByteArray = new byte[2];
 
-            string digitOneAndTwoString = "" + fullHexStumber[2] + fullHexStumber[3];
-            string digitThreeAndFourString = "" + fullHexStumber[0] + fullHexStumber[1];
-
-            tempByteArray[0] = Convert.ToByte(digitOneAndTwoString, 16);
-            tempByteArray[1] = Convert.ToByte(digitThreeAndFourString, 16);
+            tempByteArray[0] = Convert.ToByte("" + fullHexString[2] + fullHexString[3], 16);
+            tempByteArray[1] = Convert.ToByte("" + fullHexString[0] + fullHexString[1], 16);
 
             return tempByteArray;
         }
@@ -940,7 +936,7 @@ namespace Overlord_Map_Visualizer
             switch (MapModeDropDown.SelectedIndex)
             {
                 case 0:
-                    currentMapMode = MapMode.HeightMap;
+                    CurrentMapMode = MapMode.HeightMap;
                     ImportMapData.Content = "Import Heightmap as Data";
                     ImportMapImage.Content = "Import Heightmap as Image";
                     ExportMapData.Content = "Export Heightmap as Data";
@@ -965,7 +961,7 @@ namespace Overlord_Map_Visualizer
                     cursorModeRotate.Visibility = Visibility.Visible;
                     break;
                 case 1:
-                    currentMapMode = MapMode.TextureDistributionMap;
+                    CurrentMapMode = MapMode.TextureDistributionMap;
                     ImportMapData.Content = "Import Texture Distribution as Data";
                     ImportMapImage.Content = "Import Texture Distribution as Image";
                     ExportMapData.Content = "Export Texture Distribution as Data";
@@ -989,7 +985,7 @@ namespace Overlord_Map_Visualizer
                     cursorModeRotate.Visibility = Visibility.Visible;
                     break;
                 case 2:
-                    currentMapMode = MapMode.Full;
+                    CurrentMapMode = MapMode.Full;
                     Render();
                     ImportMapData.Visibility = Visibility.Hidden;
                     ImportMapImage.Visibility = Visibility.Hidden;
@@ -1011,7 +1007,7 @@ namespace Overlord_Map_Visualizer
                     break;
             }
 
-            if (currentCursorMode == CursorMode.Square)
+            if (CurrentCursorMode == CursorMode.Square)
             {
                 UpdateCursor();
             }
@@ -1019,11 +1015,11 @@ namespace Overlord_Map_Visualizer
 
         private string LeaveOnlyHexNumbers(string inString)
         {
-            foreach (char c in inString.ToCharArray())
+            foreach (char character in inString.ToCharArray())
             {
-                if (!System.Text.RegularExpressions.Regex.IsMatch(c.ToString(), "^[0-9a-fA-F]*$"))
+                if (!System.Text.RegularExpressions.Regex.IsMatch(character.ToString(), "^[0-9a-fA-F]*$"))
                 {
-                    inString = inString.Replace(c.ToString(), "");
+                    inString = inString.Replace(character.ToString(), "");
                 }
             }
 
@@ -1043,7 +1039,7 @@ namespace Overlord_Map_Visualizer
                 int digitTwo = Convert.ToInt32("" + SelectedColorCode.Text[2], 16);
                 int digitThree = Convert.ToInt32("" + SelectedColorCode.Text[1], 16);
                 SelectedColorHeight.Content = "This color corresponds to a height of\r\n" + (((digitThree * Math.Pow(16, 1)) + (digitTwo * Math.Pow(16, 0)) + (digitOne * Math.Pow(16, -1))) / 2);
-                if (currentCursorMode == CursorMode.Square)
+                if (CurrentCursorMode == CursorMode.Square)
                 {
                     UpdateCursor();
                 }
@@ -1068,14 +1064,14 @@ namespace Overlord_Map_Visualizer
             //}
         }
 
-        private Cursor CreateCursor(double cursorWidth, double cursorHeight, SolidColorBrush fillBrush, SolidColorBrush borderBrush, MediaPen pen)
+        private Cursor CreateCursor(double cursorWidth, double cursorHeight, SolidColorBrush fillBrush, SolidColorBrush borderBrush)
         {
             System.Windows.Point centrePoint;
             int borderWidth;
             DrawingVisual drawingVisual = new DrawingVisual();
             using (DrawingContext drawingContext = drawingVisual.RenderOpen())
             {
-                switch (currentCursorMode)
+                switch (CurrentCursorMode)
                 {
                     case CursorMode.Square:
                         centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
@@ -1147,7 +1143,7 @@ namespace Overlord_Map_Visualizer
 
         private void CursorModeSelect_Click(object sender, RoutedEventArgs e)
         {
-            currentCursorMode = CursorMode.Normal;
+            CurrentCursorMode = CursorMode.Normal;
             UpdateCursor();
             CursorSizeSlider.Visibility = Visibility.Hidden;
             cursorDiameterLabel.Visibility = Visibility.Hidden;
@@ -1155,7 +1151,7 @@ namespace Overlord_Map_Visualizer
 
         private void CursorModePipette_Click(object sender, RoutedEventArgs e)
         {
-            currentCursorMode = CursorMode.Pipette;
+            CurrentCursorMode = CursorMode.Pipette;
             UpdateCursor();
             CursorSizeSlider.Visibility = Visibility.Hidden;
             cursorDiameterLabel.Visibility = Visibility.Hidden;
@@ -1163,7 +1159,7 @@ namespace Overlord_Map_Visualizer
 
         private void CursorModeSquare_Click(object sender, RoutedEventArgs e)
         {
-            currentCursorMode = CursorMode.Square;
+            CurrentCursorMode = CursorMode.Square;
             UpdateCursor();
             CursorSizeSlider.Visibility = Visibility.Visible;
             cursorDiameterLabel.Visibility = Visibility.Visible;
@@ -1171,7 +1167,7 @@ namespace Overlord_Map_Visualizer
 
         private void CursorModeRotate_Click(object sender, RoutedEventArgs e)
         {
-            currentCursorMode = CursorMode.Rotate;
+            CurrentCursorMode = CursorMode.Rotate;
             UpdateCursor();
             CursorSizeSlider.Visibility = Visibility.Hidden;
             cursorDiameterLabel.Visibility = Visibility.Hidden;
@@ -1180,22 +1176,22 @@ namespace Overlord_Map_Visualizer
         private void UpdateCursor()
         {
             SolidColorBrush fillBrush;
-            switch (currentCursorMode)
+            switch (CurrentCursorMode)
             {
                 case CursorMode.Normal:
                     Mouse.OverrideCursor = null;
                     break;
                 case CursorMode.Pipette:
                     fillBrush = MediaBrushes.Black;
-                    Mouse.OverrideCursor = CreateCursor(28, 28, fillBrush, null, null);
+                    Mouse.OverrideCursor = CreateCursor(28, 28, fillBrush, null);
                     break;
                 case CursorMode.Square:
                     fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, 0xFF, 0xFF, 0xFF));
-                    Mouse.OverrideCursor = CreateCursor(cursorDiameter, cursorDiameter, fillBrush, MediaBrushes.Black, null);
+                    Mouse.OverrideCursor = CreateCursor(CursorDiameter, CursorDiameter, fillBrush, MediaBrushes.Black);
                     break;
                 case CursorMode.Rotate:
                     fillBrush = MediaBrushes.Black;
-                    Mouse.OverrideCursor = CreateCursor(28, 32, fillBrush, null, null);
+                    Mouse.OverrideCursor = CreateCursor(28, 32, fillBrush, null);
                     break;
             }
         }
@@ -1205,8 +1201,8 @@ namespace Overlord_Map_Visualizer
             if (IsAnyMapLoaded)
             {
                 cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
-                cursorDiameter = (int) CursorSizeSlider.Value;
-                if (currentCursorMode == CursorMode.Square)
+                CursorDiameter = (int) CursorSizeSlider.Value;
+                if (CurrentCursorMode == CursorMode.Square)
                 {
                     UpdateCursor();
                 }
