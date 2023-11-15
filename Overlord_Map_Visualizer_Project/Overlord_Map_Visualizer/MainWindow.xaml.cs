@@ -34,6 +34,13 @@ namespace Overlord_Map_Visualizer
             Rotate
         }
 
+        private enum CursorSubMode
+        {
+            Set,
+            Add,
+            Sub
+        }
+
         private enum DrawingType
         {
             Map,
@@ -53,6 +60,7 @@ namespace Overlord_Map_Visualizer
         private bool IsAnyMapLoaded = false;
 
         private CursorMode CurrentCursorMode;
+        private CursorSubMode CurrentCursorSubMode;
         private int CursorDiameter = 50;
 
         public MainWindow()
@@ -70,6 +78,8 @@ namespace Overlord_Map_Visualizer
             TextureDistributionDigitsOneAndTwo = new byte[MapWidth, MapHeight];
             TextureDistributionDigitsThreeAndFour = new byte[MapWidth, MapHeight];
 
+            CurrentCursorMode = CursorMode.Normal;
+            CurrentCursorSubMode = CursorSubMode.Add;
             SelectedColorCode.Text = "0000";
             cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
         }
@@ -851,17 +861,90 @@ namespace Overlord_Map_Visualizer
                             for (int x = xMin; x < xMax; x++)
                             {
                                 byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
-                                switch (CurrentMapMode)
+                                int selectedValue = (tempByteArray[1] << 8) + tempByteArray[0];
+                                int pixelValue;
+                                switch (CurrentCursorSubMode)
                                 {
-                                    case MapMode.HeightMap:
-                                        HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
-                                        HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                    case CursorSubMode.Set:
+                                        switch (CurrentMapMode)
+                                        {
+                                            case MapMode.HeightMap:
+                                                HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                                HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                                break;
+                                            case MapMode.TextureDistributionMap:
+                                                TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                                TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
-                                    case MapMode.TextureDistributionMap:
-                                        TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
-                                        TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                    case CursorSubMode.Add:
+                                        switch (CurrentMapMode)
+                                        {
+                                            case MapMode.HeightMap:
+                                                pixelValue = (HeightMapDigitsThreeAndFour[x, y] << 8) + HeightMapDigitsOneAndTwo[x, y];
+                                                if (pixelValue + selectedValue <= 65535)
+                                                {
+                                                    HeightMapDigitsOneAndTwo[x, y] = (byte)((pixelValue + selectedValue) & 0x00FF);
+                                                    HeightMapDigitsThreeAndFour[x, y] = (byte)((pixelValue + selectedValue) >> 8);
+                                                }
+                                                else
+                                                {
+                                                    HeightMapDigitsOneAndTwo[x, y] = 255;
+                                                    HeightMapDigitsThreeAndFour[x, y] = 255;
+                                                }
+                                                break;
+                                            case MapMode.TextureDistributionMap:
+                                                pixelValue = (TextureDistributionDigitsThreeAndFour[x, y] << 8) + TextureDistributionDigitsOneAndTwo[x, y];
+                                                if (pixelValue + selectedValue <= 65535)
+                                                {
+                                                    TextureDistributionDigitsOneAndTwo[x, y] = (byte)((pixelValue + selectedValue) & 0x00FF);
+                                                    TextureDistributionDigitsThreeAndFour[x, y] = (byte)((pixelValue + selectedValue) >> 8);
+                                                }
+                                                else
+                                                {
+                                                    TextureDistributionDigitsOneAndTwo[x, y] = 255;
+                                                    TextureDistributionDigitsThreeAndFour[x, y] = 255;
+                                                }
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
-                                    default:
+                                    case CursorSubMode.Sub:
+                                        switch (CurrentMapMode)
+                                        {
+                                            case MapMode.HeightMap:
+                                                pixelValue = (HeightMapDigitsThreeAndFour[x, y] << 8) + HeightMapDigitsOneAndTwo[x, y];
+                                                if (pixelValue - selectedValue >= 0)
+                                                {
+                                                    HeightMapDigitsOneAndTwo[x, y] = (byte)((pixelValue - selectedValue) & 0x00FF);
+                                                    HeightMapDigitsThreeAndFour[x, y] = (byte)((pixelValue - selectedValue) >> 8);
+                                                }
+                                                else
+                                                {
+                                                    HeightMapDigitsOneAndTwo[x, y] = 0;
+                                                    HeightMapDigitsThreeAndFour[x, y] = 0;
+                                                }
+                                                break;
+                                            case MapMode.TextureDistributionMap:
+                                                pixelValue = (TextureDistributionDigitsThreeAndFour[x, y] << 8) + TextureDistributionDigitsOneAndTwo[x, y];
+                                                if (pixelValue - selectedValue >= 0)
+                                                {
+                                                    TextureDistributionDigitsOneAndTwo[x, y] = (byte)((pixelValue - selectedValue) & 0x00FF);
+                                                    TextureDistributionDigitsThreeAndFour[x, y] = (byte)((pixelValue - selectedValue) >> 8);
+                                                }
+                                                else
+                                                {
+                                                    TextureDistributionDigitsOneAndTwo[x, y] = 0;
+                                                    TextureDistributionDigitsThreeAndFour[x, y] = 0;
+                                                }
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                         break;
                                 }
                             }
@@ -959,6 +1042,9 @@ namespace Overlord_Map_Visualizer
                     cursorDiameterLabel.Visibility = Visibility.Visible;
                     cursorModeSquare.Visibility = Visibility.Visible;
                     cursorModeRotate.Visibility = Visibility.Visible;
+                    cursorSubModeSet.Visibility = Visibility.Visible;
+                    cursorSubModeAdd.Visibility = Visibility.Visible;
+                    cursorSubModeSub.Visibility = Visibility.Visible;
                     break;
                 case 1:
                     CurrentMapMode = MapMode.TextureDistributionMap;
@@ -983,6 +1069,9 @@ namespace Overlord_Map_Visualizer
                     cursorDiameterLabel.Visibility = Visibility.Visible;
                     cursorModeSquare.Visibility = Visibility.Visible;
                     cursorModeRotate.Visibility = Visibility.Visible;
+                    cursorSubModeSet.Visibility = Visibility.Visible;
+                    cursorSubModeAdd.Visibility = Visibility.Visible;
+                    cursorSubModeSub.Visibility = Visibility.Visible;
                     break;
                 case 2:
                     CurrentMapMode = MapMode.Full;
@@ -1001,7 +1090,10 @@ namespace Overlord_Map_Visualizer
                     cursorDiameterLabel.Visibility = Visibility.Hidden;
                     cursorModeSquare.Visibility = Visibility.Hidden;
                     cursorModeRotate.Visibility = Visibility.Hidden;
-                    
+                    cursorSubModeSet.Visibility = Visibility.Hidden;
+                    cursorSubModeAdd.Visibility = Visibility.Hidden;
+                    cursorSubModeSub.Visibility = Visibility.Hidden;
+
                     break;
                 default:
                     break;
@@ -1163,6 +1255,21 @@ namespace Overlord_Map_Visualizer
             UpdateCursor();
             CursorSizeSlider.Visibility = Visibility.Visible;
             cursorDiameterLabel.Visibility = Visibility.Visible;
+        }
+
+        private void CursorSubModeSet_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorSubMode = CursorSubMode.Set;
+        }
+
+        private void CursorSubModeAdd_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorSubMode = CursorSubMode.Add;
+        }
+
+        private void CursorSubModeSub_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorSubMode = CursorSubMode.Sub;
         }
 
         private void CursorModeRotate_Click(object sender, RoutedEventArgs e)
