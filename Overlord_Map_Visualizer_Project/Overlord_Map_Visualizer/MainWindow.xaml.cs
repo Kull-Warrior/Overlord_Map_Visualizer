@@ -31,6 +31,7 @@ namespace Overlord_Map_Visualizer
             Normal,
             Pipette,
             Square,
+            Circle,
             Rotate
         }
 
@@ -831,23 +832,24 @@ namespace Overlord_Map_Visualizer
                         int xMin = 0;
                         int xMax = 512;
                         int yMax = 512;
+                        int cursorRadius = CursorDiameter / 2;
 
-                        if ((xCoordinate - (CursorDiameter / 2)) >= xMin)
+                        if ((xCoordinate - cursorRadius) >= xMin)
                         {
-                            xMin = xCoordinate - (CursorDiameter / 2);
+                            xMin = xCoordinate - cursorRadius;
                         }
-                        if ((xCoordinate + (CursorDiameter / 2)) <= xMax)
+                        if ((xCoordinate + cursorRadius) <= xMax)
                         {
-                            xMax = xCoordinate + (CursorDiameter / 2);
+                            xMax = xCoordinate + cursorRadius;
                         }
 
-                        if ((yCoordinate - (CursorDiameter / 2)) >= yMin)
+                        if ((yCoordinate - cursorRadius) >= yMin)
                         {
-                            yMin = yCoordinate - (CursorDiameter / 2);
+                            yMin = yCoordinate - cursorRadius;
                         }
-                        if ((yCoordinate + (CursorDiameter / 2)) <= yMax)
+                        if ((yCoordinate + cursorRadius) <= yMax)
                         {
-                            yMax = yCoordinate + (CursorDiameter / 2);
+                            yMax = yCoordinate + cursorRadius;
                         }
 
                         for (int y = yMin; y < yMax; y++)
@@ -940,6 +942,136 @@ namespace Overlord_Map_Visualizer
                                                 break;
                                         }
                                         break;
+                                }
+                            }
+                        }
+                        Render();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error\nThe selected color has to be 4 digits long.");
+                    }
+                    break;
+                case CursorMode.Circle:
+                    if (SelectedColorCode.Text.Length == 4)
+                    {
+                        int yMin = 0;
+                        int xMin = 0;
+                        int xMax = 512;
+                        int yMax = 512;
+                        int cursorRadius = CursorDiameter / 2;
+
+                        if ((xCoordinate - cursorRadius) >= xMin)
+                        {
+                            xMin = xCoordinate - cursorRadius;
+                        }
+                        if ((xCoordinate + cursorRadius) <= xMax)
+                        {
+                            xMax = xCoordinate + cursorRadius;
+                        }
+
+                        if ((yCoordinate - cursorRadius) >= yMin)
+                        {
+                            yMin = yCoordinate - cursorRadius;
+                        }
+                        if ((yCoordinate + cursorRadius) <= yMax)
+                        {
+                            yMax = yCoordinate + cursorRadius;
+                        }
+
+                        for (int y = yMin; y < yMax; y++)
+                        {
+                            for (int x = xMin; x < xMax; x++)
+                            {
+                                if(((x - xCoordinate) * (x - xCoordinate)) + ((y - yCoordinate) * (y - yCoordinate)) < cursorRadius * cursorRadius)
+                                {
+                                byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
+                                int selectedValue = (tempByteArray[1] << 8) + tempByteArray[0];
+                                int pixelValue;
+                                switch (CurrentCursorSubMode)
+                                {
+                                    case CursorSubMode.Set:
+                                        switch (CurrentMapMode)
+                                        {
+                                            case MapMode.HeightMap:
+                                                HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                                HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                                break;
+                                            case MapMode.TextureDistributionMap:
+                                                TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                                TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case CursorSubMode.Add:
+                                        switch (CurrentMapMode)
+                                        {
+                                            case MapMode.HeightMap:
+                                                pixelValue = (HeightMapDigitsThreeAndFour[x, y] << 8) + HeightMapDigitsOneAndTwo[x, y];
+                                                if (pixelValue + selectedValue <= 65535)
+                                                {
+                                                    HeightMapDigitsOneAndTwo[x, y] = (byte)((pixelValue + selectedValue) & 0x00FF);
+                                                    HeightMapDigitsThreeAndFour[x, y] = (byte)((pixelValue + selectedValue) >> 8);
+                                                }
+                                                else
+                                                {
+                                                    HeightMapDigitsOneAndTwo[x, y] = 255;
+                                                    HeightMapDigitsThreeAndFour[x, y] = 255;
+                                                }
+                                                break;
+                                            case MapMode.TextureDistributionMap:
+                                                pixelValue = (TextureDistributionDigitsThreeAndFour[x, y] << 8) + TextureDistributionDigitsOneAndTwo[x, y];
+                                                if (pixelValue + selectedValue <= 65535)
+                                                {
+                                                    TextureDistributionDigitsOneAndTwo[x, y] = (byte)((pixelValue + selectedValue) & 0x00FF);
+                                                    TextureDistributionDigitsThreeAndFour[x, y] = (byte)((pixelValue + selectedValue) >> 8);
+                                                }
+                                                else
+                                                {
+                                                    TextureDistributionDigitsOneAndTwo[x, y] = 255;
+                                                    TextureDistributionDigitsThreeAndFour[x, y] = 255;
+                                                }
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    case CursorSubMode.Sub:
+                                        switch (CurrentMapMode)
+                                        {
+                                            case MapMode.HeightMap:
+                                                pixelValue = (HeightMapDigitsThreeAndFour[x, y] << 8) + HeightMapDigitsOneAndTwo[x, y];
+                                                if (pixelValue - selectedValue >= 0)
+                                                {
+                                                    HeightMapDigitsOneAndTwo[x, y] = (byte)((pixelValue - selectedValue) & 0x00FF);
+                                                    HeightMapDigitsThreeAndFour[x, y] = (byte)((pixelValue - selectedValue) >> 8);
+                                                }
+                                                else
+                                                {
+                                                    HeightMapDigitsOneAndTwo[x, y] = 0;
+                                                    HeightMapDigitsThreeAndFour[x, y] = 0;
+                                                }
+                                                break;
+                                            case MapMode.TextureDistributionMap:
+                                                pixelValue = (TextureDistributionDigitsThreeAndFour[x, y] << 8) + TextureDistributionDigitsOneAndTwo[x, y];
+                                                if (pixelValue - selectedValue >= 0)
+                                                {
+                                                    TextureDistributionDigitsOneAndTwo[x, y] = (byte)((pixelValue - selectedValue) & 0x00FF);
+                                                    TextureDistributionDigitsThreeAndFour[x, y] = (byte)((pixelValue - selectedValue) >> 8);
+                                                }
+                                                else
+                                                {
+                                                    TextureDistributionDigitsOneAndTwo[x, y] = 0;
+                                                    TextureDistributionDigitsThreeAndFour[x, y] = 0;
+                                                }
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                }
                                 }
                             }
                         }
@@ -1152,6 +1284,14 @@ namespace Overlord_Map_Visualizer
                         drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/resources/cursor/Pipette_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
                         drawingContext.Close();
                         break;
+                    case CursorMode.Circle:
+                        centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
+                        borderWidth = 2;
+                        drawingContext.DrawEllipse(fillBrush, new MediaPen(borderBrush, 1.0), centrePoint, cursorWidth / 2 - 1, cursorWidth / 2 - 1);
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X - 10, centrePoint.Y), new System.Windows.Point(centrePoint.X + 10, centrePoint.Y));
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X, centrePoint.Y - 10), new System.Windows.Point(centrePoint.X, centrePoint.Y + 10));
+                        drawingContext.Close();
+                        break;
                     case CursorMode.Rotate:
                         centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
                         borderWidth = 0;
@@ -1226,6 +1366,13 @@ namespace Overlord_Map_Visualizer
             UpdateCursor();
             UpdateToolBar();
         }
+        
+        private void CursorModeCircle_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorMode = CursorMode.Circle;
+            UpdateCursor();
+            UpdateToolBar();
+        }
 
         private void CursorModeRotate_Click(object sender, RoutedEventArgs e)
         {
@@ -1268,6 +1415,10 @@ namespace Overlord_Map_Visualizer
                     fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, 0xFF, 0xFF, 0xFF));
                     Mouse.OverrideCursor = CreateCursor(CursorDiameter, CursorDiameter, fillBrush, MediaBrushes.Black);
                     break;
+                case CursorMode.Circle:
+                    fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, 0xFF, 0xFF, 0xFF));
+                    Mouse.OverrideCursor = CreateCursor(CursorDiameter, CursorDiameter, fillBrush, MediaBrushes.Black);
+                    break;
                 case CursorMode.Rotate:
                     fillBrush = MediaBrushes.Black;
                     Mouse.OverrideCursor = CreateCursor(28, 32, fillBrush, null);
@@ -1283,22 +1434,24 @@ namespace Overlord_Map_Visualizer
                     cursorModeSelect.Background = MediaBrushes.SkyBlue;
                     cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
 
                     cursorModeSelect.Visibility = Visibility.Visible;
                     cursorModePipette.Visibility = Visibility.Visible;
                     cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeCircle.Visibility = Visibility.Visible;
                     cursorModeRotate.Visibility = Visibility.Visible;
-                    
+
                     cursorSubModeSet.Visibility = Visibility.Hidden;
                     cursorSubModeAdd.Visibility = Visibility.Hidden;
                     cursorSubModeSub.Visibility = Visibility.Hidden;
-                    
+
                     SelectedColorCode.Visibility = Visibility.Hidden;
                     SelectedColorImage.Visibility = Visibility.Hidden;
                     SelectedColorBorder.Visibility = Visibility.Hidden;
                     SelectedColorHeight.Visibility = Visibility.Hidden;
-                    
+
                     CursorSizeSlider.Visibility = Visibility.Hidden;
                     cursorDiameterLabel.Visibility = Visibility.Hidden;
                     break;
@@ -1306,11 +1459,13 @@ namespace Overlord_Map_Visualizer
                     cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModePipette.Background = MediaBrushes.SkyBlue;
                     cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
 
                     cursorModeSelect.Visibility = Visibility.Visible;
                     cursorModePipette.Visibility = Visibility.Visible;
                     cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeCircle.Visibility = Visibility.Visible;
                     cursorModeRotate.Visibility = Visibility.Visible;
 
                     cursorSubModeSet.Visibility = Visibility.Hidden;
@@ -1329,11 +1484,13 @@ namespace Overlord_Map_Visualizer
                     cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeSquare.Background = MediaBrushes.SkyBlue;
+                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
 
                     cursorModeSelect.Visibility = Visibility.Visible;
                     cursorModePipette.Visibility = Visibility.Visible;
                     cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeCircle.Visibility = Visibility.Visible;
                     cursorModeRotate.Visibility = Visibility.Visible;
 
                     cursorSubModeSet.Visibility = Visibility.Visible;
@@ -1371,11 +1528,13 @@ namespace Overlord_Map_Visualizer
                     cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeRotate.Background = MediaBrushes.SkyBlue;
 
                     cursorModeSelect.Visibility = Visibility.Visible;
                     cursorModePipette.Visibility = Visibility.Visible;
                     cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeCircle.Visibility = Visibility.Visible;
                     cursorModeRotate.Visibility = Visibility.Visible;
 
                     cursorSubModeSet.Visibility = Visibility.Hidden;
@@ -1390,6 +1549,50 @@ namespace Overlord_Map_Visualizer
                     CursorSizeSlider.Visibility = Visibility.Hidden;
                     cursorDiameterLabel.Visibility = Visibility.Hidden;
                     break;
+                case CursorMode.Circle:
+                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeCircle.Background = MediaBrushes.SkyBlue;
+                    cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+
+                    cursorModeSelect.Visibility = Visibility.Visible;
+                    cursorModePipette.Visibility = Visibility.Visible;
+                    cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeCircle.Visibility = Visibility.Visible;
+                    cursorModeRotate.Visibility = Visibility.Visible;
+
+                    cursorSubModeSet.Visibility = Visibility.Visible;
+                    cursorSubModeAdd.Visibility = Visibility.Visible;
+                    cursorSubModeSub.Visibility = Visibility.Visible;
+
+                    SelectedColorCode.Visibility = Visibility.Visible;
+                    SelectedColorImage.Visibility = Visibility.Visible;
+                    SelectedColorBorder.Visibility = Visibility.Visible;
+                    SelectedColorHeight.Visibility = CurrentMapMode != MapMode.HeightMap ? Visibility.Hidden : Visibility.Visible;
+
+                    CursorSizeSlider.Visibility = Visibility.Visible;
+                    cursorDiameterLabel.Visibility = Visibility.Visible;
+
+                    switch (CurrentCursorSubMode)
+                    {
+                        case CursorSubMode.Set:
+                            cursorSubModeSet.Background = MediaBrushes.SkyBlue;
+                            cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            break;
+                        case CursorSubMode.Add:
+                            cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeAdd.Background = MediaBrushes.SkyBlue;
+                            cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            break;
+                        case CursorSubMode.Sub:
+                            cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeSub.Background = MediaBrushes.SkyBlue;
+                            break;
+                    }
+                    break;
             }
         }
 
@@ -1399,7 +1602,7 @@ namespace Overlord_Map_Visualizer
             {
                 cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
                 CursorDiameter = (int) CursorSizeSlider.Value;
-                if (CurrentCursorMode == CursorMode.Square)
+                if (CurrentCursorMode == CursorMode.Square || CurrentCursorMode == CursorMode.Circle)
                 {
                     UpdateCursor();
                 }
