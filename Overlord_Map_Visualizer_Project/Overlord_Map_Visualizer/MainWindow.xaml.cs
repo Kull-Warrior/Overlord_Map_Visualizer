@@ -62,7 +62,7 @@ namespace Overlord_Map_Visualizer
 
         private CursorMode CurrentCursorMode;
         private CursorSubMode CurrentCursorSubMode;
-        private int CursorDiameter = 50;
+        private int CursorDiameter = 51;
 
         public MainWindow()
         {
@@ -803,8 +803,8 @@ namespace Overlord_Map_Visualizer
 
         private void ToolClick(object sender, MouseButtonEventArgs e)
         {
-            int xCoordinate = 512 - (int)e.GetPosition(Map).X;
-            int yCoordinate = 512 - (int)e.GetPosition(Map).Y;
+            int xCoordinate = 511 - (int)e.GetPosition(Map).X;
+            int yCoordinate = 511 - (int)e.GetPosition(Map).Y;
 
             switch (CurrentCursorMode)
             {
@@ -830,9 +830,9 @@ namespace Overlord_Map_Visualizer
                     {
                         int yMin = 0;
                         int xMin = 0;
-                        int xMax = 512;
-                        int yMax = 512;
-                        int cursorRadius = CursorDiameter / 2;
+                        int xMax = 511;
+                        int yMax = 511;
+                        int cursorRadius = (int)Math.Ceiling((decimal)CursorDiameter / 2);
 
                         if ((xCoordinate - cursorRadius) >= xMin)
                         {
@@ -852,9 +852,9 @@ namespace Overlord_Map_Visualizer
                             yMax = yCoordinate + cursorRadius;
                         }
 
-                        for (int y = yMin; y < yMax; y++)
+                        for (int y = yMin; y <= yMax; y++)
                         {
-                            for (int x = xMin; x < xMax; x++)
+                            for (int x = xMin; x <= xMax; x++)
                             {
                                 byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
                                 int selectedValue = (tempByteArray[1] << 8) + tempByteArray[0];
@@ -957,9 +957,9 @@ namespace Overlord_Map_Visualizer
                     {
                         int yMin = 0;
                         int xMin = 0;
-                        int xMax = 512;
-                        int yMax = 512;
-                        int cursorRadius = CursorDiameter / 2;
+                        int xMax = 511;
+                        int yMax = 511;
+                        int cursorRadius = (int)Math.Ceiling((decimal)CursorDiameter / 2);
 
                         if ((xCoordinate - cursorRadius) >= xMin)
                         {
@@ -979,99 +979,99 @@ namespace Overlord_Map_Visualizer
                             yMax = yCoordinate + cursorRadius;
                         }
 
-                        for (int y = yMin; y < yMax; y++)
+                        for (int y = yMin; y <= yMax; y++)
                         {
-                            for (int x = xMin; x < xMax; x++)
+                            for (int x = xMin; x <= xMax; x++)
                             {
-                                if(((x - xCoordinate) * (x - xCoordinate)) + ((y - yCoordinate) * (y - yCoordinate)) < cursorRadius * cursorRadius)
+                                if (((x - xCoordinate) * (x - xCoordinate)) + ((y - yCoordinate) * (y - yCoordinate)) < cursorRadius * cursorRadius)
                                 {
-                                byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
-                                int selectedValue = (tempByteArray[1] << 8) + tempByteArray[0];
-                                int pixelValue;
-                                switch (CurrentCursorSubMode)
-                                {
-                                    case CursorSubMode.Set:
-                                        switch (CurrentMapMode)
-                                        {
-                                            case MapMode.HeightMap:
-                                                HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
-                                                HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
-                                                break;
-                                            case MapMode.TextureDistributionMap:
-                                                TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
-                                                TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                        break;
-                                    case CursorSubMode.Add:
-                                        switch (CurrentMapMode)
-                                        {
-                                            case MapMode.HeightMap:
-                                                pixelValue = (HeightMapDigitsThreeAndFour[x, y] << 8) + HeightMapDigitsOneAndTwo[x, y];
-                                                if (pixelValue + selectedValue <= 65535)
-                                                {
-                                                    HeightMapDigitsOneAndTwo[x, y] = (byte)((pixelValue + selectedValue) & 0x00FF);
-                                                    HeightMapDigitsThreeAndFour[x, y] = (byte)((pixelValue + selectedValue) >> 8);
-                                                }
-                                                else
-                                                {
-                                                    HeightMapDigitsOneAndTwo[x, y] = 255;
-                                                    HeightMapDigitsThreeAndFour[x, y] = 255;
-                                                }
-                                                break;
-                                            case MapMode.TextureDistributionMap:
-                                                pixelValue = (TextureDistributionDigitsThreeAndFour[x, y] << 8) + TextureDistributionDigitsOneAndTwo[x, y];
-                                                if (pixelValue + selectedValue <= 65535)
-                                                {
-                                                    TextureDistributionDigitsOneAndTwo[x, y] = (byte)((pixelValue + selectedValue) & 0x00FF);
-                                                    TextureDistributionDigitsThreeAndFour[x, y] = (byte)((pixelValue + selectedValue) >> 8);
-                                                }
-                                                else
-                                                {
-                                                    TextureDistributionDigitsOneAndTwo[x, y] = 255;
-                                                    TextureDistributionDigitsThreeAndFour[x, y] = 255;
-                                                }
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                        break;
-                                    case CursorSubMode.Sub:
-                                        switch (CurrentMapMode)
-                                        {
-                                            case MapMode.HeightMap:
-                                                pixelValue = (HeightMapDigitsThreeAndFour[x, y] << 8) + HeightMapDigitsOneAndTwo[x, y];
-                                                if (pixelValue - selectedValue >= 0)
-                                                {
-                                                    HeightMapDigitsOneAndTwo[x, y] = (byte)((pixelValue - selectedValue) & 0x00FF);
-                                                    HeightMapDigitsThreeAndFour[x, y] = (byte)((pixelValue - selectedValue) >> 8);
-                                                }
-                                                else
-                                                {
-                                                    HeightMapDigitsOneAndTwo[x, y] = 0;
-                                                    HeightMapDigitsThreeAndFour[x, y] = 0;
-                                                }
-                                                break;
-                                            case MapMode.TextureDistributionMap:
-                                                pixelValue = (TextureDistributionDigitsThreeAndFour[x, y] << 8) + TextureDistributionDigitsOneAndTwo[x, y];
-                                                if (pixelValue - selectedValue >= 0)
-                                                {
-                                                    TextureDistributionDigitsOneAndTwo[x, y] = (byte)((pixelValue - selectedValue) & 0x00FF);
-                                                    TextureDistributionDigitsThreeAndFour[x, y] = (byte)((pixelValue - selectedValue) >> 8);
-                                                }
-                                                else
-                                                {
-                                                    TextureDistributionDigitsOneAndTwo[x, y] = 0;
-                                                    TextureDistributionDigitsThreeAndFour[x, y] = 0;
-                                                }
-                                                break;
-                                            default:
-                                                break;
-                                        }
-                                        break;
-                                }
+                                    byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
+                                    int selectedValue = (tempByteArray[1] << 8) + tempByteArray[0];
+                                    int pixelValue;
+                                    switch (CurrentCursorSubMode)
+                                    {
+                                        case CursorSubMode.Set:
+                                            switch (CurrentMapMode)
+                                            {
+                                                case MapMode.HeightMap:
+                                                    HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                                    HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                                    break;
+                                                case MapMode.TextureDistributionMap:
+                                                    TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
+                                                    TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                            break;
+                                        case CursorSubMode.Add:
+                                            switch (CurrentMapMode)
+                                            {
+                                                case MapMode.HeightMap:
+                                                    pixelValue = (HeightMapDigitsThreeAndFour[x, y] << 8) + HeightMapDigitsOneAndTwo[x, y];
+                                                    if (pixelValue + selectedValue <= 65535)
+                                                    {
+                                                        HeightMapDigitsOneAndTwo[x, y] = (byte)((pixelValue + selectedValue) & 0x00FF);
+                                                        HeightMapDigitsThreeAndFour[x, y] = (byte)((pixelValue + selectedValue) >> 8);
+                                                    }
+                                                    else
+                                                    {
+                                                        HeightMapDigitsOneAndTwo[x, y] = 255;
+                                                        HeightMapDigitsThreeAndFour[x, y] = 255;
+                                                    }
+                                                    break;
+                                                case MapMode.TextureDistributionMap:
+                                                    pixelValue = (TextureDistributionDigitsThreeAndFour[x, y] << 8) + TextureDistributionDigitsOneAndTwo[x, y];
+                                                    if (pixelValue + selectedValue <= 65535)
+                                                    {
+                                                        TextureDistributionDigitsOneAndTwo[x, y] = (byte)((pixelValue + selectedValue) & 0x00FF);
+                                                        TextureDistributionDigitsThreeAndFour[x, y] = (byte)((pixelValue + selectedValue) >> 8);
+                                                    }
+                                                    else
+                                                    {
+                                                        TextureDistributionDigitsOneAndTwo[x, y] = 255;
+                                                        TextureDistributionDigitsThreeAndFour[x, y] = 255;
+                                                    }
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                            break;
+                                        case CursorSubMode.Sub:
+                                            switch (CurrentMapMode)
+                                            {
+                                                case MapMode.HeightMap:
+                                                    pixelValue = (HeightMapDigitsThreeAndFour[x, y] << 8) + HeightMapDigitsOneAndTwo[x, y];
+                                                    if (pixelValue - selectedValue >= 0)
+                                                    {
+                                                        HeightMapDigitsOneAndTwo[x, y] = (byte)((pixelValue - selectedValue) & 0x00FF);
+                                                        HeightMapDigitsThreeAndFour[x, y] = (byte)((pixelValue - selectedValue) >> 8);
+                                                    }
+                                                    else
+                                                    {
+                                                        HeightMapDigitsOneAndTwo[x, y] = 0;
+                                                        HeightMapDigitsThreeAndFour[x, y] = 0;
+                                                    }
+                                                    break;
+                                                case MapMode.TextureDistributionMap:
+                                                    pixelValue = (TextureDistributionDigitsThreeAndFour[x, y] << 8) + TextureDistributionDigitsOneAndTwo[x, y];
+                                                    if (pixelValue - selectedValue >= 0)
+                                                    {
+                                                        TextureDistributionDigitsOneAndTwo[x, y] = (byte)((pixelValue - selectedValue) & 0x00FF);
+                                                        TextureDistributionDigitsThreeAndFour[x, y] = (byte)((pixelValue - selectedValue) >> 8);
+                                                    }
+                                                    else
+                                                    {
+                                                        TextureDistributionDigitsOneAndTwo[x, y] = 0;
+                                                        TextureDistributionDigitsThreeAndFour[x, y] = 0;
+                                                    }
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                            break;
+                                    }
                                 }
                             }
                         }
@@ -1091,7 +1091,7 @@ namespace Overlord_Map_Visualizer
                     int i = 0;
                     for (int x = 0; x < MapHeight; x++)
                     {
-                        for (int y = 512 - 1; y >= 0; y--)
+                        for (int y = 511; y >= 0; y--)
                         {
                             switch (CurrentMapMode)
                             {
@@ -1147,7 +1147,7 @@ namespace Overlord_Map_Visualizer
                 case 0:
                     CurrentMapMode = MapMode.HeightMap;
                     UpdateCursor();
-                    ImportMapData.Content = "Import heightmap as aata";
+                    ImportMapData.Content = "Import heightmap as data";
                     ImportMapImage.Content = "Import heightmap as image";
                     ExportMapData.Content = "Export heightmap as data";
                     ExportMapImage.Content = "Export heightmap as image";
@@ -1271,30 +1271,44 @@ namespace Overlord_Map_Visualizer
                 switch (CurrentCursorMode)
                 {
                     case CursorMode.Square:
-                        centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
                         borderWidth = 2;
-                        drawingContext.DrawRectangle(fillBrush, new MediaPen(borderBrush, 1.0), new Rect(1, 1, cursorWidth, cursorHeight));
+                        centrePoint = new System.Windows.Point((cursorWidth + (borderWidth * 2)) / 2, (cursorHeight + (borderWidth * 2)) / 2);
+
+                        //Draw Cursor Background Color
+                        drawingContext.DrawRectangle(fillBrush, null, new Rect(2, 2, cursorWidth, cursorHeight));
+
+                        //Draw Cursor Border
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 2.0), new System.Windows.Point(1, 0), new System.Windows.Point(1, cursorHeight + (borderWidth * 2)));
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 2.0), new System.Windows.Point(cursorWidth + (borderWidth * 2) - 1, 0), new System.Windows.Point(cursorWidth + (borderWidth * 2) - 1, cursorHeight + (borderWidth * 2)));
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 2.0), new System.Windows.Point(0, 1), new System.Windows.Point(cursorWidth + (borderWidth * 2), 1));
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 2.0), new System.Windows.Point(0, cursorHeight + (borderWidth * 2) - 1), new System.Windows.Point(cursorWidth + (borderWidth * 2), cursorHeight + (borderWidth * 2) - 1));
+
+                        //Draw Cursor Cross
                         drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X - 10, centrePoint.Y), new System.Windows.Point(centrePoint.X + 10, centrePoint.Y));
                         drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X, centrePoint.Y - 10), new System.Windows.Point(centrePoint.X, centrePoint.Y + 10));
                         drawingContext.Close();
                         break;
                     case CursorMode.Pipette:
-                        centrePoint = new System.Windows.Point(0, 0);
                         borderWidth = 0;
+                        centrePoint = new System.Windows.Point(0, 0);
                         drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/resources/cursor/Pipette_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
                         drawingContext.Close();
                         break;
                     case CursorMode.Circle:
-                        centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
                         borderWidth = 2;
-                        drawingContext.DrawEllipse(fillBrush, new MediaPen(borderBrush, 1.0), centrePoint, cursorWidth / 2 - 1, cursorWidth / 2 - 1);
+                        centrePoint = new System.Windows.Point((cursorWidth + (borderWidth * 2)) / 2, (cursorHeight + (borderWidth * 2)) / 2);
+
+                        //Draw Cursor Border &  Background Color
+                        drawingContext.DrawEllipse(fillBrush, new MediaPen(borderBrush, 1.0), centrePoint, (cursorWidth / 2) + 1, (cursorWidth / 2) + 1);
+
+                        //Draw Cursor Cross
                         drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X - 10, centrePoint.Y), new System.Windows.Point(centrePoint.X + 10, centrePoint.Y));
                         drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X, centrePoint.Y - 10), new System.Windows.Point(centrePoint.X, centrePoint.Y + 10));
                         drawingContext.Close();
                         break;
                     case CursorMode.Rotate:
-                        centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
                         borderWidth = 0;
+                        centrePoint = new System.Windows.Point((cursorWidth + borderWidth) / 2, (cursorHeight + borderWidth) / 2);
                         drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/resources/cursor/Rotate_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
                         drawingContext.Close();
                         break;
@@ -1304,7 +1318,7 @@ namespace Overlord_Map_Visualizer
                         break;
                 }
             }
-            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int) cursorWidth + borderWidth, (int) cursorHeight + borderWidth, 96, 96, PixelFormats.Pbgra32);
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)cursorWidth + (borderWidth * 2), (int)cursorHeight + (borderWidth * 2) , 96, 96, PixelFormats.Pbgra32);
             renderTargetBitmap.Render(drawingVisual);
 
             using (MemoryStream memoryStreamOne = new MemoryStream())
@@ -1326,8 +1340,8 @@ namespace Overlord_Map_Visualizer
                     }
 
                     {//ICONDIRENTRY structure
-                        memoryStreamTwo.WriteByte((byte) cursorWidth); //Specifies image width in pixels. Can be any number between 0 and 255. Value 0 means image width is 256 pixels.
-                        memoryStreamTwo.WriteByte((byte) cursorHeight); //Specifies image height in pixels. Can be any number between 0 and 255. Value 0 means image height is 256 pixels.
+                        memoryStreamTwo.WriteByte((byte) (cursorWidth + borderWidth)); //Specifies image width in pixels. Can be any number between 0 and 255. Value 0 means image width is 256 pixels.
+                        memoryStreamTwo.WriteByte((byte) (cursorHeight + borderWidth)); //Specifies image height in pixels. Can be any number between 0 and 255. Value 0 means image height is 256 pixels.
 
                         memoryStreamTwo.WriteByte(0); //Specifies number of colors in the color palette. Should be 0 if the image does not use a color palette. 
                         memoryStreamTwo.WriteByte(0); //Reserved. Should be 0. 
@@ -1366,7 +1380,7 @@ namespace Overlord_Map_Visualizer
             UpdateCursor();
             UpdateToolBar();
         }
-        
+
         private void CursorModeCircle_Click(object sender, RoutedEventArgs e)
         {
             CurrentCursorMode = CursorMode.Circle;
