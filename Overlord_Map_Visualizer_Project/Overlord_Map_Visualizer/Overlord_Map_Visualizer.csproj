@@ -51,11 +51,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>Overlord_Normal.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
-    <NoWin32Manifest>true</NoWin32Manifest>
+    <Win32Resource>
+    </Win32Resource>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -144,7 +145,10 @@
     <Resource Include="resources\map_overlay\Map_Icon_Tower_Gate.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="resources\general\Overlord_Normal.ico" />
+    <Resource Include="Overlord_Normal.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="resources\general\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
