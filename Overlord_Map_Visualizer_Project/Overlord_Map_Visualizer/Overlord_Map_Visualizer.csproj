@@ -53,8 +53,10 @@
   <PropertyGroup>
     <ApplicationIcon>Overlord_Normal.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup />
   <PropertyGroup>
-    <NoWin32Manifest>true</NoWin32Manifest>
+    <Win32Resource>
+    </Win32Resource>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -117,9 +119,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Overlord_Normal.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.7.2 %28x86 und x64%29</ProductName>
@@ -132,10 +131,24 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Pipette.ico" />
+    <Resource Include="resources\cursor\Pipette_Black_Border_None.ico" />
+    <Resource Include="resources\cursor\Pipette_Black_Border_White.ico" />
+    <Resource Include="resources\cursor\Pipette_White_Border_Black.ico" />
+    <Resource Include="resources\cursor\Pipette_White_Border_None.ico" />
+    <Resource Include="resources\cursor\Rotate_Black_Border_None.ico" />
+    <Resource Include="resources\cursor\Rotate_Black_Border_White.ico" />
+    <Resource Include="resources\cursor\Rotate_White_Border_Black.ico" />
+    <Resource Include="resources\cursor\Rotate_White_Border_None.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Rotate.ico" />
+    <Resource Include="resources\map_overlay\Map_Icon_Passageway.png" />
+    <Resource Include="resources\map_overlay\Map_Icon_Tower_Gate.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Overlord_Normal.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="resources\general\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

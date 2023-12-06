@@ -8,43 +8,22 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Brush = System.Drawing.Brush;
 using Color = System.Drawing.Color;
 using MediaBrushes = System.Windows.Media.Brushes;
 using MediaColor = System.Windows.Media.Color;
 using MediaPen = System.Windows.Media.Pen;
 using Pen = System.Drawing.Pen;
+using PixelFormat = System.Windows.Media.PixelFormat;
 
 namespace Overlord_Map_Visualizer
 {
     public partial class MainWindow : Window
     {
-        private enum ColorFormat
-        {
-            RGB555,
-            RGB555Flipped,
-            RGB565,
-            RGB565Flipped,
-            BGR555,
-            BGR555Flipped,
-            BGR565,
-            BGR565Flipped,
-            RGBA4444,
-            RGBA4444Flipped,
-            ARGB4444,
-            ARGB4444Flipped,
-            Gray16,
-            RGB888,
-            RGB888Flipped,
-            BGR888,
-            BGR888Flipped,
-            Gray12
-        }
-
         private enum MapMode
         {
             HeightMap,
-            TextureDistributionMap
+            TextureDistributionMap,
+            Full
         }
 
         private enum CursorMode
@@ -52,10 +31,24 @@ namespace Overlord_Map_Visualizer
             Normal,
             Pipette,
             Square,
+            Circle,
             Rotate
         }
 
-        private MapMode currentMapMode;
+        private enum CursorSubMode
+        {
+            Set,
+            Add,
+            Sub
+        }
+
+        private enum DrawingType
+        {
+            Map,
+            SelectedColor
+        }
+
+        private MapMode CurrentMapMode;
         private readonly int MapWidth = 512;
         private readonly int MapHeight = 512;
         private string OMPFilePathString;
@@ -67,16 +60,15 @@ namespace Overlord_Map_Visualizer
 
         private bool IsAnyMapLoaded = false;
 
-        private CursorMode currentCursorMode;
-        private Color SelectedColor;
-        private int cursorDiameter = 50;
+        private CursorMode CurrentCursorMode;
+        private CursorSubMode CurrentCursorSubMode;
+        private int CursorDiameter = 51;
 
         public MainWindow()
         {
             InitializeComponent();
             Initialise();
             DrawCoordinateSystem();
-            UpdateSelectedColor(Color.Black);
         }
 
         private void Initialise()
@@ -87,6 +79,10 @@ namespace Overlord_Map_Visualizer
             TextureDistributionDigitsOneAndTwo = new byte[MapWidth, MapHeight];
             TextureDistributionDigitsThreeAndFour = new byte[MapWidth, MapHeight];
 
+            CurrentCursorMode = CursorMode.Normal;
+            cursorModeSelect.Background = MediaBrushes.SkyBlue;
+            CurrentCursorSubMode = CursorSubMode.Set;
+            cursorSubModeSet.Background = MediaBrushes.SkyBlue;
             SelectedColorCode.Text = "0000";
             cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
         }
@@ -98,40 +94,42 @@ namespace Overlord_Map_Visualizer
             using (Pen coordinatePen = new Pen(new SolidBrush(Color.Black)))
             {
                 //Y Axis Arrow
-                mapGraphics.DrawLine(coordinatePen, 13, 550, 18, 555);
-                mapGraphics.DrawLine(coordinatePen, 18, 36, 18, 555);
-                mapGraphics.DrawLine(coordinatePen, 23, 550, 18, 555);
+                mapGraphics.DrawLine(coordinatePen, 1, 8, 9, 0);
+                mapGraphics.DrawLine(coordinatePen, 9, 531, 9, 0);
+                mapGraphics.DrawLine(coordinatePen, 17, 8, 9, 0);
 
                 //X Axis Arrow
-                mapGraphics.DrawLine(coordinatePen, 531, 41, 536, 36);
-                mapGraphics.DrawLine(coordinatePen, 18, 36, 536, 36);
-                mapGraphics.DrawLine(coordinatePen, 531, 31, 536, 36);
+                mapGraphics.DrawLine(coordinatePen, 523,514, 531,522);
+                mapGraphics.DrawLine(coordinatePen, 0, 522, 531, 522);
+                mapGraphics.DrawLine(coordinatePen, 523, 530, 531, 522);
 
                 //Y Axis Marker
-                for (int y = 36; y < 568; y += 50)
+                for (int y = 522; y >= 21; y -= 50)
                 {
-                    mapGraphics.DrawLine(coordinatePen, 9, y, 18, y);
+                    mapGraphics.DrawLine(coordinatePen, 0, y, 8, y);
                 }
 
                 //X Axis Marker
-                for (int x = 18; x < 550; x += 50)
+                for (int x = 9; x <= 509; x += 50)
                 {
-                    mapGraphics.DrawLine(coordinatePen, x, 27, x, 36);
+                    mapGraphics.DrawLine(coordinatePen, x, 522, x, 531);
                 }
 
-                CreateNewLabel("CoordMarkerOrigin", "0", 274, 577);
+                CreateNewLabel("CoordMarkerOrigin", "  0", 257 + 560, 579);
 
-                CreateNewLabel("CoordMarkerX", "X", 811, 562);
+                CreateNewLabel("CoordMarkerX", "X", 811 - 540, 562);
 
-                for (int i = 1; i <= 10; i++)
+                for (int i = 10; i >= 1; i--)
                 {
                     string content = "" + i * 50;
                     if (i == 1)
                     {
                         content = " " + content;
                     }
-                    CreateNewLabel("CoordMarkerX" + i, content, 278 + (i * 50), 577);
+                    CreateNewLabel("CoordMarkerX" + i, content, 278 + 550 - (i * 50) - 37, 579);
                 }
+
+                CreateNewLabel("CoordMarkerY", "Y", 284 + 513, 35);
 
                 for (int i = 1; i <= 10; i++)
                 {
@@ -140,13 +138,11 @@ namespace Overlord_Map_Visualizer
                     {
                         content = "  " + content;
                     }
-                    CreateNewLabel("CoordMarkerX" + i, content, 257, 561 - (i * 50));
+                    CreateNewLabel("CoordMarkerY" + i, content, 257 + 555, 561 - (i * 50));
                 }
 
-                CreateNewLabel("CoordMarkerY", "Y", 284, 35);
-
-                //Set Origin Bottom Left
-                coordinateSystem.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                //Set Origin Bottom Right
+                coordinateSystem.RotateFlip(RotateFlipType.RotateNoneFlipX);
 
                 CoordinateSystem.Source = GetBmpImageFromBmp(coordinateSystem);
             }
@@ -179,10 +175,15 @@ namespace Overlord_Map_Visualizer
                     fileExtension = "omp";
                     filter = "omp files (*.omp)|*.omp";
                     break;
-                case string a when a.Equals("ImportMapButton"):
+                case string a when a.Equals("ImportMapData"):
                     dialogTitle = "Browse overlord map data";
                     fileExtension = "mapdata";
                     filter = "mapdata files (*.mapdata)|*.mapdata";
+                    break;
+                case string a when a.Equals("ImportMapImage"):
+                    dialogTitle = "Browse overlord map image";
+                    fileExtension = "tiff";
+                    filter = "mapdata files (*.tiff)|*.tiff";
                     break;
                 default:
                     dialogTitle = "";
@@ -202,15 +203,67 @@ namespace Overlord_Map_Visualizer
 
             if (openFileDialog.ShowDialog() == true)
             {
-                if(fileExtension == "omp")
+                switch (fileExtension)
                 {
-                    FilePath.Text = openFileDialog.FileName;
-                    OMPFilePathString = openFileDialog.FileName;
-                    GetMapData(GetMapDataOffset(), openFileDialog.FileName);
-                }
-                else
-                {
-                    GetMapData(0, openFileDialog.FileName, currentMapMode);
+                    case "omp":
+                        FilePath.Text = openFileDialog.FileName;
+                        OMPFilePathString = openFileDialog.FileName;
+                        GetMapData(GetMapDataOffset(), openFileDialog.FileName, 4, MapMode.Full);
+                        break;
+                    case "tiff":
+                        int offset = 8;
+                        int bytesPerPoint = 6;
+                        int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
+                        byte[] data = new byte[totalNumberOfBytes];
+                        int xOffset = bytesPerPoint;
+                        int yOffset = 0;
+                        int numberOfBytesInRow = MapWidth * bytesPerPoint;
+                        int totalOffset;
+
+                        using (BinaryReader reader = new BinaryReader(new FileStream(openFileDialog.FileName, FileMode.Open)))
+                        {
+                            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                            reader.Read(data, 0, totalNumberOfBytes);
+                        }
+
+                        for (int y = 0; y < MapHeight; y++)
+                        {
+                            if (y != 0)
+                            {
+                                yOffset = y * numberOfBytesInRow;
+                            }
+                            for (int x = 0; x < MapWidth; x++)
+                            {
+                                totalOffset = x * xOffset + yOffset;
+
+                                switch (CurrentMapMode)
+                                {
+                                    case MapMode.HeightMap:
+                                        int grayscale = (data[totalOffset + 1] << 8) + data[totalOffset];
+                                        grayscale /= 16;
+
+                                        HeightMapDigitsOneAndTwo[x, y] = (byte)(grayscale & 0x00FF);
+                                        HeightMapDigitsThreeAndFour[x, y] = (byte)((grayscale & 0x0F00) >> 8);
+                                        break;
+                                    case MapMode.TextureDistributionMap:
+                                        int red = (data[totalOffset + 1] << 8) + data[totalOffset];
+                                        int green = (data[totalOffset + 3] << 8) + data[totalOffset + 2];
+                                        int blue = (data[totalOffset + 5] << 8) + data[totalOffset + 4];
+
+                                        red /= 2114;
+                                        green /= 1040;
+                                        blue /= 2114;
+
+                                        TextureDistributionDigitsOneAndTwo[x, y] = (byte)(((green << 5) & 0x00E0) + blue);
+                                        TextureDistributionDigitsThreeAndFour[x, y] = (byte)((red << 3) + (green >> 3));
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        GetMapData(0, openFileDialog.FileName, 2, CurrentMapMode);
+                        break;
                 }
 
                 Render();
@@ -219,69 +272,30 @@ namespace Overlord_Map_Visualizer
                 {
                     MapModeDropDown.SelectedIndex = 0;
                     MapModeDropDown.IsEnabled = true;
-                    ImportMapButton.IsEnabled = true;
-                    ExportMapButton.IsEnabled = true;
+                    ImportMapData.IsEnabled = true;
+                    ImportMapImage.IsEnabled = true;
+                    ExportMapData.IsEnabled = true;
+                    ExportMapImage.IsEnabled = true;
                     ExportToOMPFileButton.IsEnabled = true;
                     SelectedColorCode.IsEnabled = true;
-                    SelectedColorCode.Visibility = Visibility.Visible;
-                    SelectedColorImage.Visibility = Visibility.Visible;
-                    SelectedColorBorder.Visibility = Visibility.Visible;
-                    SelectedColorHeight.Visibility = Visibility.Visible;
-                    cursorModeSelect.Visibility = Visibility.Visible;
-                    cursorModePipette.Visibility = Visibility.Visible;
-                    cursorModeSquare.Visibility = Visibility.Visible;
-                    cursorModeRotate.Visibility = Visibility.Visible;
                     IsAnyMapLoaded = true;
                 }
             }
         }
 
-        private void GetMapData(int OffsetMap, string filePath)
+        private void GetMapData(int offsetMap, string filePath, int bytesPerPoint, MapMode mapMode)
         {
-            int totalNumberOfBytes = MapWidth * MapHeight * 4;
-            byte[] allMapBytes = new byte[totalNumberOfBytes];
-            int xOffset = 4;
+            int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
+            byte[] data = new byte[totalNumberOfBytes];
+            int xOffset = bytesPerPoint;
             int yOffset = 0;
-            int numberOfBytesInRow = MapWidth * 4; //One point is described by four bytes
+            int numberOfBytesInRow = MapWidth * bytesPerPoint;
             int totalOffset;
 
             using (BinaryReader reader = new BinaryReader(new FileStream(filePath, FileMode.Open)))
             {
-                reader.BaseStream.Seek(OffsetMap, SeekOrigin.Begin);
-                reader.Read(allMapBytes, 0, totalNumberOfBytes);
-            }
-
-            for (int y = 0; y < MapHeight; y++)
-            {
-                if (y != 0)
-                {
-                    yOffset = y * numberOfBytesInRow;
-                }
-                for (int x = 0; x < MapWidth; x++)
-                {
-                    totalOffset = x * xOffset + yOffset;
-
-                    HeightMapDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
-                    HeightMapDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
-                    TextureDistributionDigitsOneAndTwo[x, y] = allMapBytes[totalOffset + 2];
-                    TextureDistributionDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 3];
-                }
-            }
-        }
-
-        private void GetMapData(int OffsetMap, string filePath, MapMode mapMode)
-        {
-            int totalNumberOfBytes = MapWidth * MapHeight * 2;
-            byte[] allMapBytes = new byte[totalNumberOfBytes];
-            int xOffset = 2;
-            int yOffset = 0;
-            int numberOfBytesInRow = MapWidth * 2; //One point is described by two bytes
-            int totalOffset;
-
-            using (BinaryReader reader = new BinaryReader(new FileStream(filePath, FileMode.Open)))
-            {
-                reader.BaseStream.Seek(OffsetMap, SeekOrigin.Begin);
-                reader.Read(allMapBytes, 0, totalNumberOfBytes);
+                reader.BaseStream.Seek(offsetMap, SeekOrigin.Begin);
+                reader.Read(data, 0, totalNumberOfBytes);
             }
 
             for (int y = 0; y < MapHeight; y++)
@@ -297,12 +311,18 @@ namespace Overlord_Map_Visualizer
                     switch (mapMode)
                     {
                         case MapMode.HeightMap:
-                            HeightMapDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
-                            HeightMapDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
+                            HeightMapDigitsOneAndTwo[x, y] = data[totalOffset];
+                            HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
                             break;
                         case MapMode.TextureDistributionMap:
-                            TextureDistributionDigitsOneAndTwo[x, y] = allMapBytes[totalOffset];
-                            TextureDistributionDigitsThreeAndFour[x, y] = allMapBytes[totalOffset + 1];
+                            TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset];
+                            TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 1];
+                            break;
+                        case MapMode.Full:
+                            HeightMapDigitsOneAndTwo[x, y] = data[totalOffset];
+                            HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
+                            TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset + 2];
+                            TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 3];
                             break;
                     }
                 }
@@ -312,69 +332,79 @@ namespace Overlord_Map_Visualizer
         private void ExportToFile(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
-            if(button.Name == "ExportToOMPFileButton")
-            {
-                WriteMapData(GetMapDataOffset(), OMPFilePathString);
-            }
-            else if (button.Name == "ExportMapButton")
-            {
-                SaveFileDialog saveFileDialog;
+            SaveFileDialog saveFileDialog;
 
-                saveFileDialog = new SaveFileDialog
-                {
-                    InitialDirectory = @"C:\",
-                    RestoreDirectory = true,
-                    Title = "Select Directory and file name for the overlord map data",
-                    DefaultExt = "mapdata",
-                    Filter = "mapdata files (*.mapdata)|*.mapdata"
-                };
+            switch (button.Name)
+            {
+                case "ExportToOMPFileButton":
+                    WriteMapData(GetMapDataOffset(), OMPFilePathString, 4, MapMode.Full);
+                    break;
+                case "ExportMapData":
+                    saveFileDialog = new SaveFileDialog
+                    {
+                        InitialDirectory = @"C:\",
+                        RestoreDirectory = true,
+                        Title = "Select Directory and file name for the overlord map data",
+                        DefaultExt = "mapdata",
+                        Filter = "mapdata files (*.mapdata)|*.mapdata"
+                    };
 
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    WriteMapData(0, saveFileDialog.FileName, currentMapMode);
-                }
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        WriteMapData(0, saveFileDialog.FileName, 2, CurrentMapMode);
+                    }
+                    break;
+                case "ExportMapImage":
+                    saveFileDialog = new SaveFileDialog
+                    {
+                        InitialDirectory = @"C:\",
+                        RestoreDirectory = true,
+                        Title = "Select Directory and file name for the overlord map image",
+                        DefaultExt = "tiff",
+                        Filter = "tiff image files (*.tiff)|*.tiff"
+                    };
+
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        using (FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                        {
+                            double dpi = 50;
+                            PixelFormat format = PixelFormats.Rgb48;
+                            int stride = ((MapWidth * format.BitsPerPixel) + 7) / 8;
+                            byte[] data;
+                            switch (CurrentMapMode)
+                            {
+                                case MapMode.HeightMap:
+                                    data = CreateTiffData(MapWidth, MapHeight, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
+                                    break;
+                                case MapMode.TextureDistributionMap:
+                                    data = CreateTiffData(MapWidth, MapHeight, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
+                                    break;
+                                default:
+                                    data = null;
+                                    break;
+                            }
+                            WriteableBitmap writableBitmap = new WriteableBitmap(MapWidth, MapHeight, dpi, dpi, format, null);
+                            writableBitmap.WritePixels(new Int32Rect(0, 0, MapWidth, MapHeight), data, stride, 0);
+
+                            // Encode as a TIFF
+                            TiffBitmapEncoder encoder = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
+                            encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
+
+                            encoder.Save(stream);
+                        }
+                    }
+                    break;
             }
         }
 
-        private void WriteMapData(int OffsetMap, string filePath)
+        private void WriteMapData(int OffsetMap, string filePath, int bytesPerPoint, MapMode mapMode)
         {
-            int totalNumberOfBytes = MapWidth * MapHeight * 4;
-            byte[] allMapBytes = new byte[totalNumberOfBytes];
-            int xOffset = 4;
+            int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
+            byte[] data = new byte[totalNumberOfBytes];
+            int xOffset = bytesPerPoint;
             int yOffset = 0;
-            int numberOfBytesInRow = MapWidth * 4; //One point is described by two bytes
-            int totalOffset;
-
-            for (int y = 0; y < MapHeight; y++)
-            {
-                if (y != 0)
-                {
-                    yOffset = y * numberOfBytesInRow;
-                }
-                for (int x = 0; x < MapWidth; x++)
-                {
-                    totalOffset = x * xOffset + yOffset;
-                    allMapBytes[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
-                    allMapBytes[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
-                    allMapBytes[totalOffset + 2] = TextureDistributionDigitsOneAndTwo[x, y];
-                    allMapBytes[totalOffset + 3] = TextureDistributionDigitsThreeAndFour[x, y];
-                }
-            }
-
-            using (BinaryWriter writer = new BinaryWriter(new FileStream(filePath, FileMode.OpenOrCreate)))
-            {
-                writer.BaseStream.Seek(OffsetMap, SeekOrigin.Begin);
-                writer.Write(allMapBytes, 0, totalNumberOfBytes);
-            }
-        }
-
-        private void WriteMapData(int OffsetMap, string filePath, MapMode mapMode)
-        {
-            int totalNumberOfBytes = MapWidth * MapHeight * 2;
-            byte[] allMapBytes = new byte[totalNumberOfBytes];
-            int xOffset = 2;
-            int yOffset = 0;
-            int numberOfBytesInRow = MapWidth * 2; //One point is described by two bytes
+            int numberOfBytesInRow = MapWidth * bytesPerPoint;
             int totalOffset;
 
             for (int y = 0; y < MapHeight; y++)
@@ -390,12 +420,18 @@ namespace Overlord_Map_Visualizer
                     switch (mapMode)
                     {
                         case MapMode.HeightMap:
-                            allMapBytes[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
-                            allMapBytes[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
+                            data[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
+                            data[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
                             break;
                         case MapMode.TextureDistributionMap:
-                            allMapBytes[totalOffset] = TextureDistributionDigitsOneAndTwo[x, y];
-                            allMapBytes[totalOffset + 1] = TextureDistributionDigitsThreeAndFour[x, y];
+                            data[totalOffset] = TextureDistributionDigitsOneAndTwo[x, y];
+                            data[totalOffset + 1] = TextureDistributionDigitsThreeAndFour[x, y];
+                            break;
+                        case MapMode.Full:
+                            data[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
+                            data[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
+                            data[totalOffset + 2] = TextureDistributionDigitsOneAndTwo[x, y];
+                            data[totalOffset + 3] = TextureDistributionDigitsThreeAndFour[x, y];
                             break;
                     }
                 }
@@ -404,7 +440,102 @@ namespace Overlord_Map_Visualizer
             using (BinaryWriter writer = new BinaryWriter(new FileStream(filePath, FileMode.OpenOrCreate)))
             {
                 writer.BaseStream.Seek(OffsetMap, SeekOrigin.Begin);
-                writer.Write(allMapBytes, 0, totalNumberOfBytes);
+                writer.Write(data, 0, totalNumberOfBytes);
+            }
+        }
+
+        private void EditMapData(int xMouseCoordinate, int yMouseCoordinate, byte[,] lowerByteData, byte[,] higherByteData)
+        {
+            int yMin = 0;
+            int xMin = 0;
+            int xMax = 511;
+            int yMax = 511;
+            int cursorRadius = CursorDiameter / 2;
+
+            if ((xMouseCoordinate - cursorRadius) >= xMin)
+            {
+                xMin = xMouseCoordinate - cursorRadius;
+            }
+            if ((xMouseCoordinate + cursorRadius) <= xMax)
+            {
+                xMax = xMouseCoordinate + cursorRadius;
+            }
+
+            if ((yMouseCoordinate - cursorRadius) >= yMin)
+            {
+                yMin = yMouseCoordinate - cursorRadius;
+            }
+            if ((yMouseCoordinate + cursorRadius) <= yMax)
+            {
+                yMax = yMouseCoordinate + cursorRadius;
+            }
+
+            for (int y = yMin; y <= yMax; y++)
+            {
+                for (int x = xMin; x <= xMax; x++)
+                {
+                    if (CurrentCursorMode == CursorMode.Square || (((x - xMouseCoordinate) * (x - xMouseCoordinate)) + ((y - yMouseCoordinate) * (y - yMouseCoordinate)) < (int)Math.Ceiling((decimal)CursorDiameter / 2) * (int)Math.Ceiling((decimal)CursorDiameter / 2)))
+                    {
+                        byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
+                        int selectedValue = (tempByteArray[1] << 8) + tempByteArray[0];
+                        int pixelValue = (higherByteData[x, y] << 8) + lowerByteData[x, y];
+                        switch (CurrentCursorSubMode)
+                        {
+                            case CursorSubMode.Set:
+                                lowerByteData[x, y] = tempByteArray[0];
+                                higherByteData[x, y] = tempByteArray[1];
+                                break;
+                            case CursorSubMode.Add:
+                                if (pixelValue + selectedValue <= 65535)
+                                {
+                                    lowerByteData[x, y] = (byte)((pixelValue + selectedValue) & 0x00FF);
+                                    higherByteData[x, y] = (byte)((pixelValue + selectedValue) >> 8);
+                                }
+                                else
+                                {
+                                    lowerByteData[x, y] = 255;
+                                    higherByteData[x, y] = 255;
+                                }
+                                break;
+                            case CursorSubMode.Sub:
+                                if (pixelValue - selectedValue >= 0)
+                                {
+                                    lowerByteData[x, y] = (byte)((pixelValue - selectedValue) & 0x00FF);
+                                    higherByteData[x, y] = (byte)((pixelValue - selectedValue) >> 8);
+                                }
+                                else
+                                {
+                                    lowerByteData[x, y] = 0;
+                                    higherByteData[x, y] = 0;
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void RotateMapData(byte[,] lowerByteData, byte[,] higherByteData)
+        {
+            for (int x = 0; x < MapWidth / 2; x++)
+            {
+                for (int y = x; y < MapHeight - x - 1; y++)
+                {
+                    byte tempLower = lowerByteData[x, y];
+                    byte tempHigher = higherByteData[x, y];
+
+                    lowerByteData[x, y] = lowerByteData[MapWidth - 1 - y, x];
+                    higherByteData[x, y] = higherByteData[MapWidth - 1 - y, x];
+
+                    lowerByteData[MapWidth - 1 - y, x] = lowerByteData[MapWidth - 1 - x, MapHeight - 1 - y];
+                    higherByteData[MapWidth - 1 - y, x] = higherByteData[MapWidth - 1 - x, MapHeight - 1 - y];
+
+                    lowerByteData[MapWidth - 1 - x, MapHeight - 1 - y] = lowerByteData[y, MapHeight - 1 - x];
+                    higherByteData[MapWidth - 1 - x, MapHeight - 1 - y] = higherByteData[y, MapHeight - 1 - x];
+
+                    lowerByteData[y, MapHeight - 1 - x] = tempLower;
+                    higherByteData[y, MapHeight - 1 - x] = tempHigher;
+                }
             }
         }
 
@@ -531,205 +662,12 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private Color GetColor(byte byte0, byte byte1, ColorFormat format)
-        {
-            int blue, green, red, alpha, grayscale;
-            Color color;
-
-            switch (format)
-            {
-                //RGB 555
-                case ColorFormat.RGB555:
-                    blue = byte0 & 0x1F;
-                    green = ((byte1 << 2) & 0x18) | ((byte0 >> 5) & 0x07);
-                    red = (byte1 >> 2) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 31;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //RGB 555 Bytes Exchanged
-                case ColorFormat.RGB555Flipped:
-                    blue = byte1 & 0x1F;
-                    green = ((byte0 << 2) & 0x18) | ((byte1 >> 5) & 0x07);
-                    red = (byte0 >> 2) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 31;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //RGB 565
-                case ColorFormat.RGB565:
-                    blue = byte0 & 0x1F;
-                    green = ((byte1 << 3) & 0x18) | ((byte0 >> 5) & 0x07);
-                    red = (byte1 >> 3) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 63;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //RGB 565 Bytes Exchanged
-                case ColorFormat.RGB565Flipped:
-                    blue = byte1 & 0x1F;
-                    green = ((byte0 << 3) & 0x18) | ((byte1 >> 5) & 0x07);
-                    red = (byte0 >> 3) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 63;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //BGR 555
-                case ColorFormat.BGR555:
-                    red = byte0 & 0x1F;
-                    green = ((byte1 << 2) & 0x18) | ((byte0 >> 5) & 0x07);
-                    blue = (byte1 >> 2) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 31;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //BGR 555 Bytes Exchanged
-                case ColorFormat.BGR555Flipped:
-                    red = byte1 & 0x1F;
-                    green = ((byte0 << 2) & 0x18) | ((byte1 >> 5) & 0x07);
-                    blue = (byte0 >> 2) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 31;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //BGR 565
-                case ColorFormat.BGR565:
-                    red = byte0 & 0x1F;
-                    green = ((byte1 << 3) & 0x38) | ((byte0 >> 5) & 0x07);
-                    blue = (byte1 >> 3) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 63;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //BGR 565 Bytes Exchanged
-                case ColorFormat.BGR565Flipped:
-                    red = byte1 & 0x1F;
-                    green = ((byte0 << 3) & 0x38) | ((byte1 >> 5) & 0x07);
-                    blue = (byte0 >> 3) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 63;
-                    red = red * 255 / 31;
-
-                    color = Color.FromArgb(red, green, blue);
-
-                    return color;
-                //RGBA 4444
-                case ColorFormat.RGBA4444:
-                    blue = byte0 & 0x0F;
-                    green = (byte0 >> 4) & 0x0F;
-                    red = byte1 & 0x0F;
-                    alpha = (byte1 >> 4) & 0x0F;
-
-                    blue = blue * 255 / 15;
-                    green = green * 255 / 15;
-                    red = red * 255 / 15;
-                    alpha = alpha * 255 / 15;
-
-                    color = Color.FromArgb(alpha, red, green, blue);
-
-                    return color;
-                //RGBA 4444 Bytes Exchanged
-                case ColorFormat.RGBA4444Flipped:
-                    blue = byte1 & 0x0F;
-                    green = (byte1 >> 4) & 0x0F;
-                    red = byte0 & 0x0F;
-                    alpha = (byte0 >> 4) & 0x0F;
-
-                    blue = blue * 255 / 15;
-                    green = green * 255 / 15;
-                    red = red * 255 / 15;
-                    alpha = alpha * 255 / 15;
-
-                    color = Color.FromArgb(alpha, red, green, blue);
-
-                    return color;
-                //ARGB 4444
-                case ColorFormat.ARGB4444:
-                    alpha = byte0 & 0x0F;
-                    blue = (byte0 >> 4) & 0x0F;
-                    green = byte1 & 0x0F;
-                    red = (byte1 >> 4) & 0x0F;
-
-                    blue = blue * 255 / 15;
-                    green = green * 255 / 15;
-                    red = red * 255 / 15;
-                    alpha = alpha * 255 / 15;
-
-                    color = Color.FromArgb(alpha, red, green, blue);
-
-                    return color;
-                //ARGB 4444 Bytes Exchanged
-                case ColorFormat.ARGB4444Flipped:
-                    alpha = byte1 & 0x0F;
-                    blue = (byte1 >> 4) & 0x0F;
-                    green = byte0 & 0x0F;
-                    red = (byte0 >> 4) & 0x0F;
-
-                    blue = blue * 255 / 15;
-                    green = green * 255 / 15;
-                    red = red * 255 / 15;
-                    alpha = alpha * 255 / 15;
-
-                    //alpha = 255;
-
-                    color = Color.FromArgb(alpha, red, green, blue);
-
-                    return color;
-                //Gray 16
-                case ColorFormat.Gray16:
-                    grayscale = (int)Math.Ceiling(0.2989 * (byte0 + byte1) + 0.5870 * (byte0 + byte1) + 0.1140 * (byte0 + byte1));
-                    grayscale /= 255;
-
-                    color = Color.FromArgb(grayscale, grayscale, grayscale);
-
-                    return color;
-                //Gray 12 (4 highest bits are ignored)
-                case ColorFormat.Gray12:
-                    grayscale = (int)Math.Ceiling(0.2989 * (byte1 & 0x0F) + 0.5870 * ((byte0 >> 4) & 0x0F) + 0.1140 * (byte0 & 0x0F));
-                    grayscale = grayscale * 255 / 15;
-
-                    color = Color.FromArgb(grayscale, grayscale, grayscale);
-
-                    return color;
-                default:
-                    return Color.Black;
-            }
-        }
-
         private BitmapImage GetBmpImageFromBmp(Bitmap bitMap)
         {
             using (MemoryStream memoryStream = new MemoryStream())
             {
-                bitMap.Save(memoryStream, ImageFormat.Png);
+                bitMap.Save(memoryStream, ImageFormat.Tiff);
+
                 memoryStream.Position = 0;
 
                 BitmapImage bitmapImage = new BitmapImage();
@@ -745,56 +683,237 @@ namespace Overlord_Map_Visualizer
 
         private void Render()
         {
-            Bitmap map = new Bitmap(MapWidth, MapHeight);
-            using (Graphics MapGraphics = Graphics.FromImage(map))
+            switch (CurrentMapMode)
             {
-                for (int x = 0; x < MapWidth; x++)
-                {
-                    for (int y = 0; y < MapHeight; y++)
-                    {
-                        Brush MapBrush;
-                        switch (currentMapMode)
-                        {
-                            case MapMode.HeightMap:
-                                MapBrush = new SolidBrush(GetColor(HeightMapDigitsOneAndTwo[x, y], HeightMapDigitsThreeAndFour[x, y], ColorFormat.Gray12));
-                                break;
-                            case MapMode.TextureDistributionMap:
-                                MapBrush = new SolidBrush(GetColor(TextureDistributionDigitsOneAndTwo[x, y], TextureDistributionDigitsThreeAndFour[x, y], ColorFormat.BGR565));
-                                break;
-                            default:
-                                MapBrush = new SolidBrush(Color.Black);
-                                break;
-                        }
+                case MapMode.HeightMap:
+                    DrawTiffImage(MapWidth,MapHeight,CreateTiffData(MapWidth,MapHeight, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour), DrawingType.Map);
+                    break;
+                case MapMode.TextureDistributionMap:
+                    DrawTiffImage(MapWidth, MapHeight, CreateTiffData(MapWidth, MapHeight, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour), DrawingType.Map);
+                    break;
+                case MapMode.Full:
+                    DrawTiffImage(MapWidth, MapHeight, CreateTiffData(MapWidth, MapHeight), DrawingType.Map);
+                    break;
+                default:
+                    break;
+            }
+        }
 
-                        MapGraphics.FillRectangle(MapBrush, x, y, 1, 1);
+        private byte[] CreateTiffData(int width, int height)
+        {
+            int red;
+            int blue;
+            int green;
+            int xOffset = 6;
+            int yOffset = 0;
+            int numberOfBytesInRow = width * 6; //One point is described by six bytes
+            int totalOffset;
+            byte[] data = new byte[width * height * 6];
+
+            for (int y = 0; y < height; y++)
+            {
+                if (y != 0)
+                {
+                    yOffset = y * numberOfBytesInRow;
+                }
+                for (int x = 0; x < width; x++)
+                {
+                    totalOffset = x * xOffset + yOffset;
+                    double highestDigit = Math.Pow(16, 1) * (HeightMapDigitsThreeAndFour[x, y] & 0x0F);
+                    double middleDigit = Math.Pow(16, 0) * ((HeightMapDigitsOneAndTwo[x, y] & 0xF0) >> 4);
+                    double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
+                    double heightValue = (highestDigit + middleDigit + smallestDigit) / 2;
+
+                    if (heightValue >= 15)
+                    {
+                        blue = 0xBA;
+                        green = 0xA9;
+                        red = 0x7C;
+                    }
+                    else
+                    {
+                        red = 0x38;
+                        green = 0x6C;
+                        blue = 0x78;
+                    }
+                    blue = blue * 65535 / 255;
+                    green = green * 65535 / 255;
+                    red = red * 65535 / 255;
+
+                    data[totalOffset] = (byte)(blue & 0x00FF);
+                    data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                    data[totalOffset + 2] = (byte)(green & 0x00FF);
+                    data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                    data[totalOffset + 4] = (byte)(red & 0x00FF);
+                    data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                }
+            }
+            return data;
+        }
+
+        private byte[] CreateTiffData(int width, int height, byte[,] lowerByteData, byte[,] higherByteData)
+        {
+            int xOffset = 6;
+            int yOffset = 0;
+            int numberOfBytesInRow = width * 6; //One point is described by six bytes
+            int totalOffset;
+            byte[] data = new byte[width * height * 6];
+
+            for (int y = 0; y < height; y++)
+            {
+                if (y != 0)
+                {
+                    yOffset = y * numberOfBytesInRow;
+                }
+                for (int x = 0; x < width; x++)
+                {
+                    totalOffset = x * xOffset + yOffset;
+                    switch (CurrentMapMode)
+                    {
+                        case MapMode.HeightMap:
+                            int grayScale = ((higherByteData[x, y] << 8) & 0x0FFF) + lowerByteData[x, y];
+                            grayScale = grayScale * 65535 / 4095;
+
+                            data[totalOffset] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 1] = (byte)((grayScale & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 3] = (byte)((grayScale & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 5] = (byte)((grayScale & 0xFF00) >> 8);
+                            break;
+                        case MapMode.TextureDistributionMap:
+                            int blue = lowerByteData[x,y] & 0x1F;
+                            int green = ((higherByteData[x, y] << 3) & 0x38) | ((lowerByteData[x, y] >> 5) & 0x07);
+                            int red = (higherByteData[x, y] >> 3) & 0x1F;
+
+                            blue = blue * 65535 / 31;
+                            green = green * 65535 / 63;
+                            red = red * 65535 / 31;
+
+                            data[totalOffset] = (byte)(blue & 0x00FF);
+                            data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(green & 0x00FF);
+                            data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(red & 0x00FF);
+                            data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                            break;
+                        default:
+                            break;
                     }
                 }
+            }
+            return data;
+        }
 
-                //Set Origin Bottom Left
-                map.RotateFlip(RotateFlipType.RotateNoneFlipY);
+        private byte[] CreateTiffData(int width, int height, byte[] singleColorData)
+        {
+            int xOffset = 6;
+            int yOffset = 0;
+            int numberOfBytesInRow = width * 6; //One point is described by six bytes
+            int totalOffset;
+            byte[] data = new byte[width * height * 6];
 
-                Map.Source = GetBmpImageFromBmp(map);
+            for (int y = 0; y < height; y++)
+            {
+                if (y != 0)
+                {
+                    yOffset = y * numberOfBytesInRow;
+                }
+                for (int x = 0; x < width; x++)
+                {
+                    totalOffset = x * xOffset + yOffset;
+                    switch (CurrentMapMode)
+                    {
+                        case MapMode.HeightMap:
+                            int grayScale = ((singleColorData[1] << 8) & 0x0FFF) + singleColorData[0];
+                            grayScale = grayScale * 65535 / 4095;
+
+                            data[totalOffset] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 1] = (byte)((grayScale & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 3] = (byte)((grayScale & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(grayScale & 0x00FF);
+                            data[totalOffset + 5] = (byte)((grayScale & 0xFF00) >> 8);
+                            break;
+                        case MapMode.TextureDistributionMap:
+                            int blue = singleColorData[0] & 0x1F;
+                            int green = ((singleColorData[1] << 3) & 0x38) | ((singleColorData[0] >> 5) & 0x07);
+                            int red = (singleColorData[1] >> 3) & 0x1F;
+
+                            blue = blue * 65535 / 31;
+                            green = green * 65535 / 63;
+                            red = red * 65535 / 31;
+
+                            data[totalOffset] = (byte)(blue & 0x00FF);
+                            data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(green & 0x00FF);
+                            data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(red & 0x00FF);
+                            data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            return data;
+        }
+
+        private void DrawTiffImage(int width, int height, byte[] data, DrawingType type)
+        {
+            double dpi = 50;
+            PixelFormat format = PixelFormats.Rgb48;
+            int stride = ((width * format.BitsPerPixel) + 7) / 8;
+
+            WriteableBitmap writableBitmap = new WriteableBitmap(width, height, dpi, dpi, format, null);
+            writableBitmap.WritePixels(new Int32Rect(0, 0, width, height), data, stride, 0);
+
+            // Encode as a TIFF
+            TiffBitmapEncoder encoder = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
+            encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
+
+            // Convert to a bitmap
+            using (MemoryStream ms = new MemoryStream())
+            {
+                encoder.Save(ms);
+
+                using (Bitmap map = new Bitmap(ms))
+                {
+                    //Set Origin Bottom Right
+                    map.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                    map.RotateFlip(RotateFlipType.RotateNoneFlipX);
+
+                    switch (type)
+                    {
+                        case DrawingType.Map:
+                            Map.Source = GetBmpImageFromBmp(map);
+                            break;
+                        case DrawingType.SelectedColor:
+                            SelectedColorImage.Source = GetBmpImageFromBmp(map);
+                            break;
+                    }
+                }
             }
         }
 
         private void ToolClick(object sender, MouseButtonEventArgs e)
         {
-            int xCoordinate = (int)e.GetPosition(Map).X;
-            int yCoordinate = 512 - (int)e.GetPosition(Map).Y;
+            int xMouseCoordinate = 511 - (int)e.GetPosition(Map).X;
+            int yMouseCoordinate = 511 - (int)e.GetPosition(Map).Y;
 
-            switch (currentCursorMode)
+            switch (CurrentCursorMode)
             {
                 case CursorMode.Normal:
-                    MessageBox.Show("Location : X:" + xCoordinate + " | Y:" + yCoordinate);
+                    MessageBox.Show("Location : X:" + xMouseCoordinate + " | Y:" + yMouseCoordinate);
                     break;
                 case CursorMode.Pipette:
-                    switch (currentMapMode)
+                    switch (CurrentMapMode)
                     {
                         case MapMode.HeightMap:
-                            SelectedColorCode.Text = HeightMapDigitsThreeAndFour[xCoordinate, yCoordinate].ToString("X2") + HeightMapDigitsOneAndTwo[xCoordinate, yCoordinate].ToString("X2");
+                            SelectedColorCode.Text = HeightMapDigitsThreeAndFour[xMouseCoordinate, yMouseCoordinate].ToString("X2") + HeightMapDigitsOneAndTwo[xMouseCoordinate, yMouseCoordinate].ToString("X2");
                             break;
                         case MapMode.TextureDistributionMap:
-                            SelectedColorCode.Text = TextureDistributionDigitsThreeAndFour[xCoordinate, yCoordinate].ToString("X2") + TextureDistributionDigitsOneAndTwo[xCoordinate, yCoordinate].ToString("X2");
+                            SelectedColorCode.Text = TextureDistributionDigitsThreeAndFour[xMouseCoordinate, yMouseCoordinate].ToString("X2") + TextureDistributionDigitsOneAndTwo[xMouseCoordinate, yMouseCoordinate].ToString("X2");
                             break;
                         default:
                             SelectedColorCode.Text = "0000";
@@ -804,48 +923,33 @@ namespace Overlord_Map_Visualizer
                 case CursorMode.Square:
                     if (SelectedColorCode.Text.Length == 4)
                     {
-                        int yMin = 0;
-                        int xMin = 0;
-                        int xMax = 512;
-                        int yMax = 512;
-
-                        if ((xCoordinate - (cursorDiameter / 2)) >= xMin)
+                        switch (CurrentMapMode)
                         {
-                            xMin = xCoordinate - (cursorDiameter / 2);
+                            case MapMode.HeightMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
+                                break;
+                            case MapMode.TextureDistributionMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
+                                break;
                         }
-                        if ((xCoordinate + (cursorDiameter / 2)) <= xMax)
+                        Render();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error\nThe selected color has to be 4 digits long.");
+                    }
+                    break;
+                case CursorMode.Circle:
+                    if (SelectedColorCode.Text.Length == 4)
+                    {
+                        switch (CurrentMapMode)
                         {
-                            xMax = xCoordinate + (cursorDiameter / 2);
-                        }
-
-                        if ((yCoordinate - (cursorDiameter / 2)) >= yMin)
-                        {
-                            yMin = yCoordinate - (cursorDiameter / 2);
-                        }
-                        if ((yCoordinate + (cursorDiameter / 2)) <= yMax)
-                        {
-                            yMax = yCoordinate + (cursorDiameter / 2);
-                        }
-
-                        for (int y = yMin; y < yMax; y++)
-                        {
-                            for (int x = xMin; x < xMax; x++)
-                            {
-                                byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
-                                switch (currentMapMode)
-                                {
-                                    case MapMode.HeightMap:
-                                        HeightMapDigitsOneAndTwo[x, y] = tempByteArray[0];
-                                        HeightMapDigitsThreeAndFour[x, y] = tempByteArray[1];
-                                        break;
-                                    case MapMode.TextureDistributionMap:
-                                        TextureDistributionDigitsOneAndTwo[x, y] = tempByteArray[0];
-                                        TextureDistributionDigitsThreeAndFour[x, y] = tempByteArray[1];
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
+                            case MapMode.HeightMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
+                                break;
+                            case MapMode.TextureDistributionMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
+                                break;
                         }
                         Render();
                     }
@@ -855,39 +959,15 @@ namespace Overlord_Map_Visualizer
                     }
                     break;
                 case CursorMode.Rotate:
-                    byte[,] rotatedHeightMapDigitsOneAndTwo = new byte[MapWidth, MapHeight];
-                    byte[,] rotatedHeightMapDigitsThreeAndFour = new byte[MapWidth, MapHeight];
-                    byte[,] rotatedTextureDistributionDigitsOneAndTwo = new byte[MapWidth, MapHeight];
-                    byte[,] rotatedTextureDistributionDigitsThreeAndFour = new byte[MapWidth, MapHeight];
-
-                    int i = 0;
-                    for (int x = 0; x < MapHeight; x++)
+                    switch (CurrentMapMode)
                     {
-                        for (int y = 512 - 1; y >= 0; y--)
-                        {
-                            switch (currentMapMode)
-                            {
-                                case MapMode.HeightMap:
-                                    rotatedHeightMapDigitsOneAndTwo[x, i] = HeightMapDigitsOneAndTwo[y, x];
-                                    rotatedHeightMapDigitsThreeAndFour[x, i] = HeightMapDigitsThreeAndFour[y, x];
-                                    break;
-                                case MapMode.TextureDistributionMap:
-                                    rotatedTextureDistributionDigitsOneAndTwo[x, i] = TextureDistributionDigitsOneAndTwo[y, x];
-                                    rotatedTextureDistributionDigitsThreeAndFour[x, i] = TextureDistributionDigitsThreeAndFour[y, x];
-                                    break;
-                                default:
-                                    break;
-                            }
-                            i++;
-                        }
-                        i = 0;
+                        case MapMode.HeightMap:
+                            RotateMapData(HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
+                            break;
+                        case MapMode.TextureDistributionMap:
+                            RotateMapData(TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
+                            break;
                     }
-
-                    HeightMapDigitsOneAndTwo = rotatedHeightMapDigitsOneAndTwo;
-                    HeightMapDigitsThreeAndFour = rotatedHeightMapDigitsThreeAndFour;
-                    TextureDistributionDigitsOneAndTwo = rotatedTextureDistributionDigitsOneAndTwo;
-                    TextureDistributionDigitsThreeAndFour = rotatedTextureDistributionDigitsThreeAndFour;
-
                     Render();
                     break;
                 default:
@@ -895,58 +975,94 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private byte[] GetByteArrayFromHexString(string fullHexStumber)
+        private byte[] GetByteArrayFromHexString(string fullHexString)
         {
-            string digitOneAndTwoString = "" + fullHexStumber[2] + fullHexStumber[3];
-            string digitThreeAndFourString = "" + fullHexStumber[0] + fullHexStumber[1];
-
-            byte digitOneAndTwoNumber = Convert.ToByte(digitOneAndTwoString, 16);
-            byte digitThreeAndFourNumber = Convert.ToByte(digitThreeAndFourString, 16);
-
             byte[] tempByteArray = new byte[2];
-            tempByteArray[0] = digitOneAndTwoNumber;
-            tempByteArray[1] = digitThreeAndFourNumber;
+
+            tempByteArray[0] = Convert.ToByte("" + fullHexString[2] + fullHexString[3], 16);
+            tempByteArray[1] = Convert.ToByte("" + fullHexString[0] + fullHexString[1], 16);
 
             return tempByteArray;
         }
 
         private void MapModeChanged(object sender, SelectionChangedEventArgs e)
         {
+            byte[] singleColorData;
             switch (MapModeDropDown.SelectedIndex)
             {
                 case 0:
-                    currentMapMode = MapMode.HeightMap;
-                    ImportMapButton.Content = "Import Heightmap";
-                    ExportMapButton.Content = "Export Heightmap";
+                    CurrentMapMode = MapMode.HeightMap;
+                    UpdateCursor();
+                    ImportMapData.Content = "Import heightmap as data";
+                    ImportMapImage.Content = "Import heightmap as image";
+                    ExportMapData.Content = "Export heightmap as data";
+                    ExportMapImage.Content = "Export heightmap as image";
                     Render();
-                    UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
-                    SelectedColorHeight.Visibility = Visibility.Visible;
+                    singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
+                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
+
+                    ImportMapData.Visibility = Visibility.Visible;
+                    ImportMapImage.Visibility = Visibility.Visible;
+                    ExportMapData.Visibility = Visibility.Visible;
+                    ExportMapImage.Visibility = Visibility.Visible;
+                    UpdateToolBar();
                     break;
                 case 1:
-                    currentMapMode = MapMode.TextureDistributionMap;
-                    ImportMapButton.Content = "Import Texture Distribution";
-                    ExportMapButton.Content = "Export Texture Distribution";
+                    CurrentMapMode = MapMode.TextureDistributionMap;
+                    UpdateCursor();
+                    ImportMapData.Content = "Import texturemap as data";
+                    ImportMapImage.Content = "Import texturemap as image";
+                    ExportMapData.Content = "Export texturemap as data";
+                    ExportMapImage.Content = "Export texturemap as image";
                     Render();
-                    UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
+                    singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
+                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
+                    ImportMapData.Visibility = Visibility.Visible;
+                    ImportMapImage.Visibility = Visibility.Visible;
+                    ExportMapData.Visibility = Visibility.Visible;
+                    ExportMapImage.Visibility = Visibility.Visible;
+                    UpdateToolBar();
+                    break;
+                case 2:
+                    CurrentMapMode = MapMode.Full;
+                    Mouse.OverrideCursor = null;
+                    Render();
+                    ImportMapData.Visibility = Visibility.Hidden;
+                    ImportMapImage.Visibility = Visibility.Hidden;
+                    ExportMapData.Visibility = Visibility.Hidden;
+                    ExportMapImage.Visibility = Visibility.Hidden;
+                    SelectedColorCode.Visibility = Visibility.Hidden;
+                    SelectedColorImage.Visibility = Visibility.Hidden;
+                    SelectedColorBorder.Visibility = Visibility.Hidden;
                     SelectedColorHeight.Visibility = Visibility.Hidden;
+                    cursorModeSelect.Visibility = Visibility.Hidden;
+                    cursorModePipette.Visibility = Visibility.Hidden;
+                    CursorSizeSlider.Visibility = Visibility.Hidden;
+                    cursorDiameterLabel.Visibility = Visibility.Hidden;
+                    cursorModeSquare.Visibility = Visibility.Hidden;
+                    cursorModeRotate.Visibility = Visibility.Hidden;
+                    cursorSubModeSet.Visibility = Visibility.Hidden;
+                    cursorSubModeAdd.Visibility = Visibility.Hidden;
+                    cursorSubModeSub.Visibility = Visibility.Hidden;
+
                     break;
                 default:
                     break;
             }
 
-            if (currentCursorMode == CursorMode.Square)
+            if (CurrentCursorMode == CursorMode.Square)
             {
-                ShowSquareCursor();
+                UpdateCursor();
             }
         }
 
         private string LeaveOnlyHexNumbers(string inString)
         {
-            foreach (char c in inString.ToCharArray())
+            foreach (char character in inString.ToCharArray())
             {
-                if (!System.Text.RegularExpressions.Regex.IsMatch(c.ToString(), "^[0-9a-fA-F]*$"))
+                if (!System.Text.RegularExpressions.Regex.IsMatch(character.ToString(), "^[0-9a-fA-F]*$"))
                 {
-                    inString = inString.Replace(c.ToString(), "");
+                    inString = inString.Replace(character.ToString(), "");
                 }
             }
 
@@ -959,61 +1075,17 @@ namespace Overlord_Map_Visualizer
 
             if (SelectedColorCode.Text.Length == 4)
             {
-                UpdateSelectedColor(GetColorFromHexString(SelectedColorCode.Text));
-                if (currentCursorMode == CursorMode.Square)
+                byte[] singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
+                DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
+
+                int digitOne = Convert.ToInt32("" + SelectedColorCode.Text[3], 16);
+                int digitTwo = Convert.ToInt32("" + SelectedColorCode.Text[2], 16);
+                int digitThree = Convert.ToInt32("" + SelectedColorCode.Text[1], 16);
+                SelectedColorHeight.Content = "This color corresponds to a height of\r\n" + (((digitThree * Math.Pow(16, 1)) + (digitTwo * Math.Pow(16, 0)) + (digitOne * Math.Pow(16, -1))) / 2);
+                if (CurrentCursorMode == CursorMode.Square)
                 {
-                    ShowSquareCursor();
+                    UpdateCursor();
                 }
-            }
-        }
-
-        private void UpdateSelectedColor(Color color)
-        {
-            SelectedColor = color;
-            SolidBrush selectedColorBrush = new SolidBrush(color);
-            Bitmap selectedColorBitmap = new Bitmap((int)SelectedColorImage.Width, (int)SelectedColorImage.Height);
-            using (Graphics MapGraphics = Graphics.FromImage(selectedColorBitmap))
-            {
-                MapGraphics.FillRectangle(selectedColorBrush, 0, 0, (int)SelectedColorImage.Width, (int)SelectedColorImage.Height);
-                SelectedColorImage.Source = GetBmpImageFromBmp(selectedColorBitmap);
-            }
-        }
-
-        private Color GetColorFromHexString(string fullHexStumber)
-        {
-            string digitOneAndTwoString = "" + fullHexStumber[2] + fullHexStumber[3];
-            string digitThreeAndFourString = "" + fullHexStumber[0] + fullHexStumber[1];
-
-            int digitOne = Convert.ToInt32("" + fullHexStumber[3], 16);
-            int digitTwo = Convert.ToInt32("" + fullHexStumber[2], 16);
-            int digitThree = Convert.ToInt32("" + fullHexStumber[1], 16);
-
-            byte digitOneAndTwoNumber = Convert.ToByte(digitOneAndTwoString, 16);
-            byte digitThreeAndFourNumber = Convert.ToByte(digitThreeAndFourString, 16);
-
-            SelectedColorHeight.Content = "This color corresponds to a height of\r\n" + (((digitThree * Math.Pow(16, 1)) + (digitTwo * Math.Pow(16, 0)) + (digitOne * Math.Pow(16, -1))) / 2);
-
-            switch (currentMapMode)
-            {
-                case MapMode.HeightMap:
-                    int grayscale = (int)Math.Ceiling(0.2989 * (digitThreeAndFourNumber & 0x0F) + 0.5870 * ((digitOneAndTwoNumber >> 4) & 0x0F) + 0.1140 * (digitOneAndTwoNumber & 0x0F));
-                    grayscale = grayscale * 255 / 15;
-
-                    return Color.FromArgb(grayscale, grayscale, grayscale);
-                case MapMode.TextureDistributionMap:
-                    int blue, green, red;
-
-                    red = digitOneAndTwoNumber & 0x1F;
-                    green = ((digitThreeAndFourNumber << 3) & 0x38) | ((digitOneAndTwoNumber >> 5) & 0x07);
-                    blue = (digitThreeAndFourNumber >> 3) & 0x1F;
-
-                    blue = blue * 255 / 31;
-                    green = green * 255 / 63;
-                    red = red * 255 / 31;
-
-                    return Color.FromArgb(red, green, blue);
-                default:
-                    return Color.Black;
             }
         }
 
@@ -1035,33 +1107,135 @@ namespace Overlord_Map_Visualizer
             //}
         }
 
-        private Cursor CreateCursor(double cursorWidth, double cursorHeight, SolidColorBrush fillBrush, SolidColorBrush borderBrush, MediaPen pen)
+        private void CursorModeSelect_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorMode = CursorMode.Normal;
+            UpdateCursor();
+            UpdateToolBar();
+        }
+
+        private void CursorModePipette_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorMode = CursorMode.Pipette;
+            UpdateCursor();
+            UpdateToolBar();
+        }
+
+        private void CursorModeSquare_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorMode = CursorMode.Square;
+            UpdateCursor();
+            UpdateToolBar();
+        }
+
+        private void CursorModeCircle_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorMode = CursorMode.Circle;
+            UpdateCursor();
+            UpdateToolBar();
+        }
+
+        private void CursorModeRotate_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorMode = CursorMode.Rotate;
+            UpdateCursor();
+            UpdateToolBar();
+        }
+
+        private void CursorSubModeSet_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorSubMode = CursorSubMode.Set;
+            UpdateToolBar();
+        }
+
+        private void CursorSubModeAdd_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorSubMode = CursorSubMode.Add;
+            UpdateToolBar();
+        }
+
+        private void CursorSubModeSub_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentCursorSubMode = CursorSubMode.Sub;
+            UpdateToolBar();
+        }
+
+        private void UpdateCursor()
+        {
+            SolidColorBrush fillBrush;
+            switch (CurrentCursorMode)
+            {
+                case CursorMode.Normal:
+                    Mouse.OverrideCursor = null;
+                    break;
+                case CursorMode.Pipette:
+                    fillBrush = MediaBrushes.Black;
+                    Mouse.OverrideCursor = CreateCursor(28, 28, fillBrush, null);
+                    break;
+                case CursorMode.Square:
+                    fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, 0xFF, 0xFF, 0xFF));
+                    Mouse.OverrideCursor = CreateCursor(CursorDiameter, CursorDiameter, fillBrush, MediaBrushes.Black);
+                    break;
+                case CursorMode.Circle:
+                    fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, 0xFF, 0xFF, 0xFF));
+                    Mouse.OverrideCursor = CreateCursor(CursorDiameter, CursorDiameter, fillBrush, MediaBrushes.Black);
+                    break;
+                case CursorMode.Rotate:
+                    fillBrush = MediaBrushes.Black;
+                    Mouse.OverrideCursor = CreateCursor(28, 32, fillBrush, null);
+                    break;
+            }
+        }
+
+        private Cursor CreateCursor(double cursorWidth, double cursorHeight, SolidColorBrush fillBrush, SolidColorBrush borderBrush)
         {
             System.Windows.Point centrePoint;
             int borderWidth;
             DrawingVisual drawingVisual = new DrawingVisual();
             using (DrawingContext drawingContext = drawingVisual.RenderOpen())
             {
-                switch (currentCursorMode)
+                switch (CurrentCursorMode)
                 {
                     case CursorMode.Square:
-                        centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
                         borderWidth = 2;
-                        drawingContext.DrawRectangle(fillBrush, new MediaPen(borderBrush, 1.0), new Rect(1, 1, cursorWidth, cursorHeight));
+                        centrePoint = new System.Windows.Point((cursorWidth + (borderWidth * 2)) / 2, (cursorHeight + (borderWidth * 2)) / 2);
+
+                        //Draw Cursor Background Color
+                        drawingContext.DrawRectangle(fillBrush, null, new Rect(2, 2, cursorWidth, cursorHeight));
+
+                        //Draw Cursor Border
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 2.0), new System.Windows.Point(1, 0), new System.Windows.Point(1, cursorHeight + (borderWidth * 2)));
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 2.0), new System.Windows.Point(cursorWidth + (borderWidth * 2) - 1, 0), new System.Windows.Point(cursorWidth + (borderWidth * 2) - 1, cursorHeight + (borderWidth * 2)));
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 2.0), new System.Windows.Point(0, 1), new System.Windows.Point(cursorWidth + (borderWidth * 2), 1));
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 2.0), new System.Windows.Point(0, cursorHeight + (borderWidth * 2) - 1), new System.Windows.Point(cursorWidth + (borderWidth * 2), cursorHeight + (borderWidth * 2) - 1));
+
+                        //Draw Cursor Cross
                         drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X - 10, centrePoint.Y), new System.Windows.Point(centrePoint.X + 10, centrePoint.Y));
                         drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X, centrePoint.Y - 10), new System.Windows.Point(centrePoint.X, centrePoint.Y + 10));
                         drawingContext.Close();
                         break;
                     case CursorMode.Pipette:
-                        centrePoint = new System.Windows.Point(0, 0);
                         borderWidth = 0;
-                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Pipette.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
+                        centrePoint = new System.Windows.Point(0, 0);
+                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/resources/cursor/Pipette_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
+                        drawingContext.Close();
+                        break;
+                    case CursorMode.Circle:
+                        borderWidth = 2;
+                        centrePoint = new System.Windows.Point((cursorWidth + (borderWidth * 2)) / 2, (cursorHeight + (borderWidth * 2)) / 2);
+
+                        //Draw Cursor Border &  Background Color
+                        drawingContext.DrawEllipse(fillBrush, new MediaPen(borderBrush, 1.0), centrePoint, (cursorWidth / 2) + 1, (cursorWidth / 2) + 1);
+
+                        //Draw Cursor Cross
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X - 10, centrePoint.Y), new System.Windows.Point(centrePoint.X + 10, centrePoint.Y));
+                        drawingContext.DrawLine(new MediaPen(borderBrush, 1.0), new System.Windows.Point(centrePoint.X, centrePoint.Y - 10), new System.Windows.Point(centrePoint.X, centrePoint.Y + 10));
                         drawingContext.Close();
                         break;
                     case CursorMode.Rotate:
-                        centrePoint = new System.Windows.Point(cursorWidth / 2, cursorHeight / 2);
                         borderWidth = 0;
-                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/Rotate.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
+                        centrePoint = new System.Windows.Point((cursorWidth + borderWidth) / 2, (cursorHeight + borderWidth) / 2);
+                        drawingContext.DrawImage(new BitmapImage(new Uri("pack://application:,,,/resources/cursor/Rotate_White_Border_Black.ico")), new Rect(0, 0, cursorWidth, cursorHeight));
                         drawingContext.Close();
                         break;
                     default:
@@ -1070,7 +1244,7 @@ namespace Overlord_Map_Visualizer
                         break;
                 }
             }
-            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int) cursorWidth + borderWidth, (int) cursorHeight + borderWidth, 96, 96, PixelFormats.Pbgra32);
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)cursorWidth + (borderWidth * 2), (int)cursorHeight + (borderWidth * 2) , 96, 96, PixelFormats.Pbgra32);
             renderTargetBitmap.Render(drawingVisual);
 
             using (MemoryStream memoryStreamOne = new MemoryStream())
@@ -1092,8 +1266,8 @@ namespace Overlord_Map_Visualizer
                     }
 
                     {//ICONDIRENTRY structure
-                        memoryStreamTwo.WriteByte((byte) cursorWidth); //Specifies image width in pixels. Can be any number between 0 and 255. Value 0 means image width is 256 pixels.
-                        memoryStreamTwo.WriteByte((byte) cursorHeight); //Specifies image height in pixels. Can be any number between 0 and 255. Value 0 means image height is 256 pixels.
+                        memoryStreamTwo.WriteByte((byte) (cursorWidth + borderWidth)); //Specifies image width in pixels. Can be any number between 0 and 255. Value 0 means image width is 256 pixels.
+                        memoryStreamTwo.WriteByte((byte) (cursorHeight + borderWidth)); //Specifies image height in pixels. Can be any number between 0 and 255. Value 0 means image height is 256 pixels.
 
                         memoryStreamTwo.WriteByte(0); //Specifies number of colors in the color palette. Should be 0 if the image does not use a color palette. 
                         memoryStreamTwo.WriteByte(0); //Reserved. Should be 0. 
@@ -1112,57 +1286,174 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private void CursorModeSelect_Click(object sender, RoutedEventArgs e)
+        private void UpdateToolBar()
         {
-            currentCursorMode = CursorMode.Normal;
-            Mouse.OverrideCursor = null;
-            CursorSizeSlider.Visibility = Visibility.Hidden;
-            cursorDiameterLabel.Visibility = Visibility.Hidden;
-        }
+            switch (CurrentCursorMode)
+            {
+                case CursorMode.Normal:
+                    cursorModeSelect.Background = MediaBrushes.SkyBlue;
+                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
 
-        private void CursorModePipette_Click(object sender, RoutedEventArgs e)
-        {
-            currentCursorMode = CursorMode.Pipette;
-            ShowPipetteCursor();
-            CursorSizeSlider.Visibility = Visibility.Hidden;
-            cursorDiameterLabel.Visibility = Visibility.Hidden;
-        }
+                    cursorModeSelect.Visibility = Visibility.Visible;
+                    cursorModePipette.Visibility = Visibility.Visible;
+                    cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeCircle.Visibility = Visibility.Visible;
+                    cursorModeRotate.Visibility = Visibility.Visible;
 
-        private void CursorModeSquare_Click(object sender, RoutedEventArgs e)
-        {
-            currentCursorMode = CursorMode.Square;
-            ShowSquareCursor();
-            CursorSizeSlider.Visibility = Visibility.Visible;
-            cursorDiameterLabel.Visibility = Visibility.Visible;
-        }
+                    cursorSubModeSet.Visibility = Visibility.Hidden;
+                    cursorSubModeAdd.Visibility = Visibility.Hidden;
+                    cursorSubModeSub.Visibility = Visibility.Hidden;
 
-        private void CursorModeRotate_Click(object sender, RoutedEventArgs e)
-        {
-            currentCursorMode = CursorMode.Rotate;
-            ShowRotateCursor();
-            CursorSizeSlider.Visibility = Visibility.Hidden;
-            cursorDiameterLabel.Visibility = Visibility.Hidden;
-        }
+                    SelectedColorCode.Visibility = Visibility.Hidden;
+                    SelectedColorImage.Visibility = Visibility.Hidden;
+                    SelectedColorBorder.Visibility = Visibility.Hidden;
+                    SelectedColorHeight.Visibility = Visibility.Hidden;
 
-        private void ShowSquareCursor()
-        {
-            SolidColorBrush fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, SelectedColor.R, SelectedColor.G, SelectedColor.B));
+                    CursorSizeSlider.Visibility = Visibility.Hidden;
+                    cursorDiameterLabel.Visibility = Visibility.Hidden;
+                    break;
+                case CursorMode.Pipette:
+                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModePipette.Background = MediaBrushes.SkyBlue;
+                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
 
-            Mouse.OverrideCursor = CreateCursor(cursorDiameter, cursorDiameter, fillBrush, MediaBrushes.Black, null);
-        }
+                    cursorModeSelect.Visibility = Visibility.Visible;
+                    cursorModePipette.Visibility = Visibility.Visible;
+                    cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeCircle.Visibility = Visibility.Visible;
+                    cursorModeRotate.Visibility = Visibility.Visible;
 
-        private void ShowPipetteCursor()
-        {
-            SolidColorBrush fillBrush = MediaBrushes.Black;
+                    cursorSubModeSet.Visibility = Visibility.Hidden;
+                    cursorSubModeAdd.Visibility = Visibility.Hidden;
+                    cursorSubModeSub.Visibility = Visibility.Hidden;
 
-            Mouse.OverrideCursor = CreateCursor(26, 26, fillBrush, null, null);
-        }
+                    SelectedColorCode.Visibility = Visibility.Visible;
+                    SelectedColorImage.Visibility = Visibility.Visible;
+                    SelectedColorBorder.Visibility = Visibility.Visible;
+                    SelectedColorHeight.Visibility = CurrentMapMode != MapMode.HeightMap ? Visibility.Hidden : Visibility.Visible;
 
-        private void ShowRotateCursor()
-        {
-            SolidColorBrush fillBrush = MediaBrushes.Black;
+                    CursorSizeSlider.Visibility = Visibility.Hidden;
+                    cursorDiameterLabel.Visibility = Visibility.Hidden;
+                    break;
+                case CursorMode.Square:
+                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeSquare.Background = MediaBrushes.SkyBlue;
+                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
 
-            Mouse.OverrideCursor = CreateCursor(26, 30, fillBrush, null, null);
+                    cursorModeSelect.Visibility = Visibility.Visible;
+                    cursorModePipette.Visibility = Visibility.Visible;
+                    cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeCircle.Visibility = Visibility.Visible;
+                    cursorModeRotate.Visibility = Visibility.Visible;
+
+                    cursorSubModeSet.Visibility = Visibility.Visible;
+                    cursorSubModeAdd.Visibility = Visibility.Visible;
+                    cursorSubModeSub.Visibility = Visibility.Visible;
+
+                    SelectedColorCode.Visibility = Visibility.Visible;
+                    SelectedColorImage.Visibility = Visibility.Visible;
+                    SelectedColorBorder.Visibility = Visibility.Visible;
+                    SelectedColorHeight.Visibility = CurrentMapMode != MapMode.HeightMap ? Visibility.Hidden : Visibility.Visible;
+
+                    CursorSizeSlider.Visibility = Visibility.Visible;
+                    cursorDiameterLabel.Visibility = Visibility.Visible;
+
+                    switch (CurrentCursorSubMode)
+                    {
+                        case CursorSubMode.Set:
+                            cursorSubModeSet.Background = MediaBrushes.SkyBlue;
+                            cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            break;
+                        case CursorSubMode.Add:
+                            cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeAdd.Background = MediaBrushes.SkyBlue;
+                            cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            break;
+                        case CursorSubMode.Sub:
+                            cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeSub.Background = MediaBrushes.SkyBlue;
+                            break;
+                    }
+                    break;
+                case CursorMode.Rotate:
+                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeRotate.Background = MediaBrushes.SkyBlue;
+
+                    cursorModeSelect.Visibility = Visibility.Visible;
+                    cursorModePipette.Visibility = Visibility.Visible;
+                    cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeCircle.Visibility = Visibility.Visible;
+                    cursorModeRotate.Visibility = Visibility.Visible;
+
+                    cursorSubModeSet.Visibility = Visibility.Hidden;
+                    cursorSubModeAdd.Visibility = Visibility.Hidden;
+                    cursorSubModeSub.Visibility = Visibility.Hidden;
+
+                    SelectedColorCode.Visibility = Visibility.Hidden;
+                    SelectedColorImage.Visibility = Visibility.Hidden;
+                    SelectedColorBorder.Visibility = Visibility.Hidden;
+                    SelectedColorHeight.Visibility = Visibility.Hidden;
+
+                    CursorSizeSlider.Visibility = Visibility.Hidden;
+                    cursorDiameterLabel.Visibility = Visibility.Hidden;
+                    break;
+                case CursorMode.Circle:
+                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeCircle.Background = MediaBrushes.SkyBlue;
+                    cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+
+                    cursorModeSelect.Visibility = Visibility.Visible;
+                    cursorModePipette.Visibility = Visibility.Visible;
+                    cursorModeSquare.Visibility = Visibility.Visible;
+                    cursorModeCircle.Visibility = Visibility.Visible;
+                    cursorModeRotate.Visibility = Visibility.Visible;
+
+                    cursorSubModeSet.Visibility = Visibility.Visible;
+                    cursorSubModeAdd.Visibility = Visibility.Visible;
+                    cursorSubModeSub.Visibility = Visibility.Visible;
+
+                    SelectedColorCode.Visibility = Visibility.Visible;
+                    SelectedColorImage.Visibility = Visibility.Visible;
+                    SelectedColorBorder.Visibility = Visibility.Visible;
+                    SelectedColorHeight.Visibility = CurrentMapMode != MapMode.HeightMap ? Visibility.Hidden : Visibility.Visible;
+
+                    CursorSizeSlider.Visibility = Visibility.Visible;
+                    cursorDiameterLabel.Visibility = Visibility.Visible;
+
+                    switch (CurrentCursorSubMode)
+                    {
+                        case CursorSubMode.Set:
+                            cursorSubModeSet.Background = MediaBrushes.SkyBlue;
+                            cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            break;
+                        case CursorSubMode.Add:
+                            cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeAdd.Background = MediaBrushes.SkyBlue;
+                            cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            break;
+                        case CursorSubMode.Sub:
+                            cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                            cursorSubModeSub.Background = MediaBrushes.SkyBlue;
+                            break;
+                    }
+                    break;
+            }
         }
 
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -1170,10 +1461,10 @@ namespace Overlord_Map_Visualizer
             if (IsAnyMapLoaded)
             {
                 cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
-                cursorDiameter = (int) CursorSizeSlider.Value;
-                if (currentCursorMode == CursorMode.Square)
+                CursorDiameter = (int) CursorSizeSlider.Value;
+                if (CurrentCursorMode == CursorMode.Square || CurrentCursorMode == CursorMode.Circle)
                 {
-                    ShowSquareCursor();
+                    UpdateCursor();
                 }
             }
         }
