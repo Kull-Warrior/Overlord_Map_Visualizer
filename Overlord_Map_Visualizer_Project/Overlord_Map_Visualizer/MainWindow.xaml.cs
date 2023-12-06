@@ -450,7 +450,7 @@ namespace Overlord_Map_Visualizer
             int xMin = 0;
             int xMax = 511;
             int yMax = 511;
-            int cursorRadius = (int)Math.Ceiling((decimal)CursorDiameter / 2);
+            int cursorRadius = CursorDiameter / 2;
 
             if ((xMouseCoordinate - cursorRadius) >= xMin)
             {
@@ -474,7 +474,7 @@ namespace Overlord_Map_Visualizer
             {
                 for (int x = xMin; x <= xMax; x++)
                 {
-                    if (CurrentCursorMode == CursorMode.Square || (((x - xMouseCoordinate) * (x - xMouseCoordinate)) + ((y - yMouseCoordinate) * (y - yMouseCoordinate)) < cursorRadius * cursorRadius))
+                    if (CurrentCursorMode == CursorMode.Square || (((x - xMouseCoordinate) * (x - xMouseCoordinate)) + ((y - yMouseCoordinate) * (y - yMouseCoordinate)) < (int)Math.Ceiling((decimal)CursorDiameter / 2) * (int)Math.Ceiling((decimal)CursorDiameter / 2)))
                     {
                         byte[] tempByteArray = GetByteArrayFromHexString(SelectedColorCode.Text);
                         int selectedValue = (tempByteArray[1] << 8) + tempByteArray[0];
