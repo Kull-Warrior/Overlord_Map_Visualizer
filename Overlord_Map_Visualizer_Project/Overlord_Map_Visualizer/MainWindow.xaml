@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Overlord Map Visualizer" Height="746" Width="1110" MinWidth="1110" MinHeight="700" Icon="resources/general/Overlord_Normal.ico" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="Overlord Map Visualizer" Height="746" Width="1110" MinWidth="1110" MinHeight="700" Icon="Overlord_Normal.ico" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Grid x:Name="appGrid">
         <Image x:Name="CoordinateSystem" HorizontalAlignment="Left" Height="532" Width="532" Margin="283,54,0,0" VerticalAlignment="Top"/>
         <Image x:Name="Map" HorizontalAlignment="Left" Height="512" Width="512" Margin="293,64,0,0" VerticalAlignment="Top" MouseDown="ToolClick"/>
