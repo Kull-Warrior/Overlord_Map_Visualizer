@@ -266,7 +266,7 @@ namespace Overlord_Map_Visualizer
                         break;
                 }
 
-                Render();
+                DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
 
                 if (!IsAnyMapLoaded)
                 {
@@ -371,19 +371,7 @@ namespace Overlord_Map_Visualizer
                             double dpi = 50;
                             PixelFormat format = PixelFormats.Rgb48;
                             int stride = ((MapWidth * format.BitsPerPixel) + 7) / 8;
-                            byte[] data;
-                            switch (CurrentMapMode)
-                            {
-                                case MapMode.HeightMap:
-                                    data = CreateTiffData(MapWidth, MapHeight, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
-                                    break;
-                                case MapMode.TextureDistributionMap:
-                                    data = CreateTiffData(MapWidth, MapHeight, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
-                                    break;
-                                default:
-                                    data = null;
-                                    break;
-                            }
+                            byte[] data = CreateTiffData(MapWidth, MapHeight, DrawingType.Map);
                             WriteableBitmap writableBitmap = new WriteableBitmap(MapWidth, MapHeight, dpi, dpi, format, null);
                             writableBitmap.WritePixels(new Int32Rect(0, 0, MapWidth, MapHeight), data, stride, 0);
 
@@ -681,29 +669,12 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private void Render()
-        {
-            switch (CurrentMapMode)
-            {
-                case MapMode.HeightMap:
-                    DrawTiffImage(MapWidth,MapHeight,CreateTiffData(MapWidth,MapHeight, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour), DrawingType.Map);
-                    break;
-                case MapMode.TextureDistributionMap:
-                    DrawTiffImage(MapWidth, MapHeight, CreateTiffData(MapWidth, MapHeight, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour), DrawingType.Map);
-                    break;
-                case MapMode.Full:
-                    DrawTiffImage(MapWidth, MapHeight, CreateTiffData(MapWidth, MapHeight, null, null), DrawingType.Map);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private byte[] CreateTiffData(int width, int height, byte[,] lowerByteData, byte[,] higherByteData)
+        private byte[] CreateTiffData(int width, int height, DrawingType type)
         {
             int red;
             int blue;
             int green;
+            int grayScale;
             int xOffset = 6;
             int yOffset = 0;
             int numberOfBytesInRow = width * 6; //One point is described by six bytes
@@ -722,7 +693,20 @@ namespace Overlord_Map_Visualizer
                     switch (CurrentMapMode)
                     {
                         case MapMode.HeightMap:
-                            int grayScale = ((higherByteData[x, y] << 8) & 0x0FFF) + lowerByteData[x, y];
+                            switch (type)
+                            {
+                                case DrawingType.Map:
+                                    grayScale = ((HeightMapDigitsThreeAndFour[x, y] << 8) & 0x0FFF) + HeightMapDigitsOneAndTwo[x, y];
+                                    break;
+                                case DrawingType.SelectedColor:
+                                    byte[] singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
+                                    grayScale = ((singleColorData[1] << 8) & 0x0FFF) + singleColorData[0];
+                                    break;
+                                default:
+                                    grayScale = 0;
+                                    break;
+                            }
+
                             grayScale = grayScale * 65535 / 4095;
 
                             data[totalOffset] = (byte)(grayScale & 0x00FF);
@@ -733,10 +717,25 @@ namespace Overlord_Map_Visualizer
                             data[totalOffset + 5] = (byte)((grayScale & 0xFF00) >> 8);
                             break;
                         case MapMode.TextureDistributionMap:
-                            blue = lowerByteData[x,y] & 0x1F;
-                            green = ((higherByteData[x, y] << 3) & 0x38) | ((lowerByteData[x, y] >> 5) & 0x07);
-                            red = (higherByteData[x, y] >> 3) & 0x1F;
-
+                            switch (type)
+                            {
+                                case DrawingType.Map:
+                                    blue = TextureDistributionDigitsOneAndTwo[x, y] & 0x1F;
+                                    green = ((TextureDistributionDigitsThreeAndFour[x, y] << 3) & 0x38) | ((TextureDistributionDigitsOneAndTwo[x, y] >> 5) & 0x07);
+                                    red = (TextureDistributionDigitsThreeAndFour[x, y] >> 3) & 0x1F;
+                                    break;
+                                case DrawingType.SelectedColor:
+                                    byte[] singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
+                                    blue = singleColorData[0] & 0x1F;
+                                    green = ((singleColorData[1] << 3) & 0x38) | ((singleColorData[0] >> 5) & 0x07);
+                                    red = (singleColorData[1] >> 3) & 0x1F;
+                                    break;
+                                default:
+                                    blue = 0;
+                                    green = 0;
+                                    red = 0;
+                                    break;
+                            }
                             blue = blue * 65535 / 31;
                             green = green * 65535 / 63;
                             red = red * 65535 / 31;
@@ -749,33 +748,36 @@ namespace Overlord_Map_Visualizer
                             data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
                             break;
                         case MapMode.Full:
-                            double highestDigit = Math.Pow(16, 1) * (HeightMapDigitsThreeAndFour[x, y] & 0x0F);
-                            double middleDigit = Math.Pow(16, 0) * ((HeightMapDigitsOneAndTwo[x, y] & 0xF0) >> 4);
-                            double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
-                            double heightValue = (highestDigit + middleDigit + smallestDigit) / 2;
-
-                            if (heightValue >= 15)
+                            if (type != DrawingType.SelectedColor)
                             {
-                                blue = 0xBA;
-                                green = 0xA9;
-                                red = 0x7C;
-                            }
-                            else
-                            {
-                                red = 0x38;
-                                green = 0x6C;
-                                blue = 0x78;
-                            }
-                            blue = blue * 65535 / 255;
-                            green = green * 65535 / 255;
-                            red = red * 65535 / 255;
+                                double highestDigit = Math.Pow(16, 1) * (HeightMapDigitsThreeAndFour[x, y] & 0x0F);
+                                double middleDigit = Math.Pow(16, 0) * ((HeightMapDigitsOneAndTwo[x, y] & 0xF0) >> 4);
+                                double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
+                                double heightValue = (highestDigit + middleDigit + smallestDigit) / 2;
 
-                            data[totalOffset] = (byte)(blue & 0x00FF);
-                            data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
-                            data[totalOffset + 2] = (byte)(green & 0x00FF);
-                            data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
-                            data[totalOffset + 4] = (byte)(red & 0x00FF);
-                            data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                                if (heightValue >= 15)
+                                {
+                                    blue = 0xBA;
+                                    green = 0xA9;
+                                    red = 0x7C;
+                                }
+                                else
+                                {
+                                    red = 0x38;
+                                    green = 0x6C;
+                                    blue = 0x78;
+                                }
+                                blue = blue * 65535 / 255;
+                                green = green * 65535 / 255;
+                                red = red * 65535 / 255;
+
+                                data[totalOffset] = (byte)(blue & 0x00FF);
+                                data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                                data[totalOffset + 2] = (byte)(green & 0x00FF);
+                                data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                                data[totalOffset + 4] = (byte)(red & 0x00FF);
+                                data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                            }
                             break;
                         default:
                             break;
@@ -785,68 +787,14 @@ namespace Overlord_Map_Visualizer
             return data;
         }
 
-        private byte[] CreateTiffData(int width, int height, byte[] singleColorData)
-        {
-            int xOffset = 6;
-            int yOffset = 0;
-            int numberOfBytesInRow = width * 6; //One point is described by six bytes
-            int totalOffset;
-            byte[] data = new byte[width * height * 6];
-
-            for (int y = 0; y < height; y++)
-            {
-                if (y != 0)
-                {
-                    yOffset = y * numberOfBytesInRow;
-                }
-                for (int x = 0; x < width; x++)
-                {
-                    totalOffset = x * xOffset + yOffset;
-                    switch (CurrentMapMode)
-                    {
-                        case MapMode.HeightMap:
-                            int grayScale = ((singleColorData[1] << 8) & 0x0FFF) + singleColorData[0];
-                            grayScale = grayScale * 65535 / 4095;
-
-                            data[totalOffset] = (byte)(grayScale & 0x00FF);
-                            data[totalOffset + 1] = (byte)((grayScale & 0xFF00) >> 8);
-                            data[totalOffset + 2] = (byte)(grayScale & 0x00FF);
-                            data[totalOffset + 3] = (byte)((grayScale & 0xFF00) >> 8);
-                            data[totalOffset + 4] = (byte)(grayScale & 0x00FF);
-                            data[totalOffset + 5] = (byte)((grayScale & 0xFF00) >> 8);
-                            break;
-                        case MapMode.TextureDistributionMap:
-                            int blue = singleColorData[0] & 0x1F;
-                            int green = ((singleColorData[1] << 3) & 0x38) | ((singleColorData[0] >> 5) & 0x07);
-                            int red = (singleColorData[1] >> 3) & 0x1F;
-
-                            blue = blue * 65535 / 31;
-                            green = green * 65535 / 63;
-                            red = red * 65535 / 31;
-
-                            data[totalOffset] = (byte)(blue & 0x00FF);
-                            data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
-                            data[totalOffset + 2] = (byte)(green & 0x00FF);
-                            data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
-                            data[totalOffset + 4] = (byte)(red & 0x00FF);
-                            data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            }
-            return data;
-        }
-
-        private void DrawTiffImage(int width, int height, byte[] data, DrawingType type)
+        private void DrawTiffImage(int width, int height, DrawingType type)
         {
             double dpi = 50;
             PixelFormat format = PixelFormats.Rgb48;
             int stride = ((width * format.BitsPerPixel) + 7) / 8;
 
             WriteableBitmap writableBitmap = new WriteableBitmap(width, height, dpi, dpi, format, null);
-            writableBitmap.WritePixels(new Int32Rect(0, 0, width, height), data, stride, 0);
+            writableBitmap.WritePixels(new Int32Rect(0, 0, width, height), CreateTiffData(width, height, type), stride, 0);
 
             // Encode as a TIFF
             TiffBitmapEncoder encoder = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
@@ -912,7 +860,7 @@ namespace Overlord_Map_Visualizer
                                 EditMapData(xMouseCoordinate, yMouseCoordinate, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
                                 break;
                         }
-                        Render();
+                        DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     }
                     else
                     {
@@ -931,7 +879,7 @@ namespace Overlord_Map_Visualizer
                                 EditMapData(xMouseCoordinate, yMouseCoordinate, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
                                 break;
                         }
-                        Render();
+                        DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     }
                     else
                     {
@@ -948,7 +896,7 @@ namespace Overlord_Map_Visualizer
                             RotateMapData(TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
                             break;
                     }
-                    Render();
+                    DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     break;
                 default:
                     break;
@@ -967,7 +915,6 @@ namespace Overlord_Map_Visualizer
 
         private void MapModeChanged(object sender, SelectionChangedEventArgs e)
         {
-            byte[] singleColorData;
             switch (MapModeDropDown.SelectedIndex)
             {
                 case 0:
@@ -977,9 +924,8 @@ namespace Overlord_Map_Visualizer
                     ImportMapImage.Content = "Import heightmap as image";
                     ExportMapData.Content = "Export heightmap as data";
                     ExportMapImage.Content = "Export heightmap as image";
-                    Render();
-                    singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
-                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
+                    DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
+                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
 
                     ImportMapData.Visibility = Visibility.Visible;
                     ImportMapImage.Visibility = Visibility.Visible;
@@ -994,9 +940,8 @@ namespace Overlord_Map_Visualizer
                     ImportMapImage.Content = "Import texturemap as image";
                     ExportMapData.Content = "Export texturemap as data";
                     ExportMapImage.Content = "Export texturemap as image";
-                    Render();
-                    singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
-                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
+                    DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
+                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
                     ImportMapData.Visibility = Visibility.Visible;
                     ImportMapImage.Visibility = Visibility.Visible;
                     ExportMapData.Visibility = Visibility.Visible;
@@ -1006,7 +951,7 @@ namespace Overlord_Map_Visualizer
                 case 2:
                     CurrentMapMode = MapMode.Full;
                     Mouse.OverrideCursor = null;
-                    Render();
+                    DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     ImportMapData.Visibility = Visibility.Hidden;
                     ImportMapImage.Visibility = Visibility.Hidden;
                     ExportMapData.Visibility = Visibility.Hidden;
@@ -1056,8 +1001,7 @@ namespace Overlord_Map_Visualizer
 
             if (SelectedColorCode.Text.Length == 4)
             {
-                byte[] singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
-                DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, CreateTiffData((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, singleColorData), DrawingType.SelectedColor);
+                DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
 
                 int digitOne = Convert.ToInt32("" + SelectedColorCode.Text[3], 16);
                 int digitTwo = Convert.ToInt32("" + SelectedColorCode.Text[2], 16);
