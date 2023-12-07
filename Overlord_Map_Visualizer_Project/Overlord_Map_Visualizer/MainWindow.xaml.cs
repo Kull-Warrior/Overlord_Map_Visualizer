@@ -692,67 +692,18 @@ namespace Overlord_Map_Visualizer
                     DrawTiffImage(MapWidth, MapHeight, CreateTiffData(MapWidth, MapHeight, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour), DrawingType.Map);
                     break;
                 case MapMode.Full:
-                    DrawTiffImage(MapWidth, MapHeight, CreateTiffData(MapWidth, MapHeight), DrawingType.Map);
+                    DrawTiffImage(MapWidth, MapHeight, CreateTiffData(MapWidth, MapHeight, null, null), DrawingType.Map);
                     break;
                 default:
                     break;
             }
         }
 
-        private byte[] CreateTiffData(int width, int height)
+        private byte[] CreateTiffData(int width, int height, byte[,] lowerByteData, byte[,] higherByteData)
         {
             int red;
             int blue;
             int green;
-            int xOffset = 6;
-            int yOffset = 0;
-            int numberOfBytesInRow = width * 6; //One point is described by six bytes
-            int totalOffset;
-            byte[] data = new byte[width * height * 6];
-
-            for (int y = 0; y < height; y++)
-            {
-                if (y != 0)
-                {
-                    yOffset = y * numberOfBytesInRow;
-                }
-                for (int x = 0; x < width; x++)
-                {
-                    totalOffset = x * xOffset + yOffset;
-                    double highestDigit = Math.Pow(16, 1) * (HeightMapDigitsThreeAndFour[x, y] & 0x0F);
-                    double middleDigit = Math.Pow(16, 0) * ((HeightMapDigitsOneAndTwo[x, y] & 0xF0) >> 4);
-                    double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
-                    double heightValue = (highestDigit + middleDigit + smallestDigit) / 2;
-
-                    if (heightValue >= 15)
-                    {
-                        blue = 0xBA;
-                        green = 0xA9;
-                        red = 0x7C;
-                    }
-                    else
-                    {
-                        red = 0x38;
-                        green = 0x6C;
-                        blue = 0x78;
-                    }
-                    blue = blue * 65535 / 255;
-                    green = green * 65535 / 255;
-                    red = red * 65535 / 255;
-
-                    data[totalOffset] = (byte)(blue & 0x00FF);
-                    data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
-                    data[totalOffset + 2] = (byte)(green & 0x00FF);
-                    data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
-                    data[totalOffset + 4] = (byte)(red & 0x00FF);
-                    data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
-                }
-            }
-            return data;
-        }
-
-        private byte[] CreateTiffData(int width, int height, byte[,] lowerByteData, byte[,] higherByteData)
-        {
             int xOffset = 6;
             int yOffset = 0;
             int numberOfBytesInRow = width * 6; //One point is described by six bytes
@@ -782,13 +733,42 @@ namespace Overlord_Map_Visualizer
                             data[totalOffset + 5] = (byte)((grayScale & 0xFF00) >> 8);
                             break;
                         case MapMode.TextureDistributionMap:
-                            int blue = lowerByteData[x,y] & 0x1F;
-                            int green = ((higherByteData[x, y] << 3) & 0x38) | ((lowerByteData[x, y] >> 5) & 0x07);
-                            int red = (higherByteData[x, y] >> 3) & 0x1F;
+                            blue = lowerByteData[x,y] & 0x1F;
+                            green = ((higherByteData[x, y] << 3) & 0x38) | ((lowerByteData[x, y] >> 5) & 0x07);
+                            red = (higherByteData[x, y] >> 3) & 0x1F;
 
                             blue = blue * 65535 / 31;
                             green = green * 65535 / 63;
                             red = red * 65535 / 31;
+
+                            data[totalOffset] = (byte)(blue & 0x00FF);
+                            data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(green & 0x00FF);
+                            data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(red & 0x00FF);
+                            data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                            break;
+                        case MapMode.Full:
+                            double highestDigit = Math.Pow(16, 1) * (HeightMapDigitsThreeAndFour[x, y] & 0x0F);
+                            double middleDigit = Math.Pow(16, 0) * ((HeightMapDigitsOneAndTwo[x, y] & 0xF0) >> 4);
+                            double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
+                            double heightValue = (highestDigit + middleDigit + smallestDigit) / 2;
+
+                            if (heightValue >= 15)
+                            {
+                                blue = 0xBA;
+                                green = 0xA9;
+                                red = 0x7C;
+                            }
+                            else
+                            {
+                                red = 0x38;
+                                green = 0x6C;
+                                blue = 0x78;
+                            }
+                            blue = blue * 65535 / 255;
+                            green = green * 65535 / 255;
+                            red = red * 65535 / 255;
 
                             data[totalOffset] = (byte)(blue & 0x00FF);
                             data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
