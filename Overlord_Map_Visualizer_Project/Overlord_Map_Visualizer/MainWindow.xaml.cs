@@ -80,9 +80,9 @@ namespace Overlord_Map_Visualizer
             TextureDistributionDigitsThreeAndFour = new byte[MapWidth, MapHeight];
 
             CurrentCursorMode = CursorMode.Normal;
-            cursorModeSelect.Background = MediaBrushes.SkyBlue;
             CurrentCursorSubMode = CursorSubMode.Set;
-            cursorSubModeSet.Background = MediaBrushes.SkyBlue;
+            HighlightCurrentCursorMode();
+            HighlightCurrentCursorSubMode();
             SelectedColorCode.Text = "0000";
             cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
         }
@@ -99,7 +99,7 @@ namespace Overlord_Map_Visualizer
                 mapGraphics.DrawLine(coordinatePen, 17, 8, 9, 0);
 
                 //X Axis Arrow
-                mapGraphics.DrawLine(coordinatePen, 523,514, 531,522);
+                mapGraphics.DrawLine(coordinatePen, 523, 514, 531, 522);
                 mapGraphics.DrawLine(coordinatePen, 0, 522, 531, 522);
                 mapGraphics.DrawLine(coordinatePen, 523, 530, 531, 522);
 
@@ -926,11 +926,7 @@ namespace Overlord_Map_Visualizer
                     ExportMapImage.Content = "Export heightmap as image";
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
-
-                    ImportMapData.Visibility = Visibility.Visible;
-                    ImportMapImage.Visibility = Visibility.Visible;
-                    ExportMapData.Visibility = Visibility.Visible;
-                    ExportMapImage.Visibility = Visibility.Visible;
+                    ShowImportExportButtons();
                     UpdateToolBar();
                     break;
                 case 1:
@@ -942,34 +938,18 @@ namespace Overlord_Map_Visualizer
                     ExportMapImage.Content = "Export texturemap as image";
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
-                    ImportMapData.Visibility = Visibility.Visible;
-                    ImportMapImage.Visibility = Visibility.Visible;
-                    ExportMapData.Visibility = Visibility.Visible;
-                    ExportMapImage.Visibility = Visibility.Visible;
+                    ShowImportExportButtons();
                     UpdateToolBar();
                     break;
                 case 2:
                     CurrentMapMode = MapMode.Full;
                     Mouse.OverrideCursor = null;
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
-                    ImportMapData.Visibility = Visibility.Hidden;
-                    ImportMapImage.Visibility = Visibility.Hidden;
-                    ExportMapData.Visibility = Visibility.Hidden;
-                    ExportMapImage.Visibility = Visibility.Hidden;
-                    SelectedColorCode.Visibility = Visibility.Hidden;
-                    SelectedColorImage.Visibility = Visibility.Hidden;
-                    SelectedColorBorder.Visibility = Visibility.Hidden;
-                    SelectedColorHeight.Visibility = Visibility.Hidden;
-                    cursorModeSelect.Visibility = Visibility.Hidden;
-                    cursorModePipette.Visibility = Visibility.Hidden;
-                    CursorSizeSlider.Visibility = Visibility.Hidden;
-                    cursorDiameterLabel.Visibility = Visibility.Hidden;
-                    cursorModeSquare.Visibility = Visibility.Hidden;
-                    cursorModeCircle.Visibility = Visibility.Hidden;
-                    cursorModeRotate.Visibility = Visibility.Hidden;
-                    cursorSubModeSet.Visibility = Visibility.Hidden;
-                    cursorSubModeAdd.Visibility = Visibility.Hidden;
-                    cursorSubModeSub.Visibility = Visibility.Hidden;
+                    HideImportExportButtons();
+                    HideSelectedColor();
+                    HideCursorModes();
+                    HideCursorSubModes();
+                    HideCursorSlider();
 
                     break;
                 default:
@@ -1169,7 +1149,7 @@ namespace Overlord_Map_Visualizer
                         break;
                 }
             }
-            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)cursorWidth + (borderWidth * 2), (int)cursorHeight + (borderWidth * 2) , 96, 96, PixelFormats.Pbgra32);
+            RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)cursorWidth + (borderWidth * 2), (int)cursorHeight + (borderWidth * 2), 96, 96, PixelFormats.Pbgra32);
             renderTargetBitmap.Render(drawingVisual);
 
             using (MemoryStream memoryStreamOne = new MemoryStream())
@@ -1191,8 +1171,8 @@ namespace Overlord_Map_Visualizer
                     }
 
                     {//ICONDIRENTRY structure
-                        memoryStreamTwo.WriteByte((byte) (cursorWidth + borderWidth)); //Specifies image width in pixels. Can be any number between 0 and 255. Value 0 means image width is 256 pixels.
-                        memoryStreamTwo.WriteByte((byte) (cursorHeight + borderWidth)); //Specifies image height in pixels. Can be any number between 0 and 255. Value 0 means image height is 256 pixels.
+                        memoryStreamTwo.WriteByte((byte)(cursorWidth + borderWidth)); //Specifies image width in pixels. Can be any number between 0 and 255. Value 0 means image width is 256 pixels.
+                        memoryStreamTwo.WriteByte((byte)(cursorHeight + borderWidth)); //Specifies image height in pixels. Can be any number between 0 and 255. Value 0 means image height is 256 pixels.
 
                         memoryStreamTwo.WriteByte(0); //Specifies number of colors in the color palette. Should be 0 if the image does not use a color palette. 
                         memoryStreamTwo.WriteByte(0); //Reserved. Should be 0. 
@@ -1211,7 +1191,83 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private void UpdateToolBar()
+        private void HideImportExportButtons()
+        {
+            ImportMapData.Visibility = Visibility.Hidden;
+            ImportMapImage.Visibility = Visibility.Hidden;
+            ExportMapData.Visibility = Visibility.Hidden;
+            ExportMapImage.Visibility = Visibility.Hidden;
+        }
+
+        private void ShowImportExportButtons()
+        {
+            ImportMapData.Visibility = Visibility.Visible;
+            ImportMapImage.Visibility = Visibility.Visible;
+            ExportMapData.Visibility = Visibility.Visible;
+            ExportMapImage.Visibility = Visibility.Visible;
+        }
+
+        private void HideCursorModes()
+        {
+            cursorModeSelect.Visibility = Visibility.Hidden;
+            cursorModePipette.Visibility = Visibility.Hidden;
+            cursorModeSquare.Visibility = Visibility.Hidden;
+            cursorModeCircle.Visibility = Visibility.Hidden;
+            cursorModeRotate.Visibility = Visibility.Hidden;
+        }
+
+        private void ShowCursorModes()
+        {
+            cursorModeSelect.Visibility = Visibility.Visible;
+            cursorModePipette.Visibility = Visibility.Visible;
+            cursorModeSquare.Visibility = Visibility.Visible;
+            cursorModeCircle.Visibility = Visibility.Visible;
+            cursorModeRotate.Visibility = Visibility.Visible;
+        }
+
+        private void HideCursorSubModes()
+        {
+            cursorSubModeSet.Visibility = Visibility.Hidden;
+            cursorSubModeAdd.Visibility = Visibility.Hidden;
+            cursorSubModeSub.Visibility = Visibility.Hidden;
+        }
+
+        private void ShowCursorSubModes()
+        {
+            cursorSubModeSet.Visibility = Visibility.Visible;
+            cursorSubModeAdd.Visibility = Visibility.Visible;
+            cursorSubModeSub.Visibility = Visibility.Visible;
+        }
+
+        private void HideSelectedColor()
+        {
+            SelectedColorCode.Visibility = Visibility.Hidden;
+            SelectedColorImage.Visibility = Visibility.Hidden;
+            SelectedColorBorder.Visibility = Visibility.Hidden;
+            SelectedColorHeight.Visibility = Visibility.Hidden;
+        }
+
+        private void ShowSelectedColor()
+        {
+            SelectedColorCode.Visibility = Visibility.Visible;
+            SelectedColorImage.Visibility = Visibility.Visible;
+            SelectedColorBorder.Visibility = Visibility.Visible;
+            SelectedColorHeight.Visibility = CurrentMapMode != MapMode.HeightMap ? Visibility.Hidden : Visibility.Visible;
+        }
+
+        private void HideCursorSlider()
+        {
+            CursorSizeSlider.Visibility = Visibility.Hidden;
+            cursorDiameterLabel.Visibility = Visibility.Hidden;
+        }
+
+        private void ShowCursorSlider()
+        {
+            CursorSizeSlider.Visibility = Visibility.Visible;
+            cursorDiameterLabel.Visibility = Visibility.Visible;
+        }
+
+        private void HighlightCurrentCursorMode()
         {
             switch (CurrentCursorMode)
             {
@@ -1221,24 +1277,6 @@ namespace Overlord_Map_Visualizer
                     cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-
-                    cursorModeSelect.Visibility = Visibility.Visible;
-                    cursorModePipette.Visibility = Visibility.Visible;
-                    cursorModeSquare.Visibility = Visibility.Visible;
-                    cursorModeCircle.Visibility = Visibility.Visible;
-                    cursorModeRotate.Visibility = Visibility.Visible;
-
-                    cursorSubModeSet.Visibility = Visibility.Hidden;
-                    cursorSubModeAdd.Visibility = Visibility.Hidden;
-                    cursorSubModeSub.Visibility = Visibility.Hidden;
-
-                    SelectedColorCode.Visibility = Visibility.Hidden;
-                    SelectedColorImage.Visibility = Visibility.Hidden;
-                    SelectedColorBorder.Visibility = Visibility.Hidden;
-                    SelectedColorHeight.Visibility = Visibility.Hidden;
-
-                    CursorSizeSlider.Visibility = Visibility.Hidden;
-                    cursorDiameterLabel.Visibility = Visibility.Hidden;
                     break;
                 case CursorMode.Pipette:
                     cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
@@ -1246,24 +1284,6 @@ namespace Overlord_Map_Visualizer
                     cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-
-                    cursorModeSelect.Visibility = Visibility.Visible;
-                    cursorModePipette.Visibility = Visibility.Visible;
-                    cursorModeSquare.Visibility = Visibility.Visible;
-                    cursorModeCircle.Visibility = Visibility.Visible;
-                    cursorModeRotate.Visibility = Visibility.Visible;
-
-                    cursorSubModeSet.Visibility = Visibility.Hidden;
-                    cursorSubModeAdd.Visibility = Visibility.Hidden;
-                    cursorSubModeSub.Visibility = Visibility.Hidden;
-
-                    SelectedColorCode.Visibility = Visibility.Visible;
-                    SelectedColorImage.Visibility = Visibility.Visible;
-                    SelectedColorBorder.Visibility = Visibility.Visible;
-                    SelectedColorHeight.Visibility = CurrentMapMode != MapMode.HeightMap ? Visibility.Hidden : Visibility.Visible;
-
-                    CursorSizeSlider.Visibility = Visibility.Hidden;
-                    cursorDiameterLabel.Visibility = Visibility.Hidden;
                     break;
                 case CursorMode.Square:
                     cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
@@ -1271,68 +1291,6 @@ namespace Overlord_Map_Visualizer
                     cursorModeSquare.Background = MediaBrushes.SkyBlue;
                     cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-
-                    cursorModeSelect.Visibility = Visibility.Visible;
-                    cursorModePipette.Visibility = Visibility.Visible;
-                    cursorModeSquare.Visibility = Visibility.Visible;
-                    cursorModeCircle.Visibility = Visibility.Visible;
-                    cursorModeRotate.Visibility = Visibility.Visible;
-
-                    cursorSubModeSet.Visibility = Visibility.Visible;
-                    cursorSubModeAdd.Visibility = Visibility.Visible;
-                    cursorSubModeSub.Visibility = Visibility.Visible;
-
-                    SelectedColorCode.Visibility = Visibility.Visible;
-                    SelectedColorImage.Visibility = Visibility.Visible;
-                    SelectedColorBorder.Visibility = Visibility.Visible;
-                    SelectedColorHeight.Visibility = CurrentMapMode != MapMode.HeightMap ? Visibility.Hidden : Visibility.Visible;
-
-                    CursorSizeSlider.Visibility = Visibility.Visible;
-                    cursorDiameterLabel.Visibility = Visibility.Visible;
-
-                    switch (CurrentCursorSubMode)
-                    {
-                        case CursorSubMode.Set:
-                            cursorSubModeSet.Background = MediaBrushes.SkyBlue;
-                            cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            break;
-                        case CursorSubMode.Add:
-                            cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            cursorSubModeAdd.Background = MediaBrushes.SkyBlue;
-                            cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            break;
-                        case CursorSubMode.Sub:
-                            cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            cursorSubModeSub.Background = MediaBrushes.SkyBlue;
-                            break;
-                    }
-                    break;
-                case CursorMode.Rotate:
-                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeRotate.Background = MediaBrushes.SkyBlue;
-
-                    cursorModeSelect.Visibility = Visibility.Visible;
-                    cursorModePipette.Visibility = Visibility.Visible;
-                    cursorModeSquare.Visibility = Visibility.Visible;
-                    cursorModeCircle.Visibility = Visibility.Visible;
-                    cursorModeRotate.Visibility = Visibility.Visible;
-
-                    cursorSubModeSet.Visibility = Visibility.Hidden;
-                    cursorSubModeAdd.Visibility = Visibility.Hidden;
-                    cursorSubModeSub.Visibility = Visibility.Hidden;
-
-                    SelectedColorCode.Visibility = Visibility.Hidden;
-                    SelectedColorImage.Visibility = Visibility.Hidden;
-                    SelectedColorBorder.Visibility = Visibility.Hidden;
-                    SelectedColorHeight.Visibility = Visibility.Hidden;
-
-                    CursorSizeSlider.Visibility = Visibility.Hidden;
-                    cursorDiameterLabel.Visibility = Visibility.Hidden;
                     break;
                 case CursorMode.Circle:
                     cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
@@ -1340,43 +1298,74 @@ namespace Overlord_Map_Visualizer
                     cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeCircle.Background = MediaBrushes.SkyBlue;
                     cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    break;
+                case CursorMode.Rotate:
+                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorModeRotate.Background = MediaBrushes.SkyBlue;
+                    break;
+            }
+        }
 
-                    cursorModeSelect.Visibility = Visibility.Visible;
-                    cursorModePipette.Visibility = Visibility.Visible;
-                    cursorModeSquare.Visibility = Visibility.Visible;
-                    cursorModeCircle.Visibility = Visibility.Visible;
-                    cursorModeRotate.Visibility = Visibility.Visible;
+        private void HighlightCurrentCursorSubMode()
+        {
+            switch (CurrentCursorSubMode)
+            {
+                case CursorSubMode.Set:
+                    cursorSubModeSet.Background = MediaBrushes.SkyBlue;
+                    cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    break;
+                case CursorSubMode.Add:
+                    cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorSubModeAdd.Background = MediaBrushes.SkyBlue;
+                    cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    break;
+                case CursorSubMode.Sub:
+                    cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
+                    cursorSubModeSub.Background = MediaBrushes.SkyBlue;
+                    break;
+            }
+        }
 
-                    cursorSubModeSet.Visibility = Visibility.Visible;
-                    cursorSubModeAdd.Visibility = Visibility.Visible;
-                    cursorSubModeSub.Visibility = Visibility.Visible;
-
-                    SelectedColorCode.Visibility = Visibility.Visible;
-                    SelectedColorImage.Visibility = Visibility.Visible;
-                    SelectedColorBorder.Visibility = Visibility.Visible;
-                    SelectedColorHeight.Visibility = CurrentMapMode != MapMode.HeightMap ? Visibility.Hidden : Visibility.Visible;
-
-                    CursorSizeSlider.Visibility = Visibility.Visible;
-                    cursorDiameterLabel.Visibility = Visibility.Visible;
-
-                    switch (CurrentCursorSubMode)
-                    {
-                        case CursorSubMode.Set:
-                            cursorSubModeSet.Background = MediaBrushes.SkyBlue;
-                            cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            break;
-                        case CursorSubMode.Add:
-                            cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            cursorSubModeAdd.Background = MediaBrushes.SkyBlue;
-                            cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            break;
-                        case CursorSubMode.Sub:
-                            cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                            cursorSubModeSub.Background = MediaBrushes.SkyBlue;
-                            break;
-                    }
+        private void UpdateToolBar()
+        {
+            HighlightCurrentCursorMode();
+            HighlightCurrentCursorSubMode();
+            switch (CurrentCursorMode)
+            {
+                case CursorMode.Normal:
+                    ShowCursorModes();
+                    HideCursorSubModes();
+                    HideSelectedColor();
+                    HideCursorSlider();
+                    break;
+                case CursorMode.Pipette:
+                    ShowCursorModes();
+                    HideCursorSubModes();
+                    ShowSelectedColor();
+                    HideCursorSlider();
+                    break;
+                case CursorMode.Square:
+                    ShowCursorModes();
+                    ShowCursorSubModes();
+                    ShowSelectedColor();
+                    ShowCursorSlider();
+                    break;
+                case CursorMode.Circle:
+                    ShowCursorModes();
+                    ShowCursorSubModes();
+                    ShowSelectedColor();
+                    ShowCursorSlider();
+                    break;
+                case CursorMode.Rotate:
+                    ShowCursorModes();
+                    HideCursorSubModes();
+                    HideSelectedColor();
+                    HideCursorSlider();
                     break;
             }
         }
