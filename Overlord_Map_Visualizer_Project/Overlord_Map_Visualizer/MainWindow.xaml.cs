@@ -1020,6 +1020,7 @@ namespace Overlord_Map_Visualizer
                     CursorSizeSlider.Visibility = Visibility.Hidden;
                     cursorDiameterLabel.Visibility = Visibility.Hidden;
                     cursorModeSquare.Visibility = Visibility.Hidden;
+                    cursorModeCircle.Visibility = Visibility.Hidden;
                     cursorModeRotate.Visibility = Visibility.Hidden;
                     cursorSubModeSet.Visibility = Visibility.Hidden;
                     cursorSubModeAdd.Visibility = Visibility.Hidden;
