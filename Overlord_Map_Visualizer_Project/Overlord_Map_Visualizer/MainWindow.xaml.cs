@@ -160,6 +160,85 @@ namespace Overlord_Map_Visualizer
             appGrid.Children.Insert(0, dynamicLabel);
         }
 
+        private byte[] ReadDataFromFile(int offset, string filePath, int bytesPerPoint)
+        {
+            int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
+            byte[] data = new byte[totalNumberOfBytes];
+
+            using (BinaryReader reader = new BinaryReader(new FileStream(filePath, FileMode.Open)))
+            {
+                reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                reader.Read(data, 0, totalNumberOfBytes);
+            }
+
+            return data;
+        }
+
+        private void SetMapData(byte[] data, int bytesPerPoint, MapMode mapMode, bool isTiffImage)
+        {
+            int xOffset = bytesPerPoint;
+            int yOffset = 0;
+            int numberOfBytesInRow = MapWidth * bytesPerPoint;
+            int totalOffset;
+
+            for (int y = 0; y < MapHeight; y++)
+            {
+                if (y != 0)
+                {
+                    yOffset = y * numberOfBytesInRow;
+                }
+                for (int x = 0; x < MapWidth; x++)
+                {
+                    totalOffset = x * xOffset + yOffset;
+
+                    switch (mapMode)
+                    {
+                        case MapMode.HeightMap:
+                            if (isTiffImage)
+                            {
+                                int grayscale = (data[totalOffset + 1] << 8) + data[totalOffset];
+                                grayscale /= 16;
+
+                                HeightMapDigitsOneAndTwo[x, y] = (byte)(grayscale & 0x00FF);
+                                HeightMapDigitsThreeAndFour[x, y] = (byte)((grayscale & 0x0F00) >> 8);
+                            }
+                            else
+                            {
+                                HeightMapDigitsOneAndTwo[x, y] = data[totalOffset];
+                                HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
+                            }
+                            break;
+                        case MapMode.TextureDistributionMap:
+                            if (isTiffImage)
+                            {
+                                int blue = (data[totalOffset + 1] << 8) + data[totalOffset];
+                                int green = (data[totalOffset + 3] << 8) + data[totalOffset + 2];
+                                int red = (data[totalOffset + 5] << 8) + data[totalOffset + 4];
+
+                                red /= 2114;
+                                green /= 1040;
+                                blue /= 2114;
+
+                                TextureDistributionDigitsOneAndTwo[x, y] = (byte)(((green << 5) & 0x00E0) + blue);
+                                TextureDistributionDigitsThreeAndFour[x, y] = (byte)((red << 3) + (green >> 3));
+                            }
+                            else
+                            {
+                                TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset];
+                                TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 1];
+                            }
+                            break;
+                        case MapMode.Full:
+                            HeightMapDigitsOneAndTwo[x, y] = data[totalOffset];
+                            HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
+                            TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset + 2];
+                            TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 3];
+                            break;
+                    }
+                }
+            }
+        }
+
         private void ImportfromFile(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
@@ -203,68 +282,35 @@ namespace Overlord_Map_Visualizer
 
             if (openFileDialog.ShowDialog() == true)
             {
+                int offset;
+                int bytesPerPoint;
+                MapMode mapMode;
+                bool isTiffImage;
                 switch (fileExtension)
                 {
                     case "omp":
+                        offset = GetMapDataOffset();
+                        bytesPerPoint = 4;
+                        mapMode = MapMode.Full;
+                        isTiffImage = false;
                         FilePath.Text = openFileDialog.FileName;
                         OMPFilePathString = openFileDialog.FileName;
-                        GetMapData(GetMapDataOffset(), openFileDialog.FileName, 4, MapMode.Full);
                         break;
                     case "tiff":
-                        int offset = 8;
-                        int bytesPerPoint = 6;
-                        int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
-                        byte[] data = new byte[totalNumberOfBytes];
-                        int xOffset = bytesPerPoint;
-                        int yOffset = 0;
-                        int numberOfBytesInRow = MapWidth * bytesPerPoint;
-                        int totalOffset;
-
-                        using (BinaryReader reader = new BinaryReader(new FileStream(openFileDialog.FileName, FileMode.Open)))
-                        {
-                            reader.BaseStream.Seek(offset, SeekOrigin.Begin);
-                            reader.Read(data, 0, totalNumberOfBytes);
-                        }
-
-                        for (int y = 0; y < MapHeight; y++)
-                        {
-                            if (y != 0)
-                            {
-                                yOffset = y * numberOfBytesInRow;
-                            }
-                            for (int x = 0; x < MapWidth; x++)
-                            {
-                                totalOffset = x * xOffset + yOffset;
-
-                                switch (CurrentMapMode)
-                                {
-                                    case MapMode.HeightMap:
-                                        int grayscale = (data[totalOffset + 1] << 8) + data[totalOffset];
-                                        grayscale /= 16;
-
-                                        HeightMapDigitsOneAndTwo[x, y] = (byte)(grayscale & 0x00FF);
-                                        HeightMapDigitsThreeAndFour[x, y] = (byte)((grayscale & 0x0F00) >> 8);
-                                        break;
-                                    case MapMode.TextureDistributionMap:
-                                        int red = (data[totalOffset + 1] << 8) + data[totalOffset];
-                                        int green = (data[totalOffset + 3] << 8) + data[totalOffset + 2];
-                                        int blue = (data[totalOffset + 5] << 8) + data[totalOffset + 4];
-
-                                        red /= 2114;
-                                        green /= 1040;
-                                        blue /= 2114;
-
-                                        TextureDistributionDigitsOneAndTwo[x, y] = (byte)(((green << 5) & 0x00E0) + blue);
-                                        TextureDistributionDigitsThreeAndFour[x, y] = (byte)((red << 3) + (green >> 3));
-                                        break;
-                                }
-                            }
-                        }
+                        offset = 8;
+                        bytesPerPoint = 6;
+                        mapMode = CurrentMapMode;
+                        isTiffImage = true;
                         break;
                     default:
-                        GetMapData(0, openFileDialog.FileName, 2, CurrentMapMode);
+                        offset = 0;
+                        bytesPerPoint = 2;
+                        mapMode = CurrentMapMode;
+                        isTiffImage = false;
                         break;
                 }
+                byte[] data = ReadDataFromFile(offset, openFileDialog.FileName, bytesPerPoint);
+                SetMapData(data, bytesPerPoint, mapMode, isTiffImage);
 
                 DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
 
@@ -283,110 +329,7 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private void GetMapData(int offsetMap, string filePath, int bytesPerPoint, MapMode mapMode)
-        {
-            int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
-            byte[] data = new byte[totalNumberOfBytes];
-            int xOffset = bytesPerPoint;
-            int yOffset = 0;
-            int numberOfBytesInRow = MapWidth * bytesPerPoint;
-            int totalOffset;
-
-            using (BinaryReader reader = new BinaryReader(new FileStream(filePath, FileMode.Open)))
-            {
-                reader.BaseStream.Seek(offsetMap, SeekOrigin.Begin);
-                reader.Read(data, 0, totalNumberOfBytes);
-            }
-
-            for (int y = 0; y < MapHeight; y++)
-            {
-                if (y != 0)
-                {
-                    yOffset = y * numberOfBytesInRow;
-                }
-                for (int x = 0; x < MapWidth; x++)
-                {
-                    totalOffset = x * xOffset + yOffset;
-
-                    switch (mapMode)
-                    {
-                        case MapMode.HeightMap:
-                            HeightMapDigitsOneAndTwo[x, y] = data[totalOffset];
-                            HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
-                            break;
-                        case MapMode.TextureDistributionMap:
-                            TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset];
-                            TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 1];
-                            break;
-                        case MapMode.Full:
-                            HeightMapDigitsOneAndTwo[x, y] = data[totalOffset];
-                            HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
-                            TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset + 2];
-                            TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 3];
-                            break;
-                    }
-                }
-            }
-        }
-
-        private void ExportToFile(object sender, RoutedEventArgs e)
-        {
-            Button button = (Button)sender;
-            SaveFileDialog saveFileDialog;
-
-            switch (button.Name)
-            {
-                case "ExportToOMPFileButton":
-                    WriteMapData(GetMapDataOffset(), OMPFilePathString, 4, MapMode.Full);
-                    break;
-                case "ExportMapData":
-                    saveFileDialog = new SaveFileDialog
-                    {
-                        InitialDirectory = @"C:\",
-                        RestoreDirectory = true,
-                        Title = "Select Directory and file name for the overlord map data",
-                        DefaultExt = "mapdata",
-                        Filter = "mapdata files (*.mapdata)|*.mapdata"
-                    };
-
-                    if (saveFileDialog.ShowDialog() == true)
-                    {
-                        WriteMapData(0, saveFileDialog.FileName, 2, CurrentMapMode);
-                    }
-                    break;
-                case "ExportMapImage":
-                    saveFileDialog = new SaveFileDialog
-                    {
-                        InitialDirectory = @"C:\",
-                        RestoreDirectory = true,
-                        Title = "Select Directory and file name for the overlord map image",
-                        DefaultExt = "tiff",
-                        Filter = "tiff image files (*.tiff)|*.tiff"
-                    };
-
-                    if (saveFileDialog.ShowDialog() == true)
-                    {
-                        using (FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
-                        {
-                            double dpi = 50;
-                            PixelFormat format = PixelFormats.Rgb48;
-                            int stride = ((MapWidth * format.BitsPerPixel) + 7) / 8;
-                            byte[] data = CreateTiffData(MapWidth, MapHeight, DrawingType.Map);
-                            WriteableBitmap writableBitmap = new WriteableBitmap(MapWidth, MapHeight, dpi, dpi, format, null);
-                            writableBitmap.WritePixels(new Int32Rect(0, 0, MapWidth, MapHeight), data, stride, 0);
-
-                            // Encode as a TIFF
-                            TiffBitmapEncoder encoder = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
-                            encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
-
-                            encoder.Save(stream);
-                        }
-                    }
-                    break;
-            }
-        }
-
-        private void WriteMapData(int OffsetMap, string filePath, int bytesPerPoint, MapMode mapMode)
+        private byte[] GetMapData(int bytesPerPoint, MapMode mapMode)
         {
             int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
             byte[] data = new byte[totalNumberOfBytes];
@@ -424,11 +367,86 @@ namespace Overlord_Map_Visualizer
                     }
                 }
             }
+            return data;
+        }
+
+        private void WriteMapData(byte[] data, int offset, string filePath, int bytesPerPoint)
+        {
+            int totalNumberOfBytes = MapWidth * MapHeight * bytesPerPoint;
 
             using (BinaryWriter writer = new BinaryWriter(new FileStream(filePath, FileMode.OpenOrCreate)))
             {
-                writer.BaseStream.Seek(OffsetMap, SeekOrigin.Begin);
+                writer.BaseStream.Seek(offset, SeekOrigin.Begin);
                 writer.Write(data, 0, totalNumberOfBytes);
+            }
+        }
+
+        private void ExportToFile(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            SaveFileDialog saveFileDialog;
+            byte[] data;
+            int bytesPerPoint;
+            string filePath;
+            int offset;
+
+            switch (button.Name)
+            {
+                case "ExportToOMPFileButton":
+                    offset = GetMapDataOffset();
+                    bytesPerPoint = 4;
+                    filePath = OMPFilePathString;
+                    data = GetMapData(bytesPerPoint, MapMode.Full);
+                    WriteMapData(data, offset, filePath, bytesPerPoint);
+                    break;
+                case "ExportMapData":
+                    saveFileDialog = new SaveFileDialog
+                    {
+                        InitialDirectory = @"C:\",
+                        RestoreDirectory = true,
+                        Title = "Select Directory and file name for the overlord map data",
+                        DefaultExt = "mapdata",
+                        Filter = "mapdata files (*.mapdata)|*.mapdata"
+                    };
+
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        offset = 0;
+                        filePath = saveFileDialog.FileName;
+                        bytesPerPoint = 2;
+                        data = GetMapData(bytesPerPoint, CurrentMapMode);
+                        WriteMapData(data, offset, filePath, bytesPerPoint);
+                    }
+                    break;
+                case "ExportMapImage":
+                    saveFileDialog = new SaveFileDialog
+                    {
+                        InitialDirectory = @"C:\",
+                        RestoreDirectory = true,
+                        Title = "Select Directory and file name for the overlord map image",
+                        DefaultExt = "tiff",
+                        Filter = "tiff image files (*.tiff)|*.tiff"
+                    };
+
+                    if (saveFileDialog.ShowDialog() == true)
+                    {
+                        using (FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                        {
+                            double dpi = 50;
+                            PixelFormat format = PixelFormats.Rgb48;
+                            int stride = ((MapWidth * format.BitsPerPixel) + 7) / 8;
+                            data = CreateTiffData(MapWidth, MapHeight, DrawingType.Map);
+                            WriteableBitmap writableBitmap = new WriteableBitmap(MapWidth, MapHeight, dpi, dpi, format, null);
+                            writableBitmap.WritePixels(new Int32Rect(0, 0, MapWidth, MapHeight), data, stride, 0);
+
+                            // Encode as a TIFF
+                            TiffBitmapEncoder encoder = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
+                            encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
+
+                            encoder.Save(stream);
+                        }
+                    }
+                    break;
             }
         }
 
