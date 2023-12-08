@@ -28,7 +28,7 @@ namespace Overlord_Map_Visualizer
 
         private enum CursorMode
         {
-            Normal,
+            Select,
             Pipette,
             Square,
             Circle,
@@ -79,7 +79,7 @@ namespace Overlord_Map_Visualizer
             TextureDistributionDigitsOneAndTwo = new byte[MapWidth, MapHeight];
             TextureDistributionDigitsThreeAndFour = new byte[MapWidth, MapHeight];
 
-            CurrentCursorMode = CursorMode.Normal;
+            CurrentCursorMode = CursorMode.Select;
             CurrentCursorSubMode = CursorSubMode.Set;
             HighlightCurrentCursorMode();
             HighlightCurrentCursorSubMode();
@@ -849,7 +849,7 @@ namespace Overlord_Map_Visualizer
 
             switch (CurrentCursorMode)
             {
-                case CursorMode.Normal:
+                case CursorMode.Select:
                     MessageBox.Show("Location : X:" + xMouseCoordinate + " | Y:" + yMouseCoordinate);
                     break;
                 case CursorMode.Pipette:
@@ -1030,56 +1030,18 @@ namespace Overlord_Map_Visualizer
             //}
         }
 
-        private void CursorModeSelect_Click(object sender, RoutedEventArgs e)
+        private void CursorMode_Click(object sender, RoutedEventArgs e)
         {
-            CurrentCursorMode = CursorMode.Normal;
+            Button button = (Button)sender;
+            CurrentCursorMode = (CursorMode)Enum.Parse(typeof(CursorMode), (string)button.Content);
             UpdateCursor();
             UpdateToolBar();
         }
 
-        private void CursorModePipette_Click(object sender, RoutedEventArgs e)
+        private void CursorSubMode_Click(object sender, RoutedEventArgs e)
         {
-            CurrentCursorMode = CursorMode.Pipette;
-            UpdateCursor();
-            UpdateToolBar();
-        }
-
-        private void CursorModeSquare_Click(object sender, RoutedEventArgs e)
-        {
-            CurrentCursorMode = CursorMode.Square;
-            UpdateCursor();
-            UpdateToolBar();
-        }
-
-        private void CursorModeCircle_Click(object sender, RoutedEventArgs e)
-        {
-            CurrentCursorMode = CursorMode.Circle;
-            UpdateCursor();
-            UpdateToolBar();
-        }
-
-        private void CursorModeRotate_Click(object sender, RoutedEventArgs e)
-        {
-            CurrentCursorMode = CursorMode.Rotate;
-            UpdateCursor();
-            UpdateToolBar();
-        }
-
-        private void CursorSubModeSet_Click(object sender, RoutedEventArgs e)
-        {
-            CurrentCursorSubMode = CursorSubMode.Set;
-            UpdateToolBar();
-        }
-
-        private void CursorSubModeAdd_Click(object sender, RoutedEventArgs e)
-        {
-            CurrentCursorSubMode = CursorSubMode.Add;
-            UpdateToolBar();
-        }
-
-        private void CursorSubModeSub_Click(object sender, RoutedEventArgs e)
-        {
-            CurrentCursorSubMode = CursorSubMode.Sub;
+            Button button = (Button)sender;
+            CurrentCursorSubMode = (CursorSubMode)Enum.Parse(typeof(CursorSubMode), (string)button.Content);
             UpdateToolBar();
         }
 
@@ -1088,7 +1050,7 @@ namespace Overlord_Map_Visualizer
             SolidColorBrush fillBrush;
             switch (CurrentCursorMode)
             {
-                case CursorMode.Normal:
+                case CursorMode.Select:
                     Mouse.OverrideCursor = null;
                     break;
                 case CursorMode.Pipette:
@@ -1289,7 +1251,7 @@ namespace Overlord_Map_Visualizer
         {
             switch (CurrentCursorMode)
             {
-                case CursorMode.Normal:
+                case CursorMode.Select:
                     cursorModeSelect.Background = MediaBrushes.SkyBlue;
                     cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
                     cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
@@ -1355,7 +1317,7 @@ namespace Overlord_Map_Visualizer
             HighlightCurrentCursorSubMode();
             switch (CurrentCursorMode)
             {
-                case CursorMode.Normal:
+                case CursorMode.Select:
                     ShowCursorModes();
                     HideCursorSubModes();
                     HideSelectedColor();

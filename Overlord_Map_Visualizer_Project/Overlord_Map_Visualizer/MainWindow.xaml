@@ -24,15 +24,15 @@
         <Image x:Name="SelectedColorImage" HorizontalAlignment="Left" Height="23" Margin="135,107,0,0" VerticalAlignment="Top" Width="120" Visibility="Hidden"/>
         <Border x:Name="SelectedColorBorder" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="135,135,0,0" VerticalAlignment="Top" Width="120" Visibility="Hidden"/>
         <Label x:Name="SelectedColorHeight" Content="" HorizontalAlignment="Left" Margin="10,163,0,0" VerticalAlignment="Top" Width="245" Visibility="Hidden"/>
-        <Button x:Name="cursorModeSelect" Content="Select" HorizontalAlignment="Left" Margin="10,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeSelect_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorModePipette" Content="Pipette" HorizontalAlignment="Left" Margin="65,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModePipette_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModeSelect" Content="Select" HorizontalAlignment="Left" Margin="10,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModePipette" Content="Pipette" HorizontalAlignment="Left" Margin="65,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorMode_Click" Visibility="Hidden"/>
         <Slider x:Name="CursorSizeSlider" HorizontalAlignment="Left" Margin="10,198,0,0" VerticalAlignment="Top" Width="256" Value="51" Minimum="1" Maximum="255" SmallChange="2" TickPlacement="Both" Cursor="Arrow" Height="35" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True" Visibility="Hidden" LargeChange="2" TickFrequency="2"/>
         <Label x:Name="cursorDiameterLabel" Content="Cursor Radius : 1" HorizontalAlignment="Left" Margin="10,238,0,0" VerticalAlignment="Top" Width="256" Visibility="Hidden"/>
-        <Button x:Name="cursorModeSquare" Content="Square" HorizontalAlignment="Left" Margin="120,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeSquare_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorModeCircle" Content="Circle" HorizontalAlignment="Left" Margin="175,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeCircle_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorModeRotate" Content="Rotate" HorizontalAlignment="Left" Margin="230,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeRotate_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorSubModeSet" Content="Set" HorizontalAlignment="Left" Margin="38,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubModeSet_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorSubModeAdd" Content="Add" HorizontalAlignment="Left" Margin="93,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubModeAdd_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorSubModeSub" Content="Sub" HorizontalAlignment="Left" Margin="148,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubModeSub_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModeSquare" Content="Square" HorizontalAlignment="Left" Margin="120,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModeCircle" Content="Circle" HorizontalAlignment="Left" Margin="175,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModeRotate" Content="Rotate" HorizontalAlignment="Left" Margin="230,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorSubModeSet" Content="Set" HorizontalAlignment="Left" Margin="38,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorSubModeAdd" Content="Add" HorizontalAlignment="Left" Margin="93,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorSubModeSub" Content="Sub" HorizontalAlignment="Left" Margin="148,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubMode_Click" Visibility="Hidden"/>
     </Grid>
 </Window>
