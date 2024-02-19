@@ -52,6 +52,7 @@ namespace Overlord_Map_Visualizer
         private readonly int MapWidth = 512;
         private readonly int MapHeight = 512;
         private string OMPFilePathString;
+        private int WaterLevel = 0;
 
         private byte[,] HeightMapDigitsOneAndTwo;
         private byte[,] HeightMapDigitsThreeAndFour;
@@ -311,6 +312,7 @@ namespace Overlord_Map_Visualizer
                 }
                 byte[] data = ReadDataFromFile(offset, openFileDialog.FileName, bytesPerPoint);
                 SetMapData(data, bytesPerPoint, mapMode, isTiffImage);
+                WaterLevel = GetMapWaterLevel();
 
                 DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
 
@@ -668,6 +670,129 @@ namespace Overlord_Map_Visualizer
             }
         }
 
+        private int GetMapWaterLevel()
+        {
+            switch (OMPFilePathString)
+            {
+                case string a when a.Contains("Exp - HalflingMain"):
+                    return 15;
+                case string a when a.Contains("Exp - Halfling Abyss"):
+                    return 15;
+                case string a when a.Contains("Exp - ElfMain"):
+                    return 15;
+                case string a when a.Contains("Exp - Elf Abyss"):
+                    return 15;
+                case string a when a.Contains("Exp - PaladinMain"):
+                    return 15;
+                case string a when a.Contains("Exp - Paladin Abyss"):
+                    return 15;
+                case string a when a.Contains("Exp - DwarfMain"):
+                    return 15;
+                case string a when a.Contains("Exp - Dwarf Abyss"):
+                    return 15;
+                case string a when a.Contains("Exp - WarriorMain"):
+                    return 15;
+                case string a when a.Contains("Exp - Warrior Abyss - 01"):
+                    return 15;
+                case string a when a.Contains("Exp - Warrior Abyss - 02"):
+                    return 15;
+                case string a when a.Contains("Exp - Tower"):
+                    return 15;
+                case string a when a.Contains("Exp - Tower_Dungeon"):
+                    return 15;
+                case string a when a.Contains("Exp - Tower_Spawnpit"):
+                    return 15;
+                case string a when a.Contains("HalflingMain"):
+                    return 15;
+                case string a when a.Contains("SlaveCamp"):
+                    return 15;
+                case string a when a.Contains("HalflingHomes1of2"):
+                    return 15;
+                case string a when a.Contains("HalflingHomes2of2"):
+                    return 15;
+                case string a when a.Contains("HellsKitchen"):
+                    return 15;
+                case string a when a.Contains("EntryCastleSpree"):
+                    return 15;
+                case string a when a.Contains("SpreeDungeon"):
+                    return 15;
+                case string a when a.Contains("ElfMain"):
+                    return 15;
+                case string a when a.Contains("GreenCave"):
+                    return 15;
+                case string a when a.Contains("SkullDen"):
+                    return 15;
+                case string a when a.Contains("TrollTemple"):
+                    return 15;
+                case string a when a.Contains("PaladinMain"):
+                    return 15;
+                case string a when a.Contains("BlueCave"):
+                    return 15;
+                case string a when a.Contains("Sewers1of2"):
+                    return 15;
+                case string a when a.Contains("Sewers2of2"):
+                    return 15;
+                case string a when a.Contains("Red Light Inn"):
+                    return 15;
+                case string a when a.Contains("Citadel"):
+                    return 15;
+                case string a when a.Contains("DwarfMain"):
+                    return 15;
+                case string a when a.Contains("GoldMine"):
+                    return 15;
+                case string a when a.Contains("Quarry"):
+                    return 15;
+                case string a when a.Contains("HomeyHalls1of2"):
+                    return 15;
+                case string a when a.Contains("HomeyHalls2of2"):
+                    return 15;
+                case string a when a.Contains("ArcaniumMine"):
+                    return 15;
+                case string a when a.Contains("RoyalHalls"):
+                    return 15;
+                case string a when a.Contains("WarriorMain"):
+                    return 15;
+                case string a when a.Contains("2P_Deathtrap"):
+                    return 15;
+                case string a when a.Contains("2P_Gates"):
+                    return 15;
+                case string a when a.Contains("2P_LastStand"):
+                    return 15;
+                case string a when a.Contains("2P_PartyCrashers"):
+                    return 15;
+                case string a when a.Contains("2P_Plunder"):
+                    return 15;
+                case string a when a.Contains("2P_TombRobber"):
+                    return 15;
+                case string a when a.Contains("Tower"):
+                    return 15;
+                case string a when a.Contains("Tower_Dungeon"):
+                    return 15;
+                case string a when a.Contains("Tower_Spawnpit"):
+                    return 15;
+                case string a when a.Contains("PlayerMap"):
+                    return 15;
+                case string a when a.Contains("2P_Arena2"):
+                    return 15;
+                case string a when a.Contains("2P_Bombs"):
+                    return 15;
+                case string a when a.Contains("2P_GrabTheMaidens"):
+                    return 15;
+                case string a when a.Contains("2P_KillTheHoard"):
+                    return 15;
+                case string a when a.Contains("2P_KingoftheHill"):
+                    return 15;
+                case string a when a.Contains("2P_March_Mellow_Maidens"):
+                    return 15;
+                case string a when a.Contains("2P_Misty"):
+                    return 15;
+                case string a when a.Contains("2P_RockyRace"):
+                    return 15;
+                default:
+                    return 0;
+            }
+        }
+
         private BitmapImage GetBmpImageFromBmp(Bitmap bitMap)
         {
             using (MemoryStream memoryStream = new MemoryStream())
@@ -773,7 +898,7 @@ namespace Overlord_Map_Visualizer
                                 double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
                                 double heightValue = (highestDigit + middleDigit + smallestDigit) / 2;
 
-                                if (heightValue >= 15)
+                                if (heightValue >= WaterLevel)
                                 {
                                     blue = 0xBA;
                                     green = 0xA9;
