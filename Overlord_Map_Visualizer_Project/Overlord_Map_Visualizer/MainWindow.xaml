@@ -34,5 +34,13 @@
         <Button x:Name="cursorSubModeSet" Content="Set" HorizontalAlignment="Left" Margin="38,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubMode_Click" Visibility="Hidden"/>
         <Button x:Name="cursorSubModeAdd" Content="Add" HorizontalAlignment="Left" Margin="93,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubMode_Click" Visibility="Hidden"/>
         <Button x:Name="cursorSubModeSub" Content="Sub" HorizontalAlignment="Left" Margin="148,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubMode_Click" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxTowerGate" Content="Show Tower Gate" HorizontalAlignment="Left" Margin="820,64,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxWaypointGate" Content="Show Waypoint Gate" HorizontalAlignment="Left" Margin="820,84,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxBrownMinionGate" Content="Show Brown Minion Gate" HorizontalAlignment="Left" Margin="820,104,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxRedMinionGate" Content="Show Red Minion Gate" HorizontalAlignment="Left" Margin="820,124,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxGreenMinionGate" Content="Show Green Minion Gate" HorizontalAlignment="Left" Margin="820,144,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxBlueMinionGate" Content="Show Blue Minion Gate" HorizontalAlignment="Left" Margin="820,164,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxBloodPit" Content="Show Blood Pit" HorizontalAlignment="Left" Margin="820,184,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxManaPit" Content="Show Mana Pit" HorizontalAlignment="Left" Margin="820,204,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
     </Grid>
 </Window>
