@@ -290,24 +290,24 @@ namespace Overlord_Map_Visualizer
                 switch (fileExtension)
                 {
                     case "omp":
-                        offset = GetMapDataOffset();
                         bytesPerPoint = 4;
                         mapMode = MapMode.Full;
                         isTiffImage = false;
                         FilePath.Text = openFileDialog.FileName;
                         OMPFilePathString = openFileDialog.FileName;
+                        offset = GetMapDataOffset();
                         break;
                     case "tiff":
-                        offset = 8;
                         bytesPerPoint = 6;
                         mapMode = CurrentMapMode;
                         isTiffImage = true;
+                        offset = 8;
                         break;
                     default:
-                        offset = 0;
                         bytesPerPoint = 2;
                         mapMode = CurrentMapMode;
                         isTiffImage = false;
+                        offset = 0;
                         break;
                 }
                 byte[] data = ReadDataFromFile(offset, openFileDialog.FileName, bytesPerPoint);
