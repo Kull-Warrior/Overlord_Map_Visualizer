@@ -573,12 +573,12 @@ namespace Overlord_Map_Visualizer
                     return 416;
                 case string a when a.Contains("Exp - Warrior Abyss - 02"):
                     return 400;
-                case string a when a.Contains("Exp - Tower"):
-                    return 409;
                 case string a when a.Contains("Exp - Tower_Dungeon"):
                     return 403;
                 case string a when a.Contains("Exp - Tower_Spawnpit"):
                     return 424;
+                case string a when a.Contains("Exp - Tower"):
+                    return 409;
                 case string a when a.Contains("HalflingMain"):
                     return 400;
                 case string a when a.Contains("SlaveCamp"):
@@ -641,12 +641,12 @@ namespace Overlord_Map_Visualizer
                     return 505;
                 case string a when a.Contains("2P_TombRobber"):
                     return 505;
-                case string a when a.Contains("Tower"):
-                    return 401;
                 case string a when a.Contains("Tower_Dungeon"):
                     return 395;
                 case string a when a.Contains("Tower_Spawnpit"):
                     return 424;
+                case string a when a.Contains("Tower"):
+                    return 401;
                 case string a when a.Contains("PlayerMap"):
                     return 250;
                 case string a when a.Contains("2P_Arena2"):
