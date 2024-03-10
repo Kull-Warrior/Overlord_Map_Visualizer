@@ -52,7 +52,7 @@ namespace Overlord_Map_Visualizer
         private readonly int MapWidth = 512;
         private readonly int MapHeight = 512;
         private string OMPFilePathString;
-        private int WaterLevel = 0;
+        private double WaterLevel = 0;
 
         private byte[,] HeightMapDigitsOneAndTwo;
         private byte[,] HeightMapDigitsThreeAndFour;
@@ -670,16 +670,16 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private int GetMapWaterLevel()
+        private double GetMapWaterLevel()
         {
             switch (OMPFilePathString)
             {
                 case string a when a.Contains("Exp - HalflingMain"):
                     return 15;
                 case string a when a.Contains("Exp - Halfling Abyss"):
-                    return 15;
+                    return 50;
                 case string a when a.Contains("Exp - ElfMain"):
-                    return 15;
+                    return 15.3125;
                 case string a when a.Contains("Exp - Elf Abyss"):
                     return 15;
                 case string a when a.Contains("Exp - PaladinMain"):
@@ -687,31 +687,31 @@ namespace Overlord_Map_Visualizer
                 case string a when a.Contains("Exp - Paladin Abyss"):
                     return 15;
                 case string a when a.Contains("Exp - DwarfMain"):
-                    return 15;
+                    return 50;
                 case string a when a.Contains("Exp - Dwarf Abyss"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("Exp - WarriorMain"):
                     return 15;
                 case string a when a.Contains("Exp - Warrior Abyss - 01"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("Exp - Warrior Abyss - 02"):
-                    return 15;
-                case string a when a.Contains("Exp - Tower"):
-                    return 15;
+                    return 15.03125;
                 case string a when a.Contains("Exp - Tower_Dungeon"):
                     return 15;
                 case string a when a.Contains("Exp - Tower_Spawnpit"):
-                    return 15;
+                    return 36.03125;
+                case string a when a.Contains("Exp - Tower"):
+                    return 0;
                 case string a when a.Contains("HalflingMain"):
                     return 15;
                 case string a when a.Contains("SlaveCamp"):
-                    return 15;
+                    return 16.03125;
                 case string a when a.Contains("HalflingHomes1of2"):
                     return 15;
                 case string a when a.Contains("HalflingHomes2of2"):
                     return 15;
                 case string a when a.Contains("HellsKitchen"):
-                    return 15;
+                    return 20;
                 case string a when a.Contains("EntryCastleSpree"):
                     return 15;
                 case string a when a.Contains("SpreeDungeon"):
@@ -719,75 +719,75 @@ namespace Overlord_Map_Visualizer
                 case string a when a.Contains("ElfMain"):
                     return 15;
                 case string a when a.Contains("GreenCave"):
-                    return 15;
+                    return 43;
                 case string a when a.Contains("SkullDen"):
-                    return 15;
+                    return 15.03125;
                 case string a when a.Contains("TrollTemple"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("PaladinMain"):
                     return 15;
                 case string a when a.Contains("BlueCave"):
-                    return 15;
+                    return 25.03125;
                 case string a when a.Contains("Sewers1of2"):
-                    return 15;
+                    return 27.84375;
                 case string a when a.Contains("Sewers2of2"):
-                    return 15;
+                    return 18.03125;
                 case string a when a.Contains("Red Light Inn"):
                     return 15;
                 case string a when a.Contains("Citadel"):
                     return 15;
                 case string a when a.Contains("DwarfMain"):
-                    return 15;
+                    return 50;
                 case string a when a.Contains("GoldMine"):
                     return 15;
                 case string a when a.Contains("Quarry"):
-                    return 15;
+                    return 40.71875;
                 case string a when a.Contains("HomeyHalls1of2"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("HomeyHalls2of2"):
-                    return 15;
+                    return 57.03125;
                 case string a when a.Contains("ArcaniumMine"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("RoyalHalls"):
                     return 15;
                 case string a when a.Contains("WarriorMain"):
                     return 15;
                 case string a when a.Contains("2P_Deathtrap"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("2P_Gates"):
-                    return 15;
+                    return 21;
                 case string a when a.Contains("2P_LastStand"):
-                    return 15;
+                    return 15.03125;
                 case string a when a.Contains("2P_PartyCrashers"):
-                    return 15;
+                    return 15.03125;
                 case string a when a.Contains("2P_Plunder"):
                     return 15;
                 case string a when a.Contains("2P_TombRobber"):
                     return 15;
-                case string a when a.Contains("Tower"):
-                    return 15;
                 case string a when a.Contains("Tower_Dungeon"):
                     return 15;
                 case string a when a.Contains("Tower_Spawnpit"):
-                    return 15;
+                    return 36.03125;
+                case string a when a.Contains("Tower"):
+                    return 0;
                 case string a when a.Contains("PlayerMap"):
                     return 15;
                 case string a when a.Contains("2P_Arena2"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("2P_Bombs"):
                     return 15;
                 case string a when a.Contains("2P_GrabTheMaidens"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("2P_KillTheHoard"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("2P_KingoftheHill"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("2P_March_Mellow_Maidens"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("2P_Misty"):
-                    return 15;
+                    return 0;
                 case string a when a.Contains("2P_RockyRace"):
-                    return 15;
+                    return 0;
                 default:
                     return 0;
             }
