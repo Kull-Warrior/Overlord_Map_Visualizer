@@ -7,7 +7,8 @@
         Title="Overlord Map Visualizer" Height="746" Width="1110" MinWidth="1110" MinHeight="700" Icon="Overlord_Normal.ico" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Grid x:Name="appGrid">
         <Image x:Name="CoordinateSystem" HorizontalAlignment="Left" Height="532" Width="532" Margin="283,54,0,0" VerticalAlignment="Top"/>
-        <Image x:Name="Map" HorizontalAlignment="Left" Height="512" Width="512" Margin="293,64,0,0" VerticalAlignment="Top" MouseDown="ToolClick"/>
+        <Image x:Name="Map" HorizontalAlignment="Left" Height="511" Width="511" Margin="293,64,0,0" VerticalAlignment="Top" MouseDown="ToolClick"/>
+        <Image x:Name="LocationMarkers" HorizontalAlignment="Left" Height="511" Width="511" Margin="293,64,0,0" VerticalAlignment="Top" MouseDown="ToolClick"/>
         <TextBox x:Name="FilePath" HorizontalAlignment="Left" Height="46" Margin="8,653,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="912" IsReadOnly="True" IsEnabled="False"/>
         <Button x:Name="ImportfromOMPFileButton" Content="Import from OMP File" HorizontalAlignment="Left" Margin="920,653,0,0" VerticalAlignment="Top" Width="164" Height="22" Click="ImportfromFile" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" Grid.ColumnSpan="2"/>
         <Button x:Name="ExportMapData" Content="Save Heightmap as Data" HorizontalAlignment="Left" Margin="544,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Click="ExportToFile" Visibility="Hidden" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>

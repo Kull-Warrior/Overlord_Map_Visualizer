@@ -1,8 +1,10 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -58,6 +60,8 @@ namespace Overlord_Map_Visualizer
         private byte[,] HeightMapDigitsThreeAndFour;
         private byte[,] TextureDistributionDigitsOneAndTwo;
         private byte[,] TextureDistributionDigitsThreeAndFour;
+
+        private List<OverlordObject> MapObjectList = new System.Collections.Generic.List<OverlordObject>();
 
         private bool IsAnyMapLoaded = false;
 
@@ -964,6 +968,59 @@ namespace Overlord_Map_Visualizer
                             break;
                     }
                 }
+            }
+        }
+
+        private void DrawAllMapObjects()
+        {
+            SolidBrush solidBrush;
+            Bitmap allMapObjectLocationsBitmap = new Bitmap(MapHeight, MapWidth);
+
+            for(int i = 0; i < MapObjectList.Count; i++)
+            {
+                switch (MapObjectList[i].Type)
+                {
+                    case OverlordObjectType.BrownMinionGate:
+                        solidBrush = new SolidBrush(Color.FromArgb(255, 215, 183, 020));
+                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        break;
+                    case OverlordObjectType.RedMinionGate:
+                        solidBrush = new SolidBrush(Color.FromArgb(255, 255, 000, 000));
+                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        break;
+                    case OverlordObjectType.GreenMinionGate:
+                        solidBrush = new SolidBrush(Color.FromArgb(255, 000, 255, 000));
+                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        break;
+                    case OverlordObjectType.BlueMinionGate:
+                        solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 255));
+                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        break;
+                    case OverlordObjectType.TowerGate:
+                        break;
+                    default:
+                        solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 000));
+                        break;
+                }
+            }
+
+            allMapObjectLocationsBitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            allMapObjectLocationsBitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
+
+            LocationMarkers.Source = GetBmpImageFromBmp(allMapObjectLocationsBitmap);
+        }
+
+        private Bitmap DrawMinionGate(Bitmap entireLocationBitmap, int x, int y, SolidBrush objectSolidColor)
+        {
+            int diameter = 7;
+
+            using (Graphics locationGraphics = Graphics.FromImage(entireLocationBitmap))
+            using (Pen objectPen = new Pen(objectSolidColor))
+            {
+                locationGraphics.DrawEllipse(objectPen, x - (diameter / 2), y - (diameter / 2), diameter, diameter);
+                locationGraphics.FillEllipse(objectSolidColor, x - (diameter / 2), y - (diameter / 2), diameter, diameter);
+
+                return entireLocationBitmap;
             }
         }
 
