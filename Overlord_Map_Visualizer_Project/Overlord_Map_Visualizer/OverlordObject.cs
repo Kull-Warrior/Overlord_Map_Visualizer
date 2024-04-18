@@ -16,10 +16,10 @@ namespace Overlord_Map_Visualizer
     }
     class OverlordObject
     {
-        private int X { get; set; }
-        private int Y { get; set; }
-        private int Z { get; set; }
-        private OverlordObjectType Type { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Z { get; set; }
+        public OverlordObjectType Type { get; set; }
 
         public OverlordObject(int x, int y, int z, OverlordObjectType type)
         {
