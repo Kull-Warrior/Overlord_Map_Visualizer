@@ -1024,6 +1024,26 @@ namespace Overlord_Map_Visualizer
             }
         }
 
+        private Bitmap DrawTowerGate(Bitmap entireLocationBitmap, int x, int y)
+        {
+            using (Graphics locationGraphics = Graphics.FromImage(entireLocationBitmap))
+            using (Pen borderPen = new Pen(new SolidBrush(Color.FromArgb(255, 255, 255, 255))))
+            using (Pen objectPen = new Pen(new SolidBrush(Color.FromArgb(255, 000, 000, 000))))
+            {
+                return entireLocationBitmap;
+            }
+        }
+
+        private Bitmap DrawTowerGateVariant(Bitmap entireLocationBitmap, int x, int y)
+        {
+            using (Graphics locationGraphics = Graphics.FromImage(entireLocationBitmap))
+            using (Pen borderPen = new Pen(new SolidBrush(Color.FromArgb(255, 255, 255, 255))))
+            using (Pen objectPen = new Pen(new SolidBrush(Color.FromArgb(255, 000, 000, 000))))
+            {
+                return entireLocationBitmap;
+            }
+        }
+
         private void ToolClick(object sender, MouseButtonEventArgs e)
         {
             int xMouseCoordinate = 511 - (int)e.GetPosition(Map).X;
