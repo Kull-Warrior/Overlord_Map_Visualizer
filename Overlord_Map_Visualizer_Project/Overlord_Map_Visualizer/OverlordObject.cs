@@ -12,7 +12,18 @@ namespace Overlord_Map_Visualizer
         RedMinionGate,
         GreenMinionGate,
         BlueMinionGate,
-        TowerGate
+        TowerGate,
+        TowerGateVariant,
+        HealthPillar,
+        ManaPillar,
+        MinionPillar,
+        SpellStone,
+        SpellCatalyst,
+        Smelter,
+        Mould,
+        ForgeStone,
+        MinionHive,
+        OtherObjects
     }
     class OverlordObject
     {
