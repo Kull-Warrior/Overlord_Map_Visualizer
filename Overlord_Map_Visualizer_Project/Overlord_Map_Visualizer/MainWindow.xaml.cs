@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -16,6 +17,7 @@ using MediaColor = System.Windows.Media.Color;
 using MediaPen = System.Windows.Media.Pen;
 using Pen = System.Drawing.Pen;
 using PixelFormat = System.Windows.Media.PixelFormat;
+using DrawingPoint = System.Drawing.Point;
 
 namespace Overlord_Map_Visualizer
 {
@@ -997,6 +999,8 @@ namespace Overlord_Map_Visualizer
                         allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
                         break;
                     case OverlordObjectType.TowerGate:
+                        solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 000));
+                        allMapObjectLocationsBitmap = DrawTowerGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
                         break;
                     default:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 000));
@@ -1030,6 +1034,22 @@ namespace Overlord_Map_Visualizer
             using (Pen borderPen = new Pen(new SolidBrush(Color.FromArgb(255, 255, 255, 255))))
             using (Pen objectPen = new Pen(new SolidBrush(Color.FromArgb(255, 000, 000, 000))))
             {
+				locationGraphics.DrawLine(objectPen, 0, 0, 0, 0);
+                GraphicsPath path = new GraphicsPath();
+                DrawingPoint point01 = new DrawingPoint(x - 14, y - 09);
+                DrawingPoint point02 = new DrawingPoint(x - 13, y - 09);
+                DrawingPoint point03 = new DrawingPoint(x - 13, y - 11);
+                DrawingPoint point04 = new DrawingPoint(x - 12, y - 11);
+                DrawingPoint point05 = new DrawingPoint(x - 12, y - 12);
+                DrawingPoint point06 = new DrawingPoint(x - 10, y - 12);
+                DrawingPoint point07 = new DrawingPoint(x - 10, y - 10);
+                DrawingPoint point08 = new DrawingPoint(x - 09, y - 10);
+                DrawingPoint point09 = new DrawingPoint(x - 09, y - 08);
+                DrawingPoint point10 = new DrawingPoint(x - 08, y - 08);
+
+                locationGraphics.DrawPath(objectPen, path);
+
+                //locationGraphics.DrawRectangle(objectPen, new Rectangle(x, y, 28, 24));
                 return entireLocationBitmap;
             }
         }
