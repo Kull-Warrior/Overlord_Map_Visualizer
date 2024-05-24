@@ -26,7 +26,10 @@ namespace Overlord_Map_Visualizer
         private enum MapMode
         {
             HeightMap,
-            TextureDistributionMap,
+            MainTextureMap,
+            WallTextureMap,
+            FoliageMap,
+            UnknownMap,
             Full
         }
 
@@ -60,8 +63,10 @@ namespace Overlord_Map_Visualizer
 
         private byte[,] HeightMapDigitsOneAndTwo;
         private byte[,] HeightMapDigitsThreeAndFour;
-        private byte[,] TextureDistributionDigitsOneAndTwo;
-        private byte[,] TextureDistributionDigitsThreeAndFour;
+        private byte[,] MainTextureMap;
+        private byte[,] FoliageMap;
+        private byte[,] WallTextureMap;
+        private byte[,] UnknownMap;
 
         private List<OverlordObject> MapObjectList = new System.Collections.Generic.List<OverlordObject>();
 
@@ -83,8 +88,10 @@ namespace Overlord_Map_Visualizer
             HeightMapDigitsOneAndTwo = new byte[MapWidth, MapHeight];
             HeightMapDigitsThreeAndFour = new byte[MapWidth, MapHeight];
 
-            TextureDistributionDigitsOneAndTwo = new byte[MapWidth, MapHeight];
-            TextureDistributionDigitsThreeAndFour = new byte[MapWidth, MapHeight];
+            MainTextureMap = new byte[MapWidth, MapHeight];
+            FoliageMap = new byte[MapWidth, MapHeight];
+            WallTextureMap = new byte[MapWidth, MapHeight];
+            UnknownMap = new byte[MapWidth, MapHeight];
 
             CurrentCursorMode = CursorMode.Select;
             CurrentCursorSubMode = CursorSubMode.Set;
@@ -215,31 +222,69 @@ namespace Overlord_Map_Visualizer
                                 HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
                             }
                             break;
-                        case MapMode.TextureDistributionMap:
+                        case MapMode.MainTextureMap:
                             if (isTiffImage)
                             {
                                 int blue = (data[totalOffset + 1] << 8) + data[totalOffset];
                                 int green = (data[totalOffset + 3] << 8) + data[totalOffset + 2];
                                 int red = (data[totalOffset + 5] << 8) + data[totalOffset + 4];
 
-                                red /= 2114;
-                                green /= 1040;
-                                blue /= 2114;
-
-                                TextureDistributionDigitsOneAndTwo[x, y] = (byte)(((green << 5) & 0x00E0) + blue);
-                                TextureDistributionDigitsThreeAndFour[x, y] = (byte)((red << 3) + (green >> 3));
+                                MainTextureMap[x, y] = (byte)GetFourBitRgbPaletteIndexFromTiffRgb(blue, green, red);
                             }
                             else
                             {
-                                TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset];
-                                TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 1];
+                                MainTextureMap[x, y] = data[totalOffset];
+                            }
+                            break;
+                        case MapMode.FoliageMap:
+                            if (isTiffImage)
+                            {
+                                int blue = (data[totalOffset + 1] << 8) + data[totalOffset];
+                                int green = (data[totalOffset + 3] << 8) + data[totalOffset + 2];
+                                int red = (data[totalOffset + 5] << 8) + data[totalOffset + 4];
+
+                                FoliageMap[x, y] = (byte)GetFourBitRgbPaletteIndexFromTiffRgb(blue, green, red);
+                            }
+                            else
+                            {
+                                FoliageMap[x, y] = data[totalOffset];
+                            }
+                            break;
+                        case MapMode.WallTextureMap:
+                            if (isTiffImage)
+                            {
+                                int blue = (data[totalOffset + 1] << 8) + data[totalOffset];
+                                int green = (data[totalOffset + 3] << 8) + data[totalOffset + 2];
+                                int red = (data[totalOffset + 5] << 8) + data[totalOffset + 4];
+
+                                WallTextureMap[x, y] = (byte)GetFourBitRgbPaletteIndexFromTiffRgb(blue, green, red);
+                            }
+                            else
+                            {
+                                WallTextureMap[x, y] = (byte)(data[totalOffset] >> 4);
+                            }
+                            break;
+                        case MapMode.UnknownMap:
+                            if (isTiffImage)
+                            {
+                                int blue = (data[totalOffset + 1] << 8) + data[totalOffset];
+                                int green = (data[totalOffset + 3] << 8) + data[totalOffset + 2];
+                                int red = (data[totalOffset + 5] << 8) + data[totalOffset + 4];
+
+                                UnknownMap[x, y] = (byte)GetFourBitRgbPaletteIndexFromTiffRgb(blue, green, red);
+                            }
+                            else
+                            {
+                                UnknownMap[x, y] = (byte)(data[totalOffset] >> 4);
                             }
                             break;
                         case MapMode.Full:
                             HeightMapDigitsOneAndTwo[x, y] = data[totalOffset];
                             HeightMapDigitsThreeAndFour[x, y] = data[totalOffset + 1];
-                            TextureDistributionDigitsOneAndTwo[x, y] = data[totalOffset + 2];
-                            TextureDistributionDigitsThreeAndFour[x, y] = data[totalOffset + 3];
+                            MainTextureMap[x, y] = (byte)(data[totalOffset + 2] & 0x0F);
+                            FoliageMap[x, y] = (byte)((data[totalOffset + 2] & 0xF0) >> 4);
+                            WallTextureMap[x, y] = (byte)(data[totalOffset + 3] & 0x0F);
+                            UnknownMap[x, y] = (byte)((data[totalOffset + 3] & 0xF0) >> 4);
                             break;
                     }
                 }
@@ -254,29 +299,40 @@ namespace Overlord_Map_Visualizer
             string fileExtension;
             string filter;
 
-            switch (button.Name)
+            if (button.Name == "ImportfromOMPFileButton")
             {
-                case string a when a.Equals("ImportfromOMPFileButton"):
-                    dialogTitle = "Browse OMP map files";
-                    fileExtension = "omp";
-                    filter = "omp files (*.omp)|*.omp";
-                    break;
-                case string a when a.Equals("ImportMapData"):
-                    dialogTitle = "Browse overlord map data";
-                    fileExtension = "mapdata";
-                    filter = "mapdata files (*.mapdata)|*.mapdata";
-                    break;
-                case string a when a.Equals("ImportMapImage"):
-                    dialogTitle = "Browse overlord map image";
-                    fileExtension = "tiff";
-                    filter = "mapdata files (*.tiff)|*.tiff";
-                    break;
-                default:
-                    dialogTitle = "";
-                    fileExtension = "";
-                    filter = "";
-                    break;
+                dialogTitle = "Browse OMP map files";
+                fileExtension = "omp";
+                filter = "omp files (*.omp)|*.omp";
             }
+            else if (button.Name == "ImportMapData")
+            {
+                if (CurrentMapMode == MapMode.HeightMap)
+                {
+                    dialogTitle = "Browse overlord height data";
+                    fileExtension = "ohd";
+                    filter = "ohd files (*.ohd)|*.ohd";
+                }
+                else
+                {
+                    dialogTitle = "Browse overlord general data";
+                    fileExtension = "ogd";
+                    filter = "ogd files (*.ogd)|*.ogd";
+                }
+            }
+            else if (button.Name == "ImportMapImage")
+            {
+                dialogTitle = "Browse overlord map image";
+                fileExtension = "tiff";
+                filter = "mapdata files (*.tiff)|*.tiff";
+            }
+            else
+            {
+                dialogTitle = "";
+                fileExtension = "";
+                filter = "";
+            }
+
             openFileDialog = new OpenFileDialog
             {
                 InitialDirectory = @"C:\",
@@ -309,8 +365,20 @@ namespace Overlord_Map_Visualizer
                         isTiffImage = true;
                         offset = 8;
                         break;
-                    default:
+                    case "ohd":
                         bytesPerPoint = 2;
+                        mapMode = CurrentMapMode;
+                        isTiffImage = false;
+                        offset = 0;
+                        break;
+                    case "ogd":
+                        bytesPerPoint = 1;
+                        mapMode = CurrentMapMode;
+                        isTiffImage = false;
+                        offset = 0;
+                        break;
+                    default:
+                        bytesPerPoint = 1;
                         mapMode = CurrentMapMode;
                         isTiffImage = false;
                         offset = 0;
@@ -362,15 +430,25 @@ namespace Overlord_Map_Visualizer
                             data[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
                             data[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
                             break;
-                        case MapMode.TextureDistributionMap:
-                            data[totalOffset] = TextureDistributionDigitsOneAndTwo[x, y];
-                            data[totalOffset + 1] = TextureDistributionDigitsThreeAndFour[x, y];
+                        case MapMode.MainTextureMap:
+                            data[totalOffset] = MainTextureMap[x, y];
+                            break;
+                        case MapMode.FoliageMap:
+                            data[totalOffset] = (byte)(FoliageMap[x, y] << 4);
+                            break;
+                        case MapMode.WallTextureMap:
+                            data[totalOffset] = WallTextureMap[x, y];
+                            break;
+                        case MapMode.UnknownMap:
+                            data[totalOffset] = (byte)(MainTextureMap[x, y] << 4);
                             break;
                         case MapMode.Full:
                             data[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
                             data[totalOffset + 1] = HeightMapDigitsThreeAndFour[x, y];
-                            data[totalOffset + 2] = TextureDistributionDigitsOneAndTwo[x, y];
-                            data[totalOffset + 3] = TextureDistributionDigitsThreeAndFour[x, y];
+                            data[totalOffset + 2] = MainTextureMap[x, y];
+                            data[totalOffset + 2] += (byte)(FoliageMap[x, y] << 4);
+                            data[totalOffset + 3] = WallTextureMap[x, y];
+                            data[totalOffset + 3] += (byte)(UnknownMap[x, y] << 4);
                             break;
                     }
                 }
@@ -398,63 +476,146 @@ namespace Overlord_Map_Visualizer
             string filePath;
             int offset;
 
-            switch (button.Name)
+            if (button.Name == "ExportfromOMPFileButton")
             {
-                case "ExportToOMPFileButton":
-                    offset = GetMapDataOffset();
-                    bytesPerPoint = 4;
-                    filePath = OMPFilePathString;
-                    data = GetMapData(bytesPerPoint, MapMode.Full);
+                offset = GetMapDataOffset();
+                bytesPerPoint = 4;
+                filePath = OMPFilePathString;
+                data = GetMapData(bytesPerPoint, MapMode.Full);
+                WriteMapData(data, offset, filePath, bytesPerPoint);
+            }
+            else if (button.Name == "ExportMapData")
+            {
+                string dialogTitle;
+                string fileExtension;
+                string filter;
+
+                if (CurrentMapMode == MapMode.HeightMap)
+                {
+                    dialogTitle = "Browse overlord height data";
+                    fileExtension = "ohd";
+                    filter = "ohd files (*.ohd)|*.ohd";
+                    bytesPerPoint = 2;
+                }
+                else
+                {
+                    dialogTitle = "Browse overlord general data";
+                    fileExtension = "ogd";
+                    filter = "ogd files (*.ogd)|*.ogd";
+                    bytesPerPoint = 1;
+                }
+
+                saveFileDialog = new SaveFileDialog
+                {
+                    InitialDirectory = @"C:\",
+                    RestoreDirectory = true,
+                    Title = dialogTitle,
+                    DefaultExt = fileExtension,
+                    Filter = filter
+                };
+
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    offset = 0;
+                    filePath = saveFileDialog.FileName;
+                    data = GetMapData(bytesPerPoint, CurrentMapMode);
                     WriteMapData(data, offset, filePath, bytesPerPoint);
-                    break;
-                case "ExportMapData":
-                    saveFileDialog = new SaveFileDialog
-                    {
-                        InitialDirectory = @"C:\",
-                        RestoreDirectory = true,
-                        Title = "Select Directory and file name for the overlord map data",
-                        DefaultExt = "mapdata",
-                        Filter = "mapdata files (*.mapdata)|*.mapdata"
-                    };
+                }
+            }
+            else if (button.Name == "ExportMapImage")
+            {
+                saveFileDialog = new SaveFileDialog
+                {
+                    InitialDirectory = @"C:\",
+                    RestoreDirectory = true,
+                    Title = "Select Directory and file name for the overlord map image",
+                    DefaultExt = "tiff",
+                    Filter = "tiff image files (*.tiff)|*.tiff"
+                };
 
-                    if (saveFileDialog.ShowDialog() == true)
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    using (FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
                     {
-                        offset = 0;
-                        filePath = saveFileDialog.FileName;
-                        bytesPerPoint = 2;
-                        data = GetMapData(bytesPerPoint, CurrentMapMode);
-                        WriteMapData(data, offset, filePath, bytesPerPoint);
+                        double dpi = 50;
+                        PixelFormat format = PixelFormats.Rgb48;
+                        int stride = ((MapWidth * format.BitsPerPixel) + 7) / 8;
+                        data = CreateTiffData(MapWidth, MapHeight, DrawingType.Map);
+                        WriteableBitmap writableBitmap = new WriteableBitmap(MapWidth, MapHeight, dpi, dpi, format, null);
+                        writableBitmap.WritePixels(new Int32Rect(0, 0, MapWidth, MapHeight), data, stride, 0);
+
+                        // Encode as a TIFF
+                        TiffBitmapEncoder encoder = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
+                        encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
+
+                        encoder.Save(stream);
                     }
-                    break;
-                case "ExportMapImage":
-                    saveFileDialog = new SaveFileDialog
-                    {
-                        InitialDirectory = @"C:\",
-                        RestoreDirectory = true,
-                        Title = "Select Directory and file name for the overlord map image",
-                        DefaultExt = "tiff",
-                        Filter = "tiff image files (*.tiff)|*.tiff"
-                    };
+                }
+            }
+        }
 
-                    if (saveFileDialog.ShowDialog() == true)
+        private void EditMapData(int xMouseCoordinate, int yMouseCoordinate, byte[,] data)
+        {
+            int yMin = 0;
+            int xMin = 0;
+            int xMax = 511;
+            int yMax = 511;
+            int cursorRadius = CursorDiameter / 2;
+
+            if ((xMouseCoordinate - cursorRadius) >= xMin)
+            {
+                xMin = xMouseCoordinate - cursorRadius;
+            }
+            if ((xMouseCoordinate + cursorRadius) <= xMax)
+            {
+                xMax = xMouseCoordinate + cursorRadius;
+            }
+
+            if ((yMouseCoordinate - cursorRadius) >= yMin)
+            {
+                yMin = yMouseCoordinate - cursorRadius;
+            }
+            if ((yMouseCoordinate + cursorRadius) <= yMax)
+            {
+                yMax = yMouseCoordinate + cursorRadius;
+            }
+
+            for (int y = yMin; y <= yMax; y++)
+            {
+                for (int x = xMin; x <= xMax; x++)
+                {
+                    if (CurrentCursorMode == CursorMode.Square || (((x - xMouseCoordinate) * (x - xMouseCoordinate)) + ((y - yMouseCoordinate) * (y - yMouseCoordinate)) < (int)Math.Ceiling((decimal)CursorDiameter / 2) * (int)Math.Ceiling((decimal)CursorDiameter / 2)))
                     {
-                        using (FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                        byte selectedValue = Convert.ToByte(SelectedColorCode.Text, 16);
+                        int pixelValue = data[x, y];
+                        switch (CurrentCursorSubMode)
                         {
-                            double dpi = 50;
-                            PixelFormat format = PixelFormats.Rgb48;
-                            int stride = ((MapWidth * format.BitsPerPixel) + 7) / 8;
-                            data = CreateTiffData(MapWidth, MapHeight, DrawingType.Map);
-                            WriteableBitmap writableBitmap = new WriteableBitmap(MapWidth, MapHeight, dpi, dpi, format, null);
-                            writableBitmap.WritePixels(new Int32Rect(0, 0, MapWidth, MapHeight), data, stride, 0);
-
-                            // Encode as a TIFF
-                            TiffBitmapEncoder encoder = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
-                            encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
-
-                            encoder.Save(stream);
+                            case CursorSubMode.Set:
+                                data[x, y] = selectedValue;
+                                break;
+                            case CursorSubMode.Add:
+                                if (pixelValue + selectedValue <= 15)
+                                {
+                                    data[x, y] = (byte)(pixelValue + selectedValue);
+                                }
+                                else
+                                {
+                                    data[x, y] = 15;
+                                }
+                                break;
+                            case CursorSubMode.Sub:
+                                if (pixelValue - selectedValue >= 0)
+                                {
+                                    data[x, y] = (byte)(pixelValue - selectedValue);
+                                }
+                                else
+                                {
+                                    data[x, y] = 0;
+                                }
+                                break;
                         }
                     }
-                    break;
+                }
             }
         }
 
@@ -529,26 +690,21 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private void RotateMapData(byte[,] lowerByteData, byte[,] higherByteData)
+        private void RotateMapData(byte[,] byteData)
         {
             for (int x = 0; x < MapWidth / 2; x++)
             {
                 for (int y = x; y < MapHeight - x - 1; y++)
                 {
-                    byte tempLower = lowerByteData[x, y];
-                    byte tempHigher = higherByteData[x, y];
+                    byte temp = byteData[x, y];
 
-                    lowerByteData[x, y] = lowerByteData[MapWidth - 1 - y, x];
-                    higherByteData[x, y] = higherByteData[MapWidth - 1 - y, x];
+                    byteData[x, y] = byteData[MapWidth - 1 - y, x];
 
-                    lowerByteData[MapWidth - 1 - y, x] = lowerByteData[MapWidth - 1 - x, MapHeight - 1 - y];
-                    higherByteData[MapWidth - 1 - y, x] = higherByteData[MapWidth - 1 - x, MapHeight - 1 - y];
+                    byteData[MapWidth - 1 - y, x] = byteData[MapWidth - 1 - x, MapHeight - 1 - y];
 
-                    lowerByteData[MapWidth - 1 - x, MapHeight - 1 - y] = lowerByteData[y, MapHeight - 1 - x];
-                    higherByteData[MapWidth - 1 - x, MapHeight - 1 - y] = higherByteData[y, MapHeight - 1 - x];
+                    byteData[MapWidth - 1 - x, MapHeight - 1 - y] = byteData[y, MapHeight - 1 - x];
 
-                    lowerByteData[y, MapHeight - 1 - x] = tempLower;
-                    higherByteData[y, MapHeight - 1 - x] = tempHigher;
+                    byteData[y, MapHeight - 1 - x] = temp;
                 }
             }
         }
@@ -818,8 +974,184 @@ namespace Overlord_Map_Visualizer
             }
         }
 
+        private int[] GetTiffRgbFromFourBitRgbPalette(byte value)
+        {
+            int[] rgb = new int[3];
+            switch (value)
+            {
+                case 0:
+                    rgb[0] = 0x00;
+                    rgb[1] = 0x00;
+                    rgb[2] = 0x00;
+                    break;
+                case 1:
+                    rgb[0] = 0x6B;
+                    rgb[1] = 0xC2;
+                    rgb[2] = 0xF5;
+                    break;
+                case 2:
+                    rgb[0] = 0xA5;
+                    rgb[1] = 0xBD;
+                    rgb[2] = 0x53;
+                    break;
+                case 3:
+                    rgb[0] = 0xBE;
+                    rgb[1] = 0xA5;
+                    rgb[2] = 0x43;
+                    break;
+                case 4:
+                    rgb[0] = 0x57;
+                    rgb[1] = 0x78;
+                    rgb[2] = 0xF0;
+                    break;
+                case 5:
+                    rgb[0] = 0xD6;
+                    rgb[1] = 0x62;
+                    rgb[2] = 0x5C;
+                    break;
+                case 6:
+                    rgb[0] = 0xDD;
+                    rgb[1] = 0xB8;
+                    rgb[2] = 0xEB;
+                    break;
+                case 7:
+                    rgb[0] = 0xFF;
+                    rgb[1] = 0x78;
+                    rgb[2] = 0xF3;
+                    break;
+                case 8:
+                    rgb[0] = 0x6D;
+                    rgb[1] = 0xB0;
+                    rgb[2] = 0x4F;
+                    break;
+                case 9:
+                    rgb[0] = 0xE2;
+                    rgb[1] = 0xD6;
+                    rgb[2] = 0xCB;
+                    break;
+                case 10:
+                    rgb[0] = 0x34;
+                    rgb[1] = 0x2C;
+                    rgb[2] = 0xBF;
+                    break;
+                case 11:
+                    rgb[0] = 0xD3;
+                    rgb[1] = 0xE7;
+                    rgb[2] = 0xCA;
+                    break;
+                case 12:
+                    rgb[0] = 0x37;
+                    rgb[1] = 0x91;
+                    rgb[2] = 0xD4;
+                    break;
+                case 13:
+                    rgb[0] = 0x8D;
+                    rgb[1] = 0x39;
+                    rgb[2] = 0xBE;
+                    break;
+                case 14:
+                    rgb[0] = 0xFF;
+                    rgb[1] = 0xFF;
+                    rgb[2] = 0x00;
+                    break;
+                case 15:
+                    rgb[0] = 0xFF;
+                    rgb[1] = 0xFF;
+                    rgb[2] = 0xFF;
+                    break;
+                default:
+                    rgb[0] = 0x00;
+                    rgb[1] = 0x00;
+                    rgb[2] = 0x00;
+                    break;
+            }
+
+            rgb[0] = rgb[0] * 65535 / 255;
+            rgb[1] = rgb[1] * 65535 / 255;
+            rgb[2] = rgb[2] * 65535 / 255;
+
+            return rgb;
+        }
+
+        private int GetFourBitRgbPaletteIndexFromTiffRgb(int red, int green, int blue)
+        {
+            red = red * 255 / 65535;
+            green = green * 255 / 65535;
+            blue = blue * 255 / 65535;
+
+            if (red == 0 && green == 0 && blue == 0)
+            {
+                return 0;
+            }
+            else if (red == 0xF5 && green == 0xC2 && blue == 0x6B)
+            {
+                return 1;
+            }
+            else if (red == 0x53 && green == 0xBD && blue == 0xA5)
+            {
+                return 2;
+            }
+            else if (red == 0x43 && green == 0xA5 && blue == 0xBE)
+            {
+                return 3;
+            }
+            else if (red == 0xF0 && green == 0x78 && blue == 0x57)
+            {
+                return 4;
+            }
+            else if (red == 0x5C && green == 0x62 && blue == 0xD6)
+            {
+                return 5;
+            }
+            else if (red == 0xEB && green == 0xB8 && blue == 0xDD)
+            {
+                return 6;
+            }
+            else if (red == 0xF3 && green == 0x78 && blue == 0xFF)
+            {
+                return 7;
+            }
+            else if (red == 0x4F && green == 0xB0 && blue == 0x6D)
+            {
+                return 8;
+            }
+            else if (red == 0xCB && green == 0xD6 && blue == 0xE2)
+            {
+                return 9;
+            }
+            else if (red == 0xBF && green == 0x2C && blue == 0x34)
+            {
+                return 10;
+            }
+            else if (red == 0xCA && green == 0xE7 && blue == 0xD3)
+            {
+                return 11;
+            }
+            else if (red == 0xD4 && green == 0x91 && blue == 0x37)
+            {
+                return 12;
+            }
+            else if (red == 0xBE && green == 0x39 && blue == 0x8D)
+            {
+                return 13;
+            }
+            else if (red == 0x00 && green == 0xFF && blue == 0xFF)
+            {
+                return 14;
+            }
+            else if (red == 0xFF && green == 0xFF && blue == 0xFF)
+            {
+                return 15;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
         private byte[] CreateTiffData(int width, int height, DrawingType type)
         {
+            int[] rgb;
             int red;
             int blue;
             int green;
@@ -865,29 +1197,118 @@ namespace Overlord_Map_Visualizer
                             data[totalOffset + 4] = (byte)(grayScale & 0x00FF);
                             data[totalOffset + 5] = (byte)((grayScale & 0xFF00) >> 8);
                             break;
-                        case MapMode.TextureDistributionMap:
+                        case MapMode.MainTextureMap:
                             switch (type)
                             {
                                 case DrawingType.Map:
-                                    blue = TextureDistributionDigitsOneAndTwo[x, y] & 0x1F;
-                                    green = ((TextureDistributionDigitsThreeAndFour[x, y] << 3) & 0x38) | ((TextureDistributionDigitsOneAndTwo[x, y] >> 5) & 0x07);
-                                    red = (TextureDistributionDigitsThreeAndFour[x, y] >> 3) & 0x1F;
+                                    rgb = GetTiffRgbFromFourBitRgbPalette(MainTextureMap[x, y]);
+                                    red = rgb[0];
+                                    green = rgb[1];
+                                    blue = rgb[2];
                                     break;
                                 case DrawingType.SelectedColor:
-                                    byte[] singleColorData = GetByteArrayFromHexString(SelectedColorCode.Text);
-                                    blue = singleColorData[0] & 0x1F;
-                                    green = ((singleColorData[1] << 3) & 0x38) | ((singleColorData[0] >> 5) & 0x07);
-                                    red = (singleColorData[1] >> 3) & 0x1F;
+                                    byte singleColorData = Convert.ToByte(SelectedColorCode.Text, 16);
+                                    rgb = GetTiffRgbFromFourBitRgbPalette(singleColorData);
+                                    red = rgb[0];
+                                    green = rgb[1];
+                                    blue = rgb[2];
                                     break;
                                 default:
-                                    blue = 0;
-                                    green = 0;
                                     red = 0;
+                                    green = 0;
+                                    blue = 0;
                                     break;
                             }
-                            blue = blue * 65535 / 31;
-                            green = green * 65535 / 63;
-                            red = red * 65535 / 31;
+
+                            data[totalOffset] = (byte)(blue & 0x00FF);
+                            data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(green & 0x00FF);
+                            data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(red & 0x00FF);
+                            data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                            break;
+                        case MapMode.FoliageMap:
+                            switch (type)
+                            {
+                                case DrawingType.Map:
+                                    rgb = GetTiffRgbFromFourBitRgbPalette(FoliageMap[x, y]);
+                                    red = rgb[0];
+                                    green = rgb[1];
+                                    blue = rgb[2];
+                                    break;
+                                case DrawingType.SelectedColor:
+                                    byte singleColorData = Convert.ToByte(SelectedColorCode.Text, 16);
+                                    rgb = GetTiffRgbFromFourBitRgbPalette(singleColorData);
+                                    red = rgb[0];
+                                    green = rgb[1];
+                                    blue = rgb[2];
+                                    break;
+                                default:
+                                    red = 0;
+                                    green = 0;
+                                    blue = 0;
+                                    break;
+                            }
+
+                            data[totalOffset] = (byte)(blue & 0x00FF);
+                            data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(green & 0x00FF);
+                            data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(red & 0x00FF);
+                            data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                            break;
+                        case MapMode.WallTextureMap:
+                            switch (type)
+                            {
+                                case DrawingType.Map:
+                                    rgb = GetTiffRgbFromFourBitRgbPalette(WallTextureMap[x, y]);
+                                    red = rgb[0];
+                                    green = rgb[1];
+                                    blue = rgb[2];
+                                    break;
+                                case DrawingType.SelectedColor:
+                                    byte singleColorData = Convert.ToByte(SelectedColorCode.Text, 16);
+                                    rgb = GetTiffRgbFromFourBitRgbPalette(singleColorData);
+                                    red = rgb[0];
+                                    green = rgb[1];
+                                    blue = rgb[2];
+                                    break;
+                                default:
+                                    red = 0;
+                                    green = 0;
+                                    blue = 0;
+                                    break;
+                            }
+
+                            data[totalOffset] = (byte)(blue & 0x00FF);
+                            data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
+                            data[totalOffset + 2] = (byte)(green & 0x00FF);
+                            data[totalOffset + 3] = (byte)((green & 0xFF00) >> 8);
+                            data[totalOffset + 4] = (byte)(red & 0x00FF);
+                            data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
+                            break;
+                        case MapMode.UnknownMap:
+                            switch (type)
+                            {
+                                case DrawingType.Map:
+                                    rgb = GetTiffRgbFromFourBitRgbPalette(UnknownMap[x, y]);
+                                    red = rgb[0];
+                                    green = rgb[1];
+                                    blue = rgb[2];
+                                    break;
+                                case DrawingType.SelectedColor:
+                                    byte singleColorData = Convert.ToByte(SelectedColorCode.Text, 16);
+                                    rgb = GetTiffRgbFromFourBitRgbPalette(singleColorData);
+                                    red = rgb[0];
+                                    green = rgb[1];
+                                    blue = rgb[2];
+                                    break;
+                                default:
+                                    red = 0;
+                                    green = 0;
+                                    blue = 0;
+                                    break;
+                            }
 
                             data[totalOffset] = (byte)(blue & 0x00FF);
                             data[totalOffset + 1] = (byte)((blue & 0xFF00) >> 8);
@@ -904,7 +1325,7 @@ namespace Overlord_Map_Visualizer
                                 double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
                                 double heightValue = (highestDigit + middleDigit + smallestDigit) / 2;
 
-                                if (heightValue >= WaterLevel)
+                                if (heightValue > WaterLevel)
                                 {
                                     blue = 0xBA;
                                     green = 0xA9;
@@ -984,23 +1405,23 @@ namespace Overlord_Map_Visualizer
                 {
                     case OverlordObjectType.BrownMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 215, 183, 020));
-                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        //allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
                         break;
                     case OverlordObjectType.RedMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 255, 000, 000));
-                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        //allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
                         break;
                     case OverlordObjectType.GreenMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 000, 255, 000));
-                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        //allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
                         break;
                     case OverlordObjectType.BlueMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 255));
-                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        //allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
                         break;
                     case OverlordObjectType.TowerGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 000));
-                        allMapObjectLocationsBitmap = DrawTowerGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        //allMapObjectLocationsBitmap = DrawTowerGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
                         break;
                     default:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 000));
@@ -1080,8 +1501,17 @@ namespace Overlord_Map_Visualizer
                         case MapMode.HeightMap:
                             SelectedColorCode.Text = HeightMapDigitsThreeAndFour[xMouseCoordinate, yMouseCoordinate].ToString("X2") + HeightMapDigitsOneAndTwo[xMouseCoordinate, yMouseCoordinate].ToString("X2");
                             break;
-                        case MapMode.TextureDistributionMap:
-                            SelectedColorCode.Text = TextureDistributionDigitsThreeAndFour[xMouseCoordinate, yMouseCoordinate].ToString("X2") + TextureDistributionDigitsOneAndTwo[xMouseCoordinate, yMouseCoordinate].ToString("X2");
+                        case MapMode.MainTextureMap:
+                            SelectedColorCode.Text = MainTextureMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
+                            break;
+                        case MapMode.FoliageMap:
+                            SelectedColorCode.Text = FoliageMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
+                            break;
+                        case MapMode.WallTextureMap:
+                            SelectedColorCode.Text = WallTextureMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
+                            break;
+                        case MapMode.UnknownMap:
+                            SelectedColorCode.Text = UnknownMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
                             break;
                         default:
                             SelectedColorCode.Text = "0000";
@@ -1089,51 +1519,79 @@ namespace Overlord_Map_Visualizer
                     }
                     break;
                 case CursorMode.Square:
-                    if (SelectedColorCode.Text.Length == 4)
+                    if (SelectedColorCode.Text.Length == GetNeededColorCodeLength())
                     {
                         switch (CurrentMapMode)
                         {
                             case MapMode.HeightMap:
                                 EditMapData(xMouseCoordinate, yMouseCoordinate, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
                                 break;
-                            case MapMode.TextureDistributionMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
+                            case MapMode.MainTextureMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, MainTextureMap);
+                                break;
+                            case MapMode.FoliageMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, FoliageMap);
+                                break;
+                            case MapMode.WallTextureMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, WallTextureMap);
+                                break;
+                            case MapMode.UnknownMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, UnknownMap);
                                 break;
                         }
                         DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     }
                     else
                     {
-                        MessageBox.Show("Error\nThe selected color has to be 4 digits long.");
+                        MessageBox.Show("Error\nThe selected color has to be " + GetNeededColorCodeLength() + " digits long.");
                     }
                     break;
                 case CursorMode.Circle:
-                    if (SelectedColorCode.Text.Length == 4)
+                    if (SelectedColorCode.Text.Length == GetNeededColorCodeLength())
                     {
                         switch (CurrentMapMode)
                         {
                             case MapMode.HeightMap:
                                 EditMapData(xMouseCoordinate, yMouseCoordinate, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
                                 break;
-                            case MapMode.TextureDistributionMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
+                            case MapMode.MainTextureMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, MainTextureMap);
+                                break;
+                            case MapMode.FoliageMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, FoliageMap);
+                                break;
+                            case MapMode.WallTextureMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, WallTextureMap);
+                                break;
+                            case MapMode.UnknownMap:
+                                EditMapData(xMouseCoordinate, yMouseCoordinate, UnknownMap);
                                 break;
                         }
                         DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     }
                     else
                     {
-                        MessageBox.Show("Error\nThe selected color has to be 4 digits long.");
+                        MessageBox.Show("Error\nThe selected color has to be "+ GetNeededColorCodeLength() +" digits long.");
                     }
                     break;
                 case CursorMode.Rotate:
                     switch (CurrentMapMode)
                     {
                         case MapMode.HeightMap:
-                            RotateMapData(HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
+                            RotateMapData(HeightMapDigitsOneAndTwo);
+                            RotateMapData(HeightMapDigitsThreeAndFour);
                             break;
-                        case MapMode.TextureDistributionMap:
-                            RotateMapData(TextureDistributionDigitsOneAndTwo, TextureDistributionDigitsThreeAndFour);
+                        case MapMode.MainTextureMap:
+                            RotateMapData(MainTextureMap);
+                            break;
+                        case MapMode.FoliageMap:
+                            RotateMapData(FoliageMap);
+                            break;
+                        case MapMode.WallTextureMap:
+                            RotateMapData(WallTextureMap);
+                            break;
+                        case MapMode.UnknownMap:
+                            RotateMapData(UnknownMap);
                             break;
                     }
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
@@ -1164,24 +1622,65 @@ namespace Overlord_Map_Visualizer
                     ImportMapImage.Content = "Import heightmap as image";
                     ExportMapData.Content = "Export heightmap as data";
                     ExportMapImage.Content = "Export heightmap as image";
+                    SelectedColorCode.Text = "0000";
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
                     ShowImportExportButtons();
                     UpdateToolBar();
                     break;
                 case 1:
-                    CurrentMapMode = MapMode.TextureDistributionMap;
+                    CurrentMapMode = MapMode.MainTextureMap;
                     UpdateCursor();
-                    ImportMapData.Content = "Import texturemap as data";
-                    ImportMapImage.Content = "Import texturemap as image";
-                    ExportMapData.Content = "Export texturemap as data";
-                    ExportMapImage.Content = "Export texturemap as image";
+                    ImportMapData.Content = "Import maintexturemap as data";
+                    ImportMapImage.Content = "Import maintexturemap as image";
+                    ExportMapData.Content = "Export maintexturemap as data";
+                    ExportMapImage.Content = "Export maintexturemap as image";
+                    SelectedColorCode.Text = "0";
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
                     ShowImportExportButtons();
                     UpdateToolBar();
                     break;
                 case 2:
+                    CurrentMapMode = MapMode.FoliageMap;
+                    UpdateCursor();
+                    ImportMapData.Content = "Import foliagemap as data";
+                    ImportMapImage.Content = "Import foliagemap as image";
+                    ExportMapData.Content = "Export foliagemap as data";
+                    ExportMapImage.Content = "Export foliagemap as image";
+                    SelectedColorCode.Text = "0";
+                    DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
+                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
+                    ShowImportExportButtons();
+                    UpdateToolBar();
+                    break;
+                case 3:
+                    CurrentMapMode = MapMode.WallTextureMap;
+                    UpdateCursor();
+                    ImportMapData.Content = "Import walltexturemap as data";
+                    ImportMapImage.Content = "Import walltexturemap as image";
+                    ExportMapData.Content = "Export walltexturemap as data";
+                    ExportMapImage.Content = "Export walltexturemap as image";
+                    SelectedColorCode.Text = "0";
+                    DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
+                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
+                    ShowImportExportButtons();
+                    UpdateToolBar();
+                    break;
+                case 4:
+                    CurrentMapMode = MapMode.UnknownMap;
+                    UpdateCursor();
+                    ImportMapData.Content = "Import unknownmap as data";
+                    ImportMapImage.Content = "Import unknownmap as image";
+                    ExportMapData.Content = "Export unknownmap as data";
+                    ExportMapImage.Content = "Export unknownmap as image";
+                    SelectedColorCode.Text = "0";
+                    DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
+                    DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
+                    ShowImportExportButtons();
+                    UpdateToolBar();
+                    break;
+                case 5:
                     CurrentMapMode = MapMode.Full;
                     Mouse.OverrideCursor = null;
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
@@ -1215,18 +1714,41 @@ namespace Overlord_Map_Visualizer
             return inString;
         }
 
+        private int GetNeededColorCodeLength()
+        {
+            switch (CurrentMapMode)
+            {
+                case MapMode.HeightMap:
+                    return 4;
+                case MapMode.MainTextureMap:
+                    return 1;
+                case MapMode.FoliageMap:
+                    return 1;
+                case MapMode.WallTextureMap:
+                    return 1;
+                case MapMode.UnknownMap:
+                    return 1;
+                default:
+                    return 1;
+            }
+        }
+
         private void SelectedColorCode_TextChanged(object sender, TextChangedEventArgs e)
         {
             SelectedColorCode.Text = LeaveOnlyHexNumbers(SelectedColorCode.Text);
 
-            if (SelectedColorCode.Text.Length == 4)
+            if (SelectedColorCode.Text.Length == GetNeededColorCodeLength())
             {
                 DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
 
-                int digitOne = Convert.ToInt32("" + SelectedColorCode.Text[3], 16);
-                int digitTwo = Convert.ToInt32("" + SelectedColorCode.Text[2], 16);
-                int digitThree = Convert.ToInt32("" + SelectedColorCode.Text[1], 16);
-                SelectedColorHeight.Content = "This color corresponds to a height of\r\n" + (((digitThree * Math.Pow(16, 1)) + (digitTwo * Math.Pow(16, 0)) + (digitOne * Math.Pow(16, -1))) / 2);
+                if (CurrentMapMode == MapMode.HeightMap)
+                {
+                    int digitOne = Convert.ToInt32("" + SelectedColorCode.Text[3], 16);
+                    int digitTwo = Convert.ToInt32("" + SelectedColorCode.Text[2], 16);
+                    int digitThree = Convert.ToInt32("" + SelectedColorCode.Text[1], 16);
+                    SelectedColorHeight.Content = "This color corresponds to a height of\r\n" + (((digitThree * Math.Pow(16, 1)) + (digitTwo * Math.Pow(16, 0)) + (digitOne * Math.Pow(16, -1))) / 2);
+                }
+
                 if (CurrentCursorMode == CursorMode.Square)
                 {
                     UpdateCursor();
