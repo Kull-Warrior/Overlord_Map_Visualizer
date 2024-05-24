@@ -476,7 +476,7 @@ namespace Overlord_Map_Visualizer
             string filePath;
             int offset;
 
-            if (button.Name == "ExportfromOMPFileButton")
+            if (button.Name == "ExportToOMPFileButton")
             {
                 offset = GetMapDataOffset();
                 bytesPerPoint = 4;
