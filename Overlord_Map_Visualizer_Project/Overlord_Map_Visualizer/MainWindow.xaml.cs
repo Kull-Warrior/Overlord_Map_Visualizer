@@ -1534,10 +1534,6 @@ namespace Overlord_Map_Visualizer
                 case 0:
                     CurrentMapMode = MapMode.HeightMap;
                     UpdateCursor();
-                    ImportMapData.Content = "Import heightmap as data";
-                    ImportMapImage.Content = "Import heightmap as image";
-                    ExportMapData.Content = "Export heightmap as data";
-                    ExportMapImage.Content = "Export heightmap as image";
                     SelectedColorCode.Text = "0000";
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
@@ -1547,10 +1543,6 @@ namespace Overlord_Map_Visualizer
                 case 1:
                     CurrentMapMode = MapMode.MainTextureMap;
                     UpdateCursor();
-                    ImportMapData.Content = "Import maintexturemap as data";
-                    ImportMapImage.Content = "Import maintexturemap as image";
-                    ExportMapData.Content = "Export maintexturemap as data";
-                    ExportMapImage.Content = "Export maintexturemap as image";
                     SelectedColorCode.Text = "0";
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
@@ -1560,10 +1552,6 @@ namespace Overlord_Map_Visualizer
                 case 2:
                     CurrentMapMode = MapMode.FoliageMap;
                     UpdateCursor();
-                    ImportMapData.Content = "Import foliagemap as data";
-                    ImportMapImage.Content = "Import foliagemap as image";
-                    ExportMapData.Content = "Export foliagemap as data";
-                    ExportMapImage.Content = "Export foliagemap as image";
                     SelectedColorCode.Text = "0";
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
@@ -1573,10 +1561,6 @@ namespace Overlord_Map_Visualizer
                 case 3:
                     CurrentMapMode = MapMode.WallTextureMap;
                     UpdateCursor();
-                    ImportMapData.Content = "Import walltexturemap as data";
-                    ImportMapImage.Content = "Import walltexturemap as image";
-                    ExportMapData.Content = "Export walltexturemap as data";
-                    ExportMapImage.Content = "Export walltexturemap as image";
                     SelectedColorCode.Text = "0";
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
@@ -1586,10 +1570,6 @@ namespace Overlord_Map_Visualizer
                 case 4:
                     CurrentMapMode = MapMode.UnknownMap;
                     UpdateCursor();
-                    ImportMapData.Content = "Import unknownmap as data";
-                    ImportMapImage.Content = "Import unknownmap as image";
-                    ExportMapData.Content = "Export unknownmap as data";
-                    ExportMapImage.Content = "Export unknownmap as image";
                     SelectedColorCode.Text = "0";
                     DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
                     DrawTiffImage((int)SelectedColorImage.Width, (int)SelectedColorImage.Height, DrawingType.SelectedColor);
