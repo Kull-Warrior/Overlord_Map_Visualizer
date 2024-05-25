@@ -7,32 +7,44 @@
         Title="Overlord Map Visualizer" Height="746" Width="1110" MinWidth="1110" MinHeight="700" Icon="Overlord_Normal.ico" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
     <Grid x:Name="appGrid">
         <Image x:Name="CoordinateSystem" HorizontalAlignment="Left" Height="532" Width="532" Margin="283,54,0,0" VerticalAlignment="Top"/>
-        <Image x:Name="Map" HorizontalAlignment="Left" Height="512" Width="512" Margin="293,64,0,0" VerticalAlignment="Top" MouseDown="ToolClick"/>
+        <Image x:Name="Map" HorizontalAlignment="Left" Height="511" Width="511" Margin="293,64,0,0" VerticalAlignment="Top" MouseDown="ToolClick"/>
+        <Image x:Name="LocationMarkers" HorizontalAlignment="Left" Height="511" Width="511" Margin="293,64,0,0" VerticalAlignment="Top" MouseDown="ToolClick"/>
         <TextBox x:Name="FilePath" HorizontalAlignment="Left" Height="46" Margin="8,653,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="912" IsReadOnly="True" IsEnabled="False"/>
         <Button x:Name="ImportfromOMPFileButton" Content="Import from OMP File" HorizontalAlignment="Left" Margin="920,653,0,0" VerticalAlignment="Top" Width="164" Height="22" Click="ImportfromFile" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" Grid.ColumnSpan="2"/>
-        <Button x:Name="ExportMapData" Content="Save Heightmap as Data" HorizontalAlignment="Left" Margin="544,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Click="ExportToFile" Visibility="Hidden" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>
-        <Button x:Name="ExportMapImage" Content="Save Heightmap as Image" HorizontalAlignment="Left" Margin="714,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Click="ExportToFile" Visibility="Hidden" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>
-        <Button x:Name="ImportMapData" Content="Import Heightmap as Data" HorizontalAlignment="Left" Margin="206,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Visibility="Hidden" Click="ImportfromFile" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>
-        <Button x:Name="ImportMapImage" Content="Import Heightmap as Image" HorizontalAlignment="Left" Margin="376,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Visibility="Hidden" Click="ImportfromFile" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>
+        <Button x:Name="ExportMapData" Content="Export as data" HorizontalAlignment="Left" Margin="544,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Click="ExportToFile" Visibility="Hidden" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>
+        <Button x:Name="ExportMapImage" Content="Export as image" HorizontalAlignment="Left" Margin="714,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Click="ExportToFile" Visibility="Hidden" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>
+        <Button x:Name="ImportMapData" Content="Import from data" HorizontalAlignment="Left" Margin="206,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Visibility="Hidden" Click="ImportfromFile" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>
+        <Button x:Name="ImportMapImage" Content="Import from image" HorizontalAlignment="Left" Margin="376,617,0,0" VerticalAlignment="Top" Width="164" Height="22" Visibility="Hidden" Click="ImportfromFile" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False"/>
         <Button x:Name="ExportToOMPFileButton" Content="Export to OMP File" HorizontalAlignment="Left" Margin="920,675,0,0" VerticalAlignment="Top" Width="164" Height="24" Click="ExportToFile" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FlowDirection="RightToLeft" IsEnabled="False" Grid.ColumnSpan="2"/>
         <ComboBox x:Name="MapModeDropDown" HorizontalAlignment="Left" Margin="292,19,0,0" VerticalAlignment="Top" Width="512" Height="23" SelectionChanged="MapModeChanged" IsEnabled="False">
             <ComboBoxItem Content="Height Map"/>
-            <ComboBoxItem Content="Texture Distribution Map"/>
+            <ComboBoxItem Content="Main Texture Map"/>
+            <ComboBoxItem Content="Foliage Map"/>
+            <ComboBoxItem Content="Wall Texture Map"/>
+            <ComboBoxItem Content="Unknown Map"/>
             <ComboBoxItem Content="Official Map Style"/>
         </ComboBox>
         <TextBox x:Name="SelectedColorCode" HorizontalAlignment="Left" Height="23" Margin="10,135,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="SelectedColorCode_TextChanged" MaxLines="1" MaxLength="4" IsEnabled="False" TextAlignment="Center" CharacterCasing="Upper" Visibility="Hidden" PreviewKeyDown="SelectedColorCode_PreviewKeyDown"/>
-        <Image x:Name="SelectedColorImage" HorizontalAlignment="Left" Height="23" Margin="135,107,0,0" VerticalAlignment="Top" Width="120" Visibility="Hidden"/>
+        <Image x:Name="SelectedColorImage" HorizontalAlignment="Left" Height="23" Margin="135,135,0,0" VerticalAlignment="Top" Width="120" Visibility="Hidden"/>
         <Border x:Name="SelectedColorBorder" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="23" Margin="135,135,0,0" VerticalAlignment="Top" Width="120" Visibility="Hidden"/>
         <Label x:Name="SelectedColorHeight" Content="" HorizontalAlignment="Left" Margin="10,163,0,0" VerticalAlignment="Top" Width="245" Visibility="Hidden"/>
-        <Button x:Name="cursorModeSelect" Content="Select" HorizontalAlignment="Left" Margin="10,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeSelect_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorModePipette" Content="Pipette" HorizontalAlignment="Left" Margin="65,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModePipette_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModeSelect" Content="Select" HorizontalAlignment="Left" Margin="10,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModePipette" Content="Pipette" HorizontalAlignment="Left" Margin="65,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorMode_Click" Visibility="Hidden"/>
         <Slider x:Name="CursorSizeSlider" HorizontalAlignment="Left" Margin="10,198,0,0" VerticalAlignment="Top" Width="256" Value="51" Minimum="1" Maximum="255" SmallChange="2" TickPlacement="Both" Cursor="Arrow" Height="35" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True" Visibility="Hidden" LargeChange="2" TickFrequency="2"/>
         <Label x:Name="cursorDiameterLabel" Content="Cursor Radius : 1" HorizontalAlignment="Left" Margin="10,238,0,0" VerticalAlignment="Top" Width="256" Visibility="Hidden"/>
-        <Button x:Name="cursorModeSquare" Content="Square" HorizontalAlignment="Left" Margin="120,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeSquare_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorModeCircle" Content="Circle" HorizontalAlignment="Left" Margin="175,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeCircle_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorModeRotate" Content="Rotate" HorizontalAlignment="Left" Margin="230,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorModeRotate_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorSubModeSet" Content="Set" HorizontalAlignment="Left" Margin="38,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubModeSet_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorSubModeAdd" Content="Add" HorizontalAlignment="Left" Margin="93,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubModeAdd_Click" Visibility="Hidden"/>
-        <Button x:Name="cursorSubModeSub" Content="Sub" HorizontalAlignment="Left" Margin="148,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubModeSub_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModeSquare" Content="Square" HorizontalAlignment="Left" Margin="120,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModeCircle" Content="Circle" HorizontalAlignment="Left" Margin="175,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorModeRotate" Content="Rotate" HorizontalAlignment="Left" Margin="230,19,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorSubModeSet" Content="Set" HorizontalAlignment="Left" Margin="38,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorSubModeAdd" Content="Add" HorizontalAlignment="Left" Margin="93,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubMode_Click" Visibility="Hidden"/>
+        <Button x:Name="cursorSubModeSub" Content="Sub" HorizontalAlignment="Left" Margin="148,63,0,0" VerticalAlignment="Top" Width="50" Height="39" Click="CursorSubMode_Click" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxTowerGate" Content="Show Tower Gate" HorizontalAlignment="Left" Margin="820,64,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxWaypointGate" Content="Show Waypoint Gate" HorizontalAlignment="Left" Margin="820,84,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxBrownMinionGate" Content="Show Brown Minion Gate" HorizontalAlignment="Left" Margin="820,104,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxRedMinionGate" Content="Show Red Minion Gate" HorizontalAlignment="Left" Margin="820,124,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxGreenMinionGate" Content="Show Green Minion Gate" HorizontalAlignment="Left" Margin="820,144,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxBlueMinionGate" Content="Show Blue Minion Gate" HorizontalAlignment="Left" Margin="820,164,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxBloodPit" Content="Show Blood Pit" HorizontalAlignment="Left" Margin="820,184,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <CheckBox x:Name="checkBoxManaPit" Content="Show Mana Pit" HorizontalAlignment="Left" Margin="820,204,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
     </Grid>
 </Window>
