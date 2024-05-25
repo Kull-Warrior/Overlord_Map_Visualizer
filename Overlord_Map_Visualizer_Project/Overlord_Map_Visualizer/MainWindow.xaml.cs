@@ -1406,114 +1406,121 @@ namespace Overlord_Map_Visualizer
             int xMouseCoordinate = 511 - (int)e.GetPosition(Map).X;
             int yMouseCoordinate = 511 - (int)e.GetPosition(Map).Y;
 
-            switch (CurrentCursorMode)
+            if (CurrentMapMode != MapMode.Full)
             {
-                case CursorMode.Select:
-                    MessageBox.Show("Location : X:" + xMouseCoordinate + " | Y:" + yMouseCoordinate);
-                    break;
-                case CursorMode.Pipette:
-                    switch (CurrentMapMode)
-                    {
-                        case MapMode.HeightMap:
-                            SelectedColorCode.Text = HeightMapDigitsThreeAndFour[xMouseCoordinate, yMouseCoordinate].ToString("X2") + HeightMapDigitsOneAndTwo[xMouseCoordinate, yMouseCoordinate].ToString("X2");
-                            break;
-                        case MapMode.MainTextureMap:
-                            SelectedColorCode.Text = MainTextureMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
-                            break;
-                        case MapMode.FoliageMap:
-                            SelectedColorCode.Text = FoliageMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
-                            break;
-                        case MapMode.WallTextureMap:
-                            SelectedColorCode.Text = WallTextureMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
-                            break;
-                        case MapMode.UnknownMap:
-                            SelectedColorCode.Text = UnknownMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
-                            break;
-                        default:
-                            SelectedColorCode.Text = "0000";
-                            break;
-                    }
-                    break;
-                case CursorMode.Square:
-                    if (SelectedColorCode.Text.Length == GetNeededColorCodeLength())
-                    {
+                switch (CurrentCursorMode)
+                {
+                    case CursorMode.Select:
+                        MessageBox.Show("Location : X:" + xMouseCoordinate + " | Y:" + yMouseCoordinate);
+                        break;
+                    case CursorMode.Pipette:
                         switch (CurrentMapMode)
                         {
                             case MapMode.HeightMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
+                                SelectedColorCode.Text = HeightMapDigitsThreeAndFour[xMouseCoordinate, yMouseCoordinate].ToString("X2") + HeightMapDigitsOneAndTwo[xMouseCoordinate, yMouseCoordinate].ToString("X2");
                                 break;
                             case MapMode.MainTextureMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, MainTextureMap);
+                                SelectedColorCode.Text = MainTextureMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
                                 break;
                             case MapMode.FoliageMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, FoliageMap);
+                                SelectedColorCode.Text = FoliageMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
                                 break;
                             case MapMode.WallTextureMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, WallTextureMap);
+                                SelectedColorCode.Text = WallTextureMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
                                 break;
                             case MapMode.UnknownMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, UnknownMap);
+                                SelectedColorCode.Text = UnknownMap[xMouseCoordinate, yMouseCoordinate].ToString("X1");
+                                break;
+                            default:
+                                SelectedColorCode.Text = "0000";
                                 break;
                         }
-                        DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Error\nThe selected color has to be " + GetNeededColorCodeLength() + " digits long.");
-                    }
-                    break;
-                case CursorMode.Circle:
-                    if (SelectedColorCode.Text.Length == GetNeededColorCodeLength())
-                    {
+                        break;
+                    case CursorMode.Square:
+                        if (SelectedColorCode.Text.Length == GetNeededColorCodeLength())
+                        {
+                            switch (CurrentMapMode)
+                            {
+                                case MapMode.HeightMap:
+                                    EditMapData(xMouseCoordinate, yMouseCoordinate, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
+                                    break;
+                                case MapMode.MainTextureMap:
+                                    EditMapData(xMouseCoordinate, yMouseCoordinate, MainTextureMap);
+                                    break;
+                                case MapMode.FoliageMap:
+                                    EditMapData(xMouseCoordinate, yMouseCoordinate, FoliageMap);
+                                    break;
+                                case MapMode.WallTextureMap:
+                                    EditMapData(xMouseCoordinate, yMouseCoordinate, WallTextureMap);
+                                    break;
+                                case MapMode.UnknownMap:
+                                    EditMapData(xMouseCoordinate, yMouseCoordinate, UnknownMap);
+                                    break;
+                            }
+                            DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Error\nThe selected color has to be " + GetNeededColorCodeLength() + " digits long.");
+                        }
+                        break;
+                    case CursorMode.Circle:
+                        if (SelectedColorCode.Text.Length == GetNeededColorCodeLength())
+                        {
+                            switch (CurrentMapMode)
+                            {
+                                case MapMode.HeightMap:
+                                    EditMapData(xMouseCoordinate, yMouseCoordinate, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
+                                    break;
+                                case MapMode.MainTextureMap:
+                                    EditMapData(xMouseCoordinate, yMouseCoordinate, MainTextureMap);
+                                    break;
+                                case MapMode.FoliageMap:
+                                    EditMapData(xMouseCoordinate, yMouseCoordinate, FoliageMap);
+                                    break;
+                                case MapMode.WallTextureMap:
+                                    EditMapData(xMouseCoordinate, yMouseCoordinate, WallTextureMap);
+                                    break;
+                                case MapMode.UnknownMap:
+                                    EditMapData(xMouseCoordinate, yMouseCoordinate, UnknownMap);
+                                    break;
+                            }
+                            DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
+                        }
+                        else
+                        {
+                            MessageBox.Show("Error\nThe selected color has to be " + GetNeededColorCodeLength() + " digits long.");
+                        }
+                        break;
+                    case CursorMode.Rotate:
                         switch (CurrentMapMode)
                         {
                             case MapMode.HeightMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, HeightMapDigitsOneAndTwo, HeightMapDigitsThreeAndFour);
+                                RotateMapData(HeightMapDigitsOneAndTwo);
+                                RotateMapData(HeightMapDigitsThreeAndFour);
                                 break;
                             case MapMode.MainTextureMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, MainTextureMap);
+                                RotateMapData(MainTextureMap);
                                 break;
                             case MapMode.FoliageMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, FoliageMap);
+                                RotateMapData(FoliageMap);
                                 break;
                             case MapMode.WallTextureMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, WallTextureMap);
+                                RotateMapData(WallTextureMap);
                                 break;
                             case MapMode.UnknownMap:
-                                EditMapData(xMouseCoordinate, yMouseCoordinate, UnknownMap);
+                                RotateMapData(UnknownMap);
                                 break;
                         }
                         DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Error\nThe selected color has to be "+ GetNeededColorCodeLength() +" digits long.");
-                    }
-                    break;
-                case CursorMode.Rotate:
-                    switch (CurrentMapMode)
-                    {
-                        case MapMode.HeightMap:
-                            RotateMapData(HeightMapDigitsOneAndTwo);
-                            RotateMapData(HeightMapDigitsThreeAndFour);
-                            break;
-                        case MapMode.MainTextureMap:
-                            RotateMapData(MainTextureMap);
-                            break;
-                        case MapMode.FoliageMap:
-                            RotateMapData(FoliageMap);
-                            break;
-                        case MapMode.WallTextureMap:
-                            RotateMapData(WallTextureMap);
-                            break;
-                        case MapMode.UnknownMap:
-                            RotateMapData(UnknownMap);
-                            break;
-                    }
-                    DrawTiffImage(MapWidth, MapHeight, DrawingType.Map);
-                    break;
-                default:
-                    break;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Location : X:" + xMouseCoordinate + " | Y:" + yMouseCoordinate);
             }
         }
 
