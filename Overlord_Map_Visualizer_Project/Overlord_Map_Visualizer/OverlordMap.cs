@@ -419,13 +419,13 @@ namespace Overlord_Map_Visualizer
                             data[totalOffset] = MainTextureMap[x, y];
                             break;
                         case MapMode.FoliageMap:
-                            data[totalOffset] = (byte)(FoliageMap[x, y] << 4);
+                            data[totalOffset] = FoliageMap[x, y];
                             break;
                         case MapMode.WallTextureMap:
                             data[totalOffset] = WallTextureMap[x, y];
                             break;
                         case MapMode.UnknownMap:
-                            data[totalOffset] = (byte)(MainTextureMap[x, y] << 4);
+                            data[totalOffset] = MainTextureMap[x, y];
                             break;
                         case MapMode.Full:
                             data[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
@@ -514,7 +514,7 @@ namespace Overlord_Map_Visualizer
                             }
                             else
                             {
-                                WallTextureMap[x, y] = (byte)(data[totalOffset] >> 4);
+                                WallTextureMap[x, y] = data[totalOffset];
                             }
                             break;
                         case MapMode.UnknownMap:
@@ -528,7 +528,7 @@ namespace Overlord_Map_Visualizer
                             }
                             else
                             {
-                                UnknownMap[x, y] = (byte)(data[totalOffset] >> 4);
+                                UnknownMap[x, y] = data[totalOffset];
                             }
                             break;
                         case MapMode.Full:
