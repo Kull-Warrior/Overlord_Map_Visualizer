@@ -425,7 +425,7 @@ namespace Overlord_Map_Visualizer
                             data[totalOffset] = WallTextureMap[x, y];
                             break;
                         case MapMode.UnknownMap:
-                            data[totalOffset] = MainTextureMap[x, y];
+                            data[totalOffset] = UnknownMap[x, y];
                             break;
                         case MapMode.Full:
                             data[totalOffset] = HeightMapDigitsOneAndTwo[x, y];
