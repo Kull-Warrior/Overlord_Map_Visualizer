@@ -660,7 +660,21 @@ namespace Overlord_Map_Visualizer
                             data[totalOffset + 4] = (byte)(red & 0x00FF);
                             data[totalOffset + 5] = (byte)((red & 0xFF00) >> 8);
                             break;
+                        case MapMode.ThreeDimensional:
+                            data[totalOffset] = 0xFF;
+                            data[totalOffset + 1] = 0xFF;
+                            data[totalOffset + 2] = 0xFF;
+                            data[totalOffset + 3] = 0xFF;
+                            data[totalOffset + 4] = 0xFF;
+                            data[totalOffset + 5] = 0xFF;
+                            break;
                         default:
+                            data[totalOffset] = 0xFF;
+                            data[totalOffset + 1] = 0xFF;
+                            data[totalOffset + 2] = 0xFF;
+                            data[totalOffset + 3] = 0xFF;
+                            data[totalOffset + 4] = 0xFF;
+                            data[totalOffset + 5] = 0xFF;
                             break;
                     }
                 }
@@ -850,6 +864,25 @@ namespace Overlord_Map_Visualizer
                 writer.BaseStream.Seek(offset, SeekOrigin.Begin);
                 writer.Write(data, 0, totalNumberOfBytes);
             }
+        }
+
+        public float[,] GetFloatMap()
+        {
+            float[,] floatMap = new float[Width, Height];
+
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    double highestDigit = Math.Pow(16, 1) * (HeightMapDigitsThreeAndFour[x, y] & 0x0F);
+                    double middleDigit = Math.Pow(16, 0) * ((HeightMapDigitsOneAndTwo[x, y] & 0xF0) >> 4);
+                    double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
+                    
+                    floatMap[x, y] = (float)(highestDigit + middleDigit + smallestDigit) / 2;
+                }
+            }
+
+            return floatMap;
         }
     }
 }

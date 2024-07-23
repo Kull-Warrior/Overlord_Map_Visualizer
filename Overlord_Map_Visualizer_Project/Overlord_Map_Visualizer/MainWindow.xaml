@@ -23,6 +23,7 @@
             <ComboBoxItem Content="Wall Texture Map"/>
             <ComboBoxItem Content="Unknown Map"/>
             <ComboBoxItem Content="Official Map Style"/>
+            <ComboBoxItem Content="Simple 3D Map"/>
         </ComboBox>
         <TextBox x:Name="SelectedColorCode" HorizontalAlignment="Left" Height="23" Margin="10,135,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" TextChanged="SelectedColorCode_TextChanged" MaxLines="1" MaxLength="4" IsEnabled="False" TextAlignment="Center" CharacterCasing="Upper" Visibility="Hidden" PreviewKeyDown="SelectedColorCode_PreviewKeyDown"/>
         <Image x:Name="SelectedColorImage" HorizontalAlignment="Left" Height="23" Margin="135,135,0,0" VerticalAlignment="Top" Width="120" Visibility="Hidden"/>
@@ -46,5 +47,23 @@
         <CheckBox x:Name="checkBoxBlueMinionGate" Content="Show Blue Minion Gate" HorizontalAlignment="Left" Margin="820,164,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
         <CheckBox x:Name="checkBoxBloodPit" Content="Show Blood Pit" HorizontalAlignment="Left" Margin="820,184,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
         <CheckBox x:Name="checkBoxManaPit" Content="Show Mana Pit" HorizontalAlignment="Left" Margin="820,204,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
+        <Viewport3D Name="mainViewport" Margin="293,64,300,142" MouseDown="ToolClick">
+            <Viewport3D.Camera>
+                <PerspectiveCamera Position="512,0,512" LookDirection="-0.2,0,-0.8"/>
+            </Viewport3D.Camera>
+            <Viewport3D.Children>
+                <ModelVisual3D>
+                    <ModelVisual3D.Content>
+                        <DirectionalLight Color="White" Direction="-2,-3,-1"/>
+                    </ModelVisual3D.Content>
+                </ModelVisual3D>
+                <ModelVisual3D>
+                    <ModelVisual3D.Content>
+                        <Model3DGroup x:Name="Map3D">
+                        </Model3DGroup>
+                    </ModelVisual3D.Content>
+                </ModelVisual3D>
+            </Viewport3D.Children>
+        </Viewport3D>
     </Grid>
 </Window>
