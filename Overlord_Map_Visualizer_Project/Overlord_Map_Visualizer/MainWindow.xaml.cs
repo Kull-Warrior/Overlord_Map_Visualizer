@@ -16,6 +16,7 @@ using MediaPen = System.Windows.Media.Pen;
 using Pen = System.Drawing.Pen;
 using PixelFormat = System.Windows.Media.PixelFormat;
 using DrawingPoint = System.Drawing.Point;
+using System.Windows.Media.Media3D;
 
 namespace Overlord_Map_Visualizer
 {
@@ -26,7 +27,8 @@ namespace Overlord_Map_Visualizer
         WallTextureMap,
         FoliageMap,
         UnknownMap,
-        Full
+        Full,
+        ThreeDimensional
     }
     public enum CursorMode
     {
@@ -561,12 +563,101 @@ namespace Overlord_Map_Visualizer
             }
         }
 
+        private void Draw3DTerrain(OverlordMap map)
+        {
+            float halfSize = map.Width/ 2;
+            float halfheight = map.Height / 2;
+
+            float[,] floatMap = map.GetFloatMap();
+
+            //creation of the terrain
+            GeometryModel3D terrainGeometryModel = new GeometryModel3D(new MeshGeometry3D(), new DiffuseMaterial(MediaBrushes.Gray));
+            Point3DCollection point3DCollection = new Point3DCollection();
+            Int32Collection triangleIndices = new Int32Collection();
+
+            //adding point
+            for (var y = 0; y < 512; y++)
+            {
+                for (var x = 0; x < 512; x++)
+                {
+                    point3DCollection.Add(new Point3D(x - halfSize, y - halfSize, floatMap[x, y] - halfheight));;
+                }
+            }
+            ((MeshGeometry3D)terrainGeometryModel.Geometry).Positions = point3DCollection;
+
+            //defining triangles
+            int ind1, ind2;
+            int xLenght = 512;
+
+            for (var y = 0; y < 512 - 1; y++)
+            {
+                for (var x = 0; x < 512 - 1; x++)
+                {
+                    ind1 = x + y * xLenght;
+                    ind2 = ind1 + xLenght;
+
+                    //first triangle
+                    triangleIndices.Add(ind1);
+                    triangleIndices.Add(ind2 + 1);
+                    triangleIndices.Add(ind2);
+
+                    //second triangle
+                    triangleIndices.Add(ind1);
+                    triangleIndices.Add(ind1 + 1);
+                    triangleIndices.Add(ind2 + 1);
+                }
+            }
+            ((MeshGeometry3D)terrainGeometryModel.Geometry).TriangleIndices = triangleIndices;
+
+            Map3D.Children.Add(terrainGeometryModel);
+        }
+
+        private void DrawWater(OverlordMap map)
+        {
+            float halfSize = map.Width / 2;
+            float halfheight = map.Height / 2;
+
+            // creation of the water layers
+            // I'm going to use a series of emissive layer for water
+            SolidColorBrush waterSolidColorBrush = new SolidColorBrush(Colors.Blue);
+            waterSolidColorBrush.Opacity = 0.2;
+            GeometryModel3D myWaterGeometryModel =
+            new GeometryModel3D(new MeshGeometry3D(), new EmissiveMaterial(waterSolidColorBrush));
+            Point3DCollection waterPoint3DCollection = new Point3DCollection();
+            Int32Collection triangleIndices = new Int32Collection();
+
+            int triangleCounter;
+            float dfMul = 5;
+
+            for (int i = 0; i < 10; i++)
+            {
+
+                triangleCounter = waterPoint3DCollection.Count;
+
+                waterPoint3DCollection.Add(new Point3D(-halfSize, -halfSize, map.WaterLevel - i * dfMul - halfheight));
+                waterPoint3DCollection.Add(new Point3D(+halfSize, +halfSize, map.WaterLevel - i * dfMul - halfheight));
+                waterPoint3DCollection.Add(new Point3D(-halfSize, +halfSize, map.WaterLevel - i * dfMul - halfheight));
+                waterPoint3DCollection.Add(new Point3D(+halfSize, -halfSize, map.WaterLevel - i * dfMul - halfheight));
+
+                triangleIndices.Add(triangleCounter);
+                triangleIndices.Add(triangleCounter + 1);
+                triangleIndices.Add(triangleCounter + 2);
+                triangleIndices.Add(triangleCounter);
+                triangleIndices.Add(triangleCounter + 3);
+                triangleIndices.Add(triangleCounter + 1);
+            }
+            ((MeshGeometry3D)myWaterGeometryModel.Geometry).Positions = waterPoint3DCollection;
+            ((MeshGeometry3D)myWaterGeometryModel.Geometry).TriangleIndices = triangleIndices;
+
+            Map3D.Children.Add(myWaterGeometryModel);
+        }
+
         private void ToolClick(object sender, MouseButtonEventArgs e)
         {
             int xMouseCoordinate = 511 - (int)e.GetPosition(Map).X;
             int yMouseCoordinate = 511 - (int)e.GetPosition(Map).Y;
 
-            if (CurrentMapMode != MapMode.Full)
+            if (CurrentMapMode != MapMode.Full && CurrentMapMode != MapMode.ThreeDimensional)
             {
                 byte[] data;
                 switch (CurrentCursorMode)
@@ -682,7 +773,7 @@ namespace Overlord_Map_Visualizer
                         break;
                 }
             }
-            else
+            else if (CurrentMapMode == MapMode.Full)
             {
                 MessageBox.Show("Location : X:" + xMouseCoordinate + " | Y:" + yMouseCoordinate);
             }
@@ -691,6 +782,7 @@ namespace Overlord_Map_Visualizer
         private void MapModeChanged(object sender, SelectionChangedEventArgs e)
         {
             byte[] mapData, selectedData;
+            Map3D.Children.Clear();
             switch (MapModeDropDown.SelectedIndex)
             {
                 case 0:
@@ -758,7 +850,20 @@ namespace Overlord_Map_Visualizer
                     HideCursorModes();
                     HideCursorSubModes();
                     HideCursorSlider();
-
+                    break;
+                case 6:
+                    CurrentMapMode = MapMode.ThreeDimensional;
+                    Mouse.OverrideCursor = null;
+                    mapData = CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, MapMode.ThreeDimensional);
+                    DrawTiffImage(CurrentMap.Width, CurrentMap.Height, DrawingType.Map, mapData);
+                    CurrentMap.WaterLevel = 60;
+                    Draw3DTerrain(CurrentMap);
+                    DrawWater(CurrentMap);
+                    HideImportExportButtons();
+                    HideSelectedColor();
+                    HideCursorModes();
+                    HideCursorSubModes();
+                    HideCursorSlider();
                     break;
                 default:
                     break;
