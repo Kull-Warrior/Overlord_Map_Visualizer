@@ -856,7 +856,6 @@ namespace Overlord_Map_Visualizer
                     Mouse.OverrideCursor = null;
                     mapData = CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, MapMode.ThreeDimensional);
                     DrawTiffImage(CurrentMap.Width, CurrentMap.Height, DrawingType.Map, mapData);
-                    CurrentMap.WaterLevel = 60;
                     Draw3DTerrain(CurrentMap);
                     DrawWater(CurrentMap);
                     HideImportExportButtons();
