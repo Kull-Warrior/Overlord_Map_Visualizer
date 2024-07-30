@@ -20,38 +20,6 @@ using System.Windows.Media.Media3D;
 
 namespace Overlord_Map_Visualizer
 {
-    public enum MapMode
-    {
-        HeightMap,
-        MainTextureMap,
-        WallTextureMap,
-        FoliageMap,
-        UnknownMap,
-        Full,
-        ThreeDimensional
-    }
-    public enum CursorMode
-    {
-        Select,
-        Pipette,
-        Square,
-        Circle,
-        Rotate
-    }
-
-    public enum CursorSubMode
-    {
-        Set,
-        Add,
-        Sub
-    }
-
-    public enum DrawingType
-    {
-        Map,
-        SelectedColor
-    }
-
     public partial class MainWindow : Window
     {
         private OverlordMap CurrentMap = new OverlordMap();
