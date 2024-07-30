@@ -80,6 +80,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="resources\enums\cursorEnums.cs" />
+    <Compile Include="resources\enums\drawingEnums.cs" />
+    <Compile Include="resources\enums\mapEnums.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
