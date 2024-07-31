@@ -241,6 +241,7 @@ namespace Overlord_Map_Visualizer
         {
             Button button = (Button)sender;
             SaveFileDialog saveFileDialog;
+            FileWriter writer = new FileWriter();
             byte[] data;
             int bytesPerPoint;
             string filePath;
@@ -252,7 +253,7 @@ namespace Overlord_Map_Visualizer
                 bytesPerPoint = 4;
                 filePath = CurrentMap.FilePath;
                 data = CurrentMap.GetMapData(bytesPerPoint, MapMode.Full);
-                CurrentMap.WriteMapDataToFile(data, offset, filePath, bytesPerPoint);
+                writer.WriteMapDataToFile(filePath, data, offset, CurrentMap.Width, CurrentMap.Height, bytesPerPoint);
             }
             else if (button.Name == "ExportMapData")
             {
@@ -274,6 +275,13 @@ namespace Overlord_Map_Visualizer
                     filter = "ogd files (*.ogd)|*.ogd";
                     bytesPerPoint = 1;
                 }
+                if(button.Name == "ExportMapImage")
+                {
+                    dialogTitle = "Select Directory and file name for the overlord map image";
+                    fileExtension = "tiff";
+                    filter = "tiff image files (*.tiff)|*.tiff";
+                    bytesPerPoint = 1;
+                }
 
                 saveFileDialog = new SaveFileDialog
                 {
@@ -286,39 +294,15 @@ namespace Overlord_Map_Visualizer
 
                 if (saveFileDialog.ShowDialog() == true)
                 {
-                    offset = 0;
-                    filePath = saveFileDialog.FileName;
-                    data = CurrentMap.GetMapData(bytesPerPoint, CurrentMapMode);
-                    CurrentMap.WriteMapDataToFile(data, offset, filePath, bytesPerPoint);
-                }
-            }
-            else if (button.Name == "ExportMapImage")
-            {
-                saveFileDialog = new SaveFileDialog
-                {
-                    InitialDirectory = @"C:\",
-                    RestoreDirectory = true,
-                    Title = "Select Directory and file name for the overlord map image",
-                    DefaultExt = "tiff",
-                    Filter = "tiff image files (*.tiff)|*.tiff"
-                };
-
-                if (saveFileDialog.ShowDialog() == true)
-                {
-                    using (FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                    if(button.Name == "ExportMapImage")
                     {
-                        double dpi = 50;
-                        PixelFormat format = PixelFormats.Rgb48;
-                        int stride = ((CurrentMap.Width * format.BitsPerPixel) + 7) / 8;
                         data = CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode);
-                        WriteableBitmap writableBitmap = new WriteableBitmap(CurrentMap.Width, CurrentMap.Height, dpi, dpi, format, null);
-                        writableBitmap.WritePixels(new Int32Rect(0, 0, CurrentMap.Width, CurrentMap.Height), data, stride, 0);
-
-                        // Encode as a TIFF
-                        TiffBitmapEncoder encoder = new TiffBitmapEncoder { Compression = TiffCompressOption.None };
-                        encoder.Frames.Add(BitmapFrame.Create(writableBitmap));
-
-                        encoder.Save(stream);
+                        writer.WriteTiffDataToFile(saveFileDialog.FileName, data, CurrentMap.Width, CurrentMap.Height);
+                    }
+                    else
+                    {
+                        data = CurrentMap.GetMapData(bytesPerPoint, CurrentMapMode);
+                        writer.WriteMapDataToFile(saveFileDialog.FileName, data, 0, CurrentMap.Width, CurrentMap.Height, bytesPerPoint);
                     }
                 }
             }
