@@ -96,6 +96,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="resources\classes\FileWriter.cs" />
     <Compile Include="resources\classes\OverlordMap.cs" />
     <Compile Include="resources\classes\OverlordObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

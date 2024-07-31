@@ -855,17 +855,6 @@ namespace Overlord_Map_Visualizer
             return data;
         }
 
-        public void WriteMapDataToFile(byte[] data, int offset, string filePath, int bytesPerPoint)
-        {
-            int totalNumberOfBytes = Width * Height * bytesPerPoint;
-
-            using (BinaryWriter writer = new BinaryWriter(new FileStream(filePath, FileMode.OpenOrCreate)))
-            {
-                writer.BaseStream.Seek(offset, SeekOrigin.Begin);
-                writer.Write(data, 0, totalNumberOfBytes);
-            }
-        }
-
         public float[,] GetFloatMap()
         {
             float[,] floatMap = new float[Width, Height];
