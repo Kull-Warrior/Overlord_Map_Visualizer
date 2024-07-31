@@ -126,6 +126,7 @@ namespace Overlord_Map_Visualizer
         {
             Button button = (Button)sender;
             OpenFileDialog openFileDialog;
+            FileReader reader = new FileReader();
             string dialogTitle;
             string fileExtension;
             string filter;
@@ -188,7 +189,7 @@ namespace Overlord_Map_Visualizer
                         isTiffImage = false;
                         FilePath.Text = openFileDialog.FileName;
                         CurrentMap.FilePath = openFileDialog.FileName;
-                        offset = CurrentMap.GetMapDataOffset();
+                        offset = reader.GetMapDataOffset(CurrentMap.FilePath, CurrentMap.Width,CurrentMap.Height);
                         break;
                     case "tiff":
                         bytesPerPoint = 6;
@@ -215,9 +216,9 @@ namespace Overlord_Map_Visualizer
                         offset = 0;
                         break;
                 }
-                byte[] data = CurrentMap.ReadMapDataFromFile(offset, openFileDialog.FileName, bytesPerPoint);
+                byte[] data = reader.ReadMapDataFromFile(openFileDialog.FileName, offset, CurrentMap.Width, CurrentMap.Height, bytesPerPoint);
                 CurrentMap.SetMapData(data, bytesPerPoint, mapMode, isTiffImage);
-                CurrentMap.WaterLevel = CurrentMap.GetMapWaterLevel();
+                CurrentMap.WaterLevel = reader.GetMapWaterLevel(CurrentMap);
 
                 data = CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, mapMode);
                 DrawTiffImage(CurrentMap.Width, CurrentMap.Height, DrawingType.Map, data);
@@ -242,6 +243,7 @@ namespace Overlord_Map_Visualizer
             Button button = (Button)sender;
             SaveFileDialog saveFileDialog;
             FileWriter writer = new FileWriter();
+            FileReader reader = new FileReader();
             byte[] data;
             int bytesPerPoint;
             string filePath;
@@ -249,7 +251,7 @@ namespace Overlord_Map_Visualizer
 
             if (button.Name == "ExportToOMPFileButton")
             {
-                offset = CurrentMap.GetMapDataOffset();
+                offset = reader.GetMapDataOffset(CurrentMap.FilePath,CurrentMap.Width,CurrentMap.Height);
                 bytesPerPoint = 4;
                 filePath = CurrentMap.FilePath;
                 data = CurrentMap.GetMapData(bytesPerPoint, MapMode.Full);
