@@ -72,9 +72,15 @@
                     </Transform3DGroup>
                 </ModelVisual3D.Transform>
                 <ModelVisual3D.Content>
-                    <Model3DGroup x:Name="Map3D">
+                    <Model3DGroup>
                         <Model3DGroup.Children>
-                            <AmbientLight Color="#ffffffff" />
+                            <Model3DGroup x:Name="Map3DTerrainAndWater">
+                                
+                            </Model3DGroup>
+
+                            <Model3DGroup x:Name="Map3DLight">
+                                <DirectionalLight Color="White" Direction="0.2,-1,0"/>
+                            </Model3DGroup>
                         </Model3DGroup.Children>
                     </Model3DGroup>
                 </ModelVisual3D.Content>

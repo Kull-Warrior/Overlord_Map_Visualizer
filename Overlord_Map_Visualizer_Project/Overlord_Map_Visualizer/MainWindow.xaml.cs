@@ -524,7 +524,7 @@ namespace Overlord_Map_Visualizer
 
         private void Draw3DModel(GeometryModel3D model3D)
         {
-            Map3D.Children.Add(model3D);
+            Map3DTerrainAndWater.Children.Add(model3D);
         }
 
         private void ToolClick(object sender, MouseButtonEventArgs e)
@@ -657,7 +657,7 @@ namespace Overlord_Map_Visualizer
         private void MapModeChanged(object sender, SelectionChangedEventArgs e)
         {
             byte[] mapData, selectedData;
-            Map3D.Children.Clear();
+            Map3DTerrainAndWater.Children.Clear();
             switch (MapModeDropDown.SelectedIndex)
             {
                 case 0:
