@@ -50,8 +50,8 @@
         <Viewport3D Name="mainViewport" Margin="293,64,300,142" MouseDown="ToolClick">
             <Viewport3D.Camera>
                 <PerspectiveCamera
-                        Position="0,0,512"
-                        LookDirection="-0.2,0,-0.8"
+                        Position="512,0,512"
+                        LookDirection="-0.8,-0.2,-0.8"
                         />
             </Viewport3D.Camera>
             <ModelVisual3D>
@@ -62,7 +62,7 @@
                                 <ScaleTransform3D ScaleX="1" ScaleY="1" ScaleZ="1" />
                                 <RotateTransform3D>
                                     <RotateTransform3D.Rotation>
-                                        <AxisAngleRotation3D Axis="0 1 0" Angle="0" />
+                                        <AxisAngleRotation3D Axis="0 0 0" Angle="0" />
                                     </RotateTransform3D.Rotation>
                                 </RotateTransform3D>
                                 <TranslateTransform3D OffsetX="0" OffsetY="0" OffsetZ="0" />
