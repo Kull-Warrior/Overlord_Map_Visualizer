@@ -709,6 +709,7 @@ namespace Overlord_Map_Visualizer
 
             //creation of the terrain
             GeometryModel3D terrainGeometryModel = new GeometryModel3D(new MeshGeometry3D(), new DiffuseMaterial(MediaBrushes.Gray));
+            terrainGeometryModel.BackMaterial = terrainGeometryModel.Material;
             Point3DCollection point3DCollection = new Point3DCollection();
             Int32Collection triangleIndices = new Int32Collection();
 
@@ -745,6 +746,23 @@ namespace Overlord_Map_Visualizer
                 }
             }
             ((MeshGeometry3D)terrainGeometryModel.Geometry).TriangleIndices = triangleIndices;
+
+            Transform3DGroup myTransformGroup = new Transform3DGroup();
+
+            // Create a transform to scale the size.
+            ScaleTransform3D myScaleTransform = new ScaleTransform3D();
+
+            // Create a transform to rotate the button
+            RotateTransform3D myRotateTransform = new RotateTransform3D();
+
+            //Create a transform to move from one position to other
+            TranslateTransform3D myTranslateTransform = new TranslateTransform3D();
+
+            myTransformGroup.Children.Add(myScaleTransform);
+            myTransformGroup.Children.Add(myRotateTransform);
+            myTransformGroup.Children.Add(myTranslateTransform);
+
+            terrainGeometryModel.Transform = myTransformGroup;
 
             return terrainGeometryModel;
         }
@@ -785,6 +803,23 @@ namespace Overlord_Map_Visualizer
             }
             ((MeshGeometry3D)myWaterGeometryModel.Geometry).Positions = waterPoint3DCollection;
             ((MeshGeometry3D)myWaterGeometryModel.Geometry).TriangleIndices = triangleIndices;
+
+            Transform3DGroup myTransformGroup = new Transform3DGroup();
+
+            // Create a transform to scale the size.
+            ScaleTransform3D myScaleTransform = new ScaleTransform3D();
+
+            // Create a transform to rotate the button
+            RotateTransform3D myRotateTransform = new RotateTransform3D();
+
+            //Create a transform to move from one position to other
+            TranslateTransform3D myTranslateTransform = new TranslateTransform3D();
+
+            myTransformGroup.Children.Add(myScaleTransform);
+            myTransformGroup.Children.Add(myRotateTransform);
+            myTransformGroup.Children.Add(myTranslateTransform);
+
+            myWaterGeometryModel.Transform = myTransformGroup;
 
             return myWaterGeometryModel;
         }

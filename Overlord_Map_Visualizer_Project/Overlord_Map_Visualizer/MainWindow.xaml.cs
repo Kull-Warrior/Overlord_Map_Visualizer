@@ -32,6 +32,8 @@ namespace Overlord_Map_Visualizer
         private CursorSubMode CurrentCursorSubMode;
         private int CursorDiameter = 51;
 
+        Trackball trackball = new Trackball();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -47,6 +49,9 @@ namespace Overlord_Map_Visualizer
             HighlightCurrentCursorSubMode();
             SelectedColorCode.Text = "0000";
             cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
+
+            trackball.Attach(this);
+            trackball.Slaves.Add(mainViewport);
         }
 
         private void DrawCoordinateSystem()
@@ -728,8 +733,12 @@ namespace Overlord_Map_Visualizer
                     DrawTiffImage(CurrentMap.Width, CurrentMap.Height, DrawingType.Map, mapData);
                     GeometryModel3D terrainGeometryModel = CurrentMap.GetTerrainGeometryModel();
                     Draw3DModel(terrainGeometryModel);
-                    GeometryModel3D waterGeometryModel = CurrentMap.GetTerrainGeometryModel();
+                    GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();
                     Draw3DModel(waterGeometryModel);
+                    
+                    trackball.Enabled = true;
+
+
                     HideImportExportButtons();
                     HideSelectedColor();
                     HideCursorModes();

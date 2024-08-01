@@ -49,21 +49,36 @@
         <CheckBox x:Name="checkBoxManaPit" Content="Show Mana Pit" HorizontalAlignment="Left" Margin="820,204,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
         <Viewport3D Name="mainViewport" Margin="293,64,300,142" MouseDown="ToolClick">
             <Viewport3D.Camera>
-                <PerspectiveCamera Position="512,0,512" LookDirection="-0.2,0,-0.8"/>
+                <PerspectiveCamera
+                        Position="0,0,512"
+                        LookDirection="-0.2,0,-0.8"
+                        />
             </Viewport3D.Camera>
-            <Viewport3D.Children>
-                <ModelVisual3D>
-                    <ModelVisual3D.Content>
-                        <DirectionalLight Color="White" Direction="-2,-3,-1"/>
-                    </ModelVisual3D.Content>
-                </ModelVisual3D>
-                <ModelVisual3D>
-                    <ModelVisual3D.Content>
-                        <Model3DGroup x:Name="Map3D">
-                        </Model3DGroup>
-                    </ModelVisual3D.Content>
-                </ModelVisual3D>
-            </Viewport3D.Children>
+            <ModelVisual3D>
+                <ModelVisual3D.Transform>
+                    <Transform3DGroup>
+                        <Transform3DGroup.Children>
+                            <Transform3DCollection>
+                                <ScaleTransform3D ScaleX="1" ScaleY="1" ScaleZ="1" />
+                                <RotateTransform3D>
+                                    <RotateTransform3D.Rotation>
+                                        <AxisAngleRotation3D Axis="0 1 0" Angle="0" />
+                                    </RotateTransform3D.Rotation>
+                                </RotateTransform3D>
+                                <TranslateTransform3D OffsetX="0" OffsetY="0" OffsetZ="0" />
+
+                            </Transform3DCollection>
+                        </Transform3DGroup.Children>
+                    </Transform3DGroup>
+                </ModelVisual3D.Transform>
+                <ModelVisual3D.Content>
+                    <Model3DGroup x:Name="Map3D">
+                        <Model3DGroup.Children>
+                            <AmbientLight Color="#ffffffff" />
+                        </Model3DGroup.Children>
+                    </Model3DGroup>
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
         </Viewport3D>
     </Grid>
 </Window>
