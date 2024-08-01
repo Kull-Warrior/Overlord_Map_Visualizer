@@ -718,7 +718,7 @@ namespace Overlord_Map_Visualizer
             {
                 for (var x = 0; x < 512; x++)
                 {
-                    point3DCollection.Add(new Point3D(x - halfSize, y - halfSize, floatMap[x, y] - halfheight)); ;
+                    point3DCollection.Add(new Point3D(x - halfSize, floatMap[x, y] - halfheight, y - halfSize)); ;
                 }
             }
             ((MeshGeometry3D)terrainGeometryModel.Geometry).Positions = point3DCollection;
@@ -789,10 +789,10 @@ namespace Overlord_Map_Visualizer
 
                 triangleCounter = waterPoint3DCollection.Count;
 
-                waterPoint3DCollection.Add(new Point3D(-halfSize, -halfSize, WaterLevel - i * dfMul - halfheight));
-                waterPoint3DCollection.Add(new Point3D(+halfSize, +halfSize, WaterLevel - i * dfMul - halfheight));
-                waterPoint3DCollection.Add(new Point3D(-halfSize, +halfSize, WaterLevel - i * dfMul - halfheight));
-                waterPoint3DCollection.Add(new Point3D(+halfSize, -halfSize, WaterLevel - i * dfMul - halfheight));
+                waterPoint3DCollection.Add(new Point3D(-halfSize, WaterLevel - i * dfMul - halfheight, - halfSize));
+                waterPoint3DCollection.Add(new Point3D(+halfSize, WaterLevel - i * dfMul - halfheight, +halfSize));
+                waterPoint3DCollection.Add(new Point3D(-halfSize, WaterLevel - i * dfMul - halfheight, + halfSize));
+                waterPoint3DCollection.Add(new Point3D(+halfSize, WaterLevel - i * dfMul - halfheight, - halfSize));
 
                 triangleIndices.Add(triangleCounter);
                 triangleIndices.Add(triangleCounter + 1);
