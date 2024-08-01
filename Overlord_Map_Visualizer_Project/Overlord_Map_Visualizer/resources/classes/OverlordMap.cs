@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
+using MediaBrushes = System.Windows.Media.Brushes;
 
 namespace Overlord_Map_Visualizer
 {
@@ -696,6 +698,95 @@ namespace Overlord_Map_Visualizer
             }
 
             return floatMap;
+        }
+
+        public GeometryModel3D GetTerrainGeometryModel()
+        {
+            float halfSize = Width / 2;
+            float halfheight = Height / 2;
+
+            float[,] floatMap = GetFloatMap();
+
+            //creation of the terrain
+            GeometryModel3D terrainGeometryModel = new GeometryModel3D(new MeshGeometry3D(), new DiffuseMaterial(MediaBrushes.Gray));
+            Point3DCollection point3DCollection = new Point3DCollection();
+            Int32Collection triangleIndices = new Int32Collection();
+
+            //adding point
+            for (var y = 0; y < 512; y++)
+            {
+                for (var x = 0; x < 512; x++)
+                {
+                    point3DCollection.Add(new Point3D(x - halfSize, y - halfSize, floatMap[x, y] - halfheight)); ;
+                }
+            }
+            ((MeshGeometry3D)terrainGeometryModel.Geometry).Positions = point3DCollection;
+
+            //defining triangles
+            int ind1, ind2;
+            int xLenght = 512;
+
+            for (var y = 0; y < 512 - 1; y++)
+            {
+                for (var x = 0; x < 512 - 1; x++)
+                {
+                    ind1 = x + y * xLenght;
+                    ind2 = ind1 + xLenght;
+
+                    //first triangle
+                    triangleIndices.Add(ind1);
+                    triangleIndices.Add(ind2 + 1);
+                    triangleIndices.Add(ind2);
+
+                    //second triangle
+                    triangleIndices.Add(ind1);
+                    triangleIndices.Add(ind1 + 1);
+                    triangleIndices.Add(ind2 + 1);
+                }
+            }
+            ((MeshGeometry3D)terrainGeometryModel.Geometry).TriangleIndices = triangleIndices;
+
+            return terrainGeometryModel;
+        }
+
+        public GeometryModel3D GetWaterGeometryModel()
+        {
+            float halfSize = Width / 2;
+            float halfheight = Height / 2;
+
+            // creation of the water layers
+            // I'm going to use a series of emissive layer for water
+            SolidColorBrush waterSolidColorBrush = new SolidColorBrush(Colors.Blue);
+            waterSolidColorBrush.Opacity = 0.2;
+            GeometryModel3D myWaterGeometryModel =
+            new GeometryModel3D(new MeshGeometry3D(), new EmissiveMaterial(waterSolidColorBrush));
+            Point3DCollection waterPoint3DCollection = new Point3DCollection();
+            Int32Collection triangleIndices = new Int32Collection();
+
+            int triangleCounter;
+            float dfMul = 5;
+
+            for (int i = 0; i < 10; i++)
+            {
+
+                triangleCounter = waterPoint3DCollection.Count;
+
+                waterPoint3DCollection.Add(new Point3D(-halfSize, -halfSize, WaterLevel - i * dfMul - halfheight));
+                waterPoint3DCollection.Add(new Point3D(+halfSize, +halfSize, WaterLevel - i * dfMul - halfheight));
+                waterPoint3DCollection.Add(new Point3D(-halfSize, +halfSize, WaterLevel - i * dfMul - halfheight));
+                waterPoint3DCollection.Add(new Point3D(+halfSize, -halfSize, WaterLevel - i * dfMul - halfheight));
+
+                triangleIndices.Add(triangleCounter);
+                triangleIndices.Add(triangleCounter + 1);
+                triangleIndices.Add(triangleCounter + 2);
+                triangleIndices.Add(triangleCounter);
+                triangleIndices.Add(triangleCounter + 3);
+                triangleIndices.Add(triangleCounter + 1);
+            }
+            ((MeshGeometry3D)myWaterGeometryModel.Geometry).Positions = waterPoint3DCollection;
+            ((MeshGeometry3D)myWaterGeometryModel.Geometry).TriangleIndices = triangleIndices;
+
+            return myWaterGeometryModel;
         }
     }
 }
