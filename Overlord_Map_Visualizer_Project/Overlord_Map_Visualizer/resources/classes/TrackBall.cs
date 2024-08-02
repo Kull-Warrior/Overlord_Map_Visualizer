@@ -107,23 +107,23 @@ namespace Overlord_Map_Visualizer
             if (!Enabled) return;
             e.Handled = true;
 
-            var el = (UIElement)sender;
+            UIElement el = (UIElement)sender;
 
             if (el.IsMouseCaptured)
             {
-                var delta = _point - e.MouseDevice.GetPosition(el);
-                var t = new Vector3D();
+                Vector delta = _point - e.MouseDevice.GetPosition(el);
+                Vector3D t = new Vector3D();
 
                 delta /= 2;
-                var q = _rotation;
+                Quaternion q = _rotation;
 
                 if (_rotating)
                 {
                     // We can redefine this 2D mouse delta as a 3D mouse delta
                     // where "into the screen" is Z
-                    var mouse = new Vector3D(delta.X, -delta.Y, 0);
-                    var axis = Vector3D.CrossProduct(mouse, new Vector3D(0, 0, 1));
-                    var len = axis.Length;
+                    Vector3D mouse = new Vector3D(delta.X, -delta.Y, 0);
+                    Vector3D axis = Vector3D.CrossProduct(mouse, new Vector3D(0, 0, 1));
+                    double len = axis.Length;
                     if (len < 0.00001 || _scaling)
                         _rotationDelta = new Quaternion(new Vector3D(0, 0, 1), 0);
                     else
