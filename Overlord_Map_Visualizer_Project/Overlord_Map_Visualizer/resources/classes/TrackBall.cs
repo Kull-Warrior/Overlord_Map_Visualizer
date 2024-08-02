@@ -11,21 +11,21 @@ namespace Overlord_Map_Visualizer
 {
     public class Trackball
     {
-        private Vector3D _center;
-        private bool _centered; // Have we already determined the rotation center?
+        private Vector3D Center;
+        private bool IsRotationCenterDetermined; // Have we already determined the rotation center?
         // The state of the trackball
-        private bool _enabled;
-        private Point _point; // Initial point of drag
-        private bool _rotating;
+        private bool IsEnabled;
+        private Point InitialPoint; // Initial point of drag
+        private bool IsRotating;
         private Quaternion _rotation;
         private Quaternion _rotationDelta; // Change to rotation because of this drag
-        private double _scale;
-        private double _scaleDelta; // Change to scale because of this drag
+        private double Scale;
+        private double ScaleDelta; // Change to scale because of this drag
         // The state of the current drag
-        private bool _scaling; // Are we scaling?  NOTE otherwise we're rotating
-        private List<Viewport3D> _slaves;
-        private Vector3D _translate;
-        private Vector3D _translateDelta;
+        private bool IsScaling; // Are we scaling?  NOTE otherwise we're rotating
+        private List<Viewport3D> SlaveViewPorts;
+        private Vector3D Translate;
+        private Vector3D TranslateDelta;
 
         public Trackball()
         {
@@ -34,29 +34,29 @@ namespace Overlord_Map_Visualizer
 
         public List<Viewport3D> Slaves
         {
-            get { return _slaves ?? (_slaves = new List<Viewport3D>()); }
-            set { _slaves = value; }
+            get { return SlaveViewPorts ?? (SlaveViewPorts = new List<Viewport3D>()); }
+            set { SlaveViewPorts = value; }
         }
 
         public bool Enabled
         {
-            get { return _enabled && (_slaves != null) && (_slaves.Count > 0); }
-            set { _enabled = value; }
+            get { return IsEnabled && (SlaveViewPorts != null) && (SlaveViewPorts.Count > 0); }
+            set { IsEnabled = value; }
         }
 
         public void Attach(FrameworkElement element)
         {
             element.MouseMove += MouseMoveHandler;
-            element.MouseRightButtonDown += MouseDownHandler;
-            element.MouseRightButtonUp += MouseUpHandler;
+            element.MouseRightButtonDown += MouseRightButtonDownHandler;
+            element.MouseRightButtonUp += MouseRightButtonUpHandler;
             element.MouseWheel += OnMouseWheel;
         }
 
         public void Detach(FrameworkElement element)
         {
             element.MouseMove -= MouseMoveHandler;
-            element.MouseRightButtonDown -= MouseDownHandler;
-            element.MouseRightButtonUp -= MouseUpHandler;
+            element.MouseRightButtonDown -= MouseRightButtonDownHandler;
+            element.MouseRightButtonUp -= MouseRightButtonUpHandler;
             element.MouseWheel -= OnMouseWheel;
         }
 
@@ -67,9 +67,9 @@ namespace Overlord_Map_Visualizer
             //ScaleTransform3D scale = new ScaleTransform3D(new Vector3D(s,s,s));
             //Transform3DCollection rotateAndScale = new Transform3DCollection(rotation,scale);
 
-            if (_slaves != null)
+            if (SlaveViewPorts != null)
             {
-                foreach (Viewport3D i in _slaves)
+                foreach (Viewport3D i in SlaveViewPorts)
                 {
                     ModelVisual3D mv = i.Children[0] as ModelVisual3D;
                     Transform3DGroup t3Dg = mv.Transform as Transform3DGroup;
@@ -111,20 +111,20 @@ namespace Overlord_Map_Visualizer
 
             if (el.IsMouseCaptured)
             {
-                Vector delta = _point - e.MouseDevice.GetPosition(el);
+                Vector delta = InitialPoint - e.MouseDevice.GetPosition(el);
                 Vector3D t = new Vector3D();
 
                 delta /= 2;
                 Quaternion q = _rotation;
 
-                if (_rotating)
+                if (IsRotating)
                 {
                     // We can redefine this 2D mouse delta as a 3D mouse delta
                     // where "into the screen" is Z
                     Vector3D mouse = new Vector3D(delta.X, -delta.Y, 0);
                     Vector3D axis = Vector3D.CrossProduct(mouse, new Vector3D(0, 0, 1));
                     double len = axis.Length;
-                    if (len < 0.00001 || _scaling)
+                    if (len < 0.00001 || IsScaling)
                         _rotationDelta = new Quaternion(new Vector3D(0, 0, 1), 0);
                     else
                         _rotationDelta = new Quaternion(axis, len);
@@ -134,17 +134,17 @@ namespace Overlord_Map_Visualizer
                 else
                 {
                     delta /= 20;
-                    _translateDelta.X = delta.X * -1;
-                    _translateDelta.Y = delta.Y;
+                    TranslateDelta.X = delta.X * -1;
+                    TranslateDelta.Y = delta.Y;
                 }
 
-                t = _translate + _translateDelta;
+                t = Translate + TranslateDelta;
 
-                UpdateSlaves(q, _scale * _scaleDelta, t);
+                UpdateSlaves(q, Scale * ScaleDelta, t);
             }
         }
 
-        private void MouseDownHandler(object sender, MouseButtonEventArgs e)
+        private void MouseRightButtonDownHandler(object sender, MouseButtonEventArgs e)
         {
             if (!Enabled) return;
             e.Handled = true;
@@ -157,36 +157,36 @@ namespace Overlord_Map_Visualizer
             }
 
             UIElement el = (UIElement)sender;
-            _point = e.MouseDevice.GetPosition(el);
+            InitialPoint = e.MouseDevice.GetPosition(el);
             // Initialize the center of rotation to the lookatpoint
-            if (!_centered)
+            if (!IsRotationCenterDetermined)
             {
-                ProjectionCamera camera = (ProjectionCamera)_slaves[0].Camera;
-                _center = camera.LookDirection;
-                _centered = true;
+                ProjectionCamera camera = (ProjectionCamera)SlaveViewPorts[0].Camera;
+                Center = camera.LookDirection;
+                IsRotationCenterDetermined = true;
             }
 
-            _scaling = e.MiddleButton == MouseButtonState.Pressed;
+            IsScaling = e.MiddleButton == MouseButtonState.Pressed;
 
-            _rotating = Keyboard.IsKeyDown(Key.Space) == false;
+            IsRotating = Keyboard.IsKeyDown(Key.Space) == false;
 
             el.CaptureMouse();
         }
 
-        private void MouseUpHandler(object sender, MouseButtonEventArgs e)
+        private void MouseRightButtonUpHandler(object sender, MouseButtonEventArgs e)
         {
-            if (!_enabled) return;
+            if (!IsEnabled) return;
             e.Handled = true;
 
             // Stuff the current initial + delta into initial so when we next move we
             // start at the right place.
-            if (_rotating)
+            if (IsRotating)
                 _rotation = _rotationDelta * _rotation;
             else
             {
-                _translate += _translateDelta;
-                _translateDelta.X = 0;
-                _translateDelta.Y = 0;
+                Translate += TranslateDelta;
+                TranslateDelta.X = 0;
+                TranslateDelta.Y = 0;
             }
 
             //_scale = _scaleDelta*_scale;
@@ -198,9 +198,9 @@ namespace Overlord_Map_Visualizer
         {
             e.Handled = true;
 
-            _scaleDelta += e.Delta / (double)1000;
+            ScaleDelta += e.Delta / (double)1000;
 
-            UpdateSlaves(_rotation, _scale * _scaleDelta, _translate);
+            UpdateSlaves(_rotation, Scale * ScaleDelta, Translate);
         }
 
         private void MouseDoubleClickHandler(object sender, MouseButtonEventArgs e)
@@ -211,19 +211,19 @@ namespace Overlord_Map_Visualizer
         private void Reset()
         {
             _rotation = new Quaternion(0, 0, 0, 1);
-            _scale = 1;
-            _translate.X = 0;
-            _translate.Y = 0;
-            _translate.Z = 0;
-            _translateDelta.X = 0;
-            _translateDelta.Y = 0;
-            _translateDelta.Z = 0;
+            Scale = 1;
+            Translate.X = 0;
+            Translate.Y = 0;
+            Translate.Z = 0;
+            TranslateDelta.X = 0;
+            TranslateDelta.Y = 0;
+            TranslateDelta.Z = 0;
 
             // Clear delta too, because if reset is called because of a double click then the mouse
             // up handler will also be called and this way it won't do anything.
             _rotationDelta = Quaternion.Identity;
-            _scaleDelta = 1;
-            UpdateSlaves(_rotation, _scale, _translate);
+            ScaleDelta = 1;
+            UpdateSlaves(_rotation, Scale, Translate);
         }
     }
 }
