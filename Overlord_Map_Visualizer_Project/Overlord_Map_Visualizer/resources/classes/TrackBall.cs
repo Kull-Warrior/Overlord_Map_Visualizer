@@ -11,19 +11,25 @@ namespace Overlord_Map_Visualizer
 {
     public class Trackball
     {
+        private List<Viewport3D> SlaveViewPorts;
+
         private Vector3D Center;
-        private bool IsRotationCenterDetermined; // Have we already determined the rotation center?
+        
         // The state of the trackball
+        private bool IsRotationCenterDetermined; // Have we already determined the rotation center?
         private bool IsEnabled;
-        private Point InitialPoint; // Initial point of drag
         private bool IsRotating;
+        private bool IsScaling; // Are we scaling?  NOTE otherwise we're rotating
+        
+        // The state of the current drag
+        private Point InitialPoint; // Initial point of drag
+        
         private Quaternion _rotation;
         private Quaternion _rotationDelta; // Change to rotation because of this drag
+        
         private double Scale;
         private double ScaleDelta; // Change to scale because of this drag
-        // The state of the current drag
-        private bool IsScaling; // Are we scaling?  NOTE otherwise we're rotating
-        private List<Viewport3D> SlaveViewPorts;
+        
         private Vector3D Translate;
         private Vector3D TranslateDelta;
 
