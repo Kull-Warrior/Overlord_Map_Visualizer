@@ -69,10 +69,6 @@ namespace Overlord_Map_Visualizer
         // Updates the matrices of the slaves using the rotation quaternion.
         private void UpdateSlaves(Quaternion q, double s, Vector3D t)
         {
-            //RotateTransform3D rotation = new RotateTransform3D(q,_center);
-            //ScaleTransform3D scale = new ScaleTransform3D(new Vector3D(s,s,s));
-            //Transform3DCollection rotateAndScale = new Transform3DCollection(rotation,scale);
-
             if (SlaveViewPorts != null)
             {
                 foreach (Viewport3D i in SlaveViewPorts)
@@ -91,19 +87,6 @@ namespace Overlord_Map_Visualizer
                     groupTranslateTransform.OffsetX = t.X;
                     groupTranslateTransform.OffsetY = t.Y;
                     groupTranslateTransform.OffsetZ = t.Z;
-
-                    // Note that we don't copy constantly here, we copy the first time someone tries to
-                    // trackball a frozen Models, but we replace it with a ChangeableReference
-                    // and so subsequent interactions go through without a copy.
-                    /*
-                    if (i.Models.Transform.IsChangeable)
-                    {
-                        Model3DGroup mutableCopy = i.Models.Copy();
-                        mutableCopy.StatusOfNextUse = UseStatus.ChangeableReference;
-                        i.Models = mutableCopy;
-                    }
-                    i.Models.Transform = rotateAndScale;
-                    */
                 }
             }
         }
@@ -155,13 +138,6 @@ namespace Overlord_Map_Visualizer
             if (!Enabled) return;
             e.Handled = true;
 
-
-            if (Keyboard.IsKeyDown(Key.F1))
-            {
-                Reset();
-                return;
-            }
-
             UIElement el = (UIElement)sender;
             InitialPoint = e.MouseDevice.GetPosition(el);
             // Initialize the center of rotation to the lookatpoint
@@ -195,7 +171,6 @@ namespace Overlord_Map_Visualizer
                 TranslateDelta.Y = 0;
             }
 
-            //_scale = _scaleDelta*_scale;
             UIElement el = (UIElement)sender;
             el.ReleaseMouseCapture();
         }
@@ -207,11 +182,6 @@ namespace Overlord_Map_Visualizer
             ScaleDelta += e.Delta / (double)1000;
 
             UpdateSlaves(Rotation, Scale * ScaleDelta, Translate);
-        }
-
-        private void MouseDoubleClickHandler(object sender, MouseButtonEventArgs e)
-        {
-            Reset();
         }
 
         private void Reset()
