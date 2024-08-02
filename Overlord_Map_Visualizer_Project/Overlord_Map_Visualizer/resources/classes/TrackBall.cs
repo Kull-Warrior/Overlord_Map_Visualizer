@@ -24,8 +24,8 @@ namespace Overlord_Map_Visualizer
         // The state of the current drag
         private Point InitialPoint; // Initial point of drag
         
-        private Quaternion _rotation;
-        private Quaternion _rotationDelta; // Change to rotation because of this drag
+        private Quaternion Rotation;
+        private Quaternion RotationDelta; // Change to rotation because of this drag
         
         private double Scale;
         private double ScaleDelta; // Change to scale because of this drag
@@ -121,7 +121,7 @@ namespace Overlord_Map_Visualizer
                 Vector3D t = new Vector3D();
 
                 delta /= 2;
-                Quaternion q = _rotation;
+                Quaternion q = Rotation;
 
                 if (IsRotating)
                 {
@@ -131,11 +131,11 @@ namespace Overlord_Map_Visualizer
                     Vector3D axis = Vector3D.CrossProduct(mouse, new Vector3D(0, 0, 1));
                     double len = axis.Length;
                     if (len < 0.00001 || IsScaling)
-                        _rotationDelta = new Quaternion(new Vector3D(0, 0, 1), 0);
+                        RotationDelta = new Quaternion(new Vector3D(0, 0, 1), 0);
                     else
-                        _rotationDelta = new Quaternion(axis, len);
+                        RotationDelta = new Quaternion(axis, len);
 
-                    q = _rotationDelta * _rotation;
+                    q = RotationDelta * Rotation;
                 }
                 else
                 {
@@ -187,7 +187,7 @@ namespace Overlord_Map_Visualizer
             // Stuff the current initial + delta into initial so when we next move we
             // start at the right place.
             if (IsRotating)
-                _rotation = _rotationDelta * _rotation;
+                Rotation = RotationDelta * Rotation;
             else
             {
                 Translate += TranslateDelta;
@@ -206,7 +206,7 @@ namespace Overlord_Map_Visualizer
 
             ScaleDelta += e.Delta / (double)1000;
 
-            UpdateSlaves(_rotation, Scale * ScaleDelta, Translate);
+            UpdateSlaves(Rotation, Scale * ScaleDelta, Translate);
         }
 
         private void MouseDoubleClickHandler(object sender, MouseButtonEventArgs e)
@@ -216,7 +216,7 @@ namespace Overlord_Map_Visualizer
 
         private void Reset()
         {
-            _rotation = new Quaternion(0, 0, 0, 1);
+            Rotation = new Quaternion(0, 0, 0, 1);
             Scale = 1;
             Translate.X = 0;
             Translate.Y = 0;
@@ -227,9 +227,9 @@ namespace Overlord_Map_Visualizer
 
             // Clear delta too, because if reset is called because of a double click then the mouse
             // up handler will also be called and this way it won't do anything.
-            _rotationDelta = Quaternion.Identity;
+            RotationDelta = Quaternion.Identity;
             ScaleDelta = 1;
-            UpdateSlaves(_rotation, Scale, Translate);
+            UpdateSlaves(Rotation, Scale, Translate);
         }
     }
 }
