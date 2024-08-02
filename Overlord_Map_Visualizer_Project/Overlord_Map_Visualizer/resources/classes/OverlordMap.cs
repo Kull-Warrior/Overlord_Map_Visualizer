@@ -781,6 +781,8 @@ namespace Overlord_Map_Visualizer
             Point3DCollection waterPoint3DCollection = new Point3DCollection();
             Int32Collection triangleIndices = new Int32Collection();
 
+            myWaterGeometryModel.BackMaterial = myWaterGeometryModel.Material;
+
             int triangleCounter;
             float dfMul = 5;
 
