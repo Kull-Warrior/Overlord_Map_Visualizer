@@ -199,9 +199,8 @@ namespace Overlord_Map_Visualizer
             e.Handled = true;
 
             _scaleDelta += e.Delta / (double)1000;
-            var q = _rotation;
 
-            UpdateSlaves(q, _scale * _scaleDelta, _translate);
+            UpdateSlaves(_rotation, _scale * _scaleDelta, _translate);
         }
 
         private void MouseDoubleClickHandler(object sender, MouseButtonEventArgs e)
