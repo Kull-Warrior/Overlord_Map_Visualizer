@@ -262,7 +262,7 @@ namespace Overlord_Map_Visualizer
                 data = CurrentMap.GetMapData(bytesPerPoint, MapMode.Full);
                 writer.WriteMapDataToFile(filePath, data, offset, CurrentMap.Width, CurrentMap.Height, bytesPerPoint);
             }
-            else if (button.Name == "ExportMapData")
+            else
             {
                 string dialogTitle;
                 string fileExtension;
