@@ -156,12 +156,12 @@ namespace Overlord_Map_Visualizer
                 return;
             }
 
-            var el = (UIElement)sender;
+            UIElement el = (UIElement)sender;
             _point = e.MouseDevice.GetPosition(el);
             // Initialize the center of rotation to the lookatpoint
             if (!_centered)
             {
-                var camera = (ProjectionCamera)_slaves[0].Camera;
+                ProjectionCamera camera = (ProjectionCamera)_slaves[0].Camera;
                 _center = camera.LookDirection;
                 _centered = true;
             }
@@ -190,7 +190,7 @@ namespace Overlord_Map_Visualizer
             }
 
             //_scale = _scaleDelta*_scale;
-            var el = (UIElement)sender;
+            UIElement el = (UIElement)sender;
             el.ReleaseMouseCapture();
         }
 
