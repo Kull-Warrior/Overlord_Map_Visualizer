@@ -178,10 +178,17 @@ namespace Overlord_Map_Visualizer
         private void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
             e.Handled = true;
+            double u = 0.15;
+            ProjectionCamera camera = (ProjectionCamera)SlaveViewPorts[0].Camera;
+            Vector3D lookDirection = camera.LookDirection;
+            Point3D position = camera.Position;
 
-            ScaleDelta += e.Delta / (double)1000;
 
-            UpdateSlaves(Rotation, Scale * ScaleDelta, Translate);
+
+            lookDirection.Normalize();
+            position = position + u * lookDirection * e.Delta;
+
+            camera.Position = position;
         }
 
         private void Reset()
