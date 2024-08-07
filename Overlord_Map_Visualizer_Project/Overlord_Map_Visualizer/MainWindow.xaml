@@ -51,7 +51,7 @@
         <Viewport3D Name="mainViewport" Margin="293,64,300,142" MouseDown="ToolClick">
             <Viewport3D.Camera>
                 <PerspectiveCamera
-                        Position="512,0,512"
+                        Position="512,100,512"
                         LookDirection="-0.8,-0.2,-0.8"
                         />
             </Viewport3D.Camera>
