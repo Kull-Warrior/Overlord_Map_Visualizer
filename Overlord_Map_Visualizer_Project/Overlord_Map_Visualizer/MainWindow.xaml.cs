@@ -658,6 +658,9 @@ namespace Overlord_Map_Visualizer
         {
             byte[] mapData, selectedData;
             Map3DTerrainAndWater.Children.Clear();
+            trackball.Enabled = false;
+            Reset.Visibility = Visibility.Hidden;
+
             switch (MapModeDropDown.SelectedIndex)
             {
                 case 0:
@@ -735,11 +738,9 @@ namespace Overlord_Map_Visualizer
                     Draw3DModel(terrainGeometryModel);
                     GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();
                     Draw3DModel(waterGeometryModel);
-                    
                     trackball.Enabled = true;
-
-
                     HideImportExportButtons();
+                    Reset.Visibility = Visibility.Visible;
                     HideSelectedColor();
                     HideCursorModes();
                     HideCursorSubModes();
@@ -1160,6 +1161,11 @@ namespace Overlord_Map_Visualizer
                     UpdateCursor();
                 }
             }
+        }
+
+        private void Reset_Click(object sender, RoutedEventArgs e)
+        {
+            trackball.Reset();
         }
     }
 }
