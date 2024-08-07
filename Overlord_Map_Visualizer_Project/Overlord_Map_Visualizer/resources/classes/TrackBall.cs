@@ -189,7 +189,7 @@ namespace Overlord_Map_Visualizer
 
             ProjectionCamera camera = (ProjectionCamera)SlaveViewPorts[0].Camera;
 
-            camera.Position = new Point3D(512, 0, 512);
+            camera.Position = new Point3D(512, 100, 512);
             camera.LookDirection = new Vector3D(-0.8, -0.2, -0.8);
         }
     }

@@ -225,8 +225,20 @@ namespace Overlord_Map_Visualizer
                 CurrentMap.SetMapData(data, bytesPerPoint, mapMode, isTiffImage);
                 CurrentMap.WaterLevel = reader.GetMapWaterLevel(CurrentMap);
 
-                data = CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, mapMode);
-                DrawTiffImage(CurrentMap.Width, CurrentMap.Height, DrawingType.Map, data);
+                if(CurrentMapMode == MapMode.ThreeDimensional)
+                {
+                    Map3DTerrainAndWater.Children.Clear();
+
+                    GeometryModel3D terrainGeometryModel = CurrentMap.GetTerrainGeometryModel();
+                    Draw3DModel(terrainGeometryModel);
+                    GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();
+                    Draw3DModel(waterGeometryModel);
+                }
+                else
+                {
+                    data = CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode);
+                    DrawTiffImage(CurrentMap.Width, CurrentMap.Height, DrawingType.Map, data);
+                }
 
                 if (!IsAnyMapLoaded)
                 {

@@ -702,9 +702,6 @@ namespace Overlord_Map_Visualizer
 
         public GeometryModel3D GetTerrainGeometryModel()
         {
-            float halfSize = Width / 2;
-            float halfheight = Height / 2;
-
             float[,] floatMap = GetFloatMap();
 
             //creation of the terrain
@@ -718,7 +715,7 @@ namespace Overlord_Map_Visualizer
             {
                 for (var x = 0; x < 512; x++)
                 {
-                    point3DCollection.Add(new Point3D(x - halfSize, floatMap[x, y] - halfheight, y - halfSize)); ;
+                    point3DCollection.Add(new Point3D(x, floatMap[x, y], y)); ;
                 }
             }
             ((MeshGeometry3D)terrainGeometryModel.Geometry).Positions = point3DCollection;
@@ -769,9 +766,6 @@ namespace Overlord_Map_Visualizer
 
         public GeometryModel3D GetWaterGeometryModel()
         {
-            float halfSize = Width / 2;
-            float halfheight = Height / 2;
-
             // creation of the water layers
             // I'm going to use a series of emissive layer for water
             SolidColorBrush waterSolidColorBrush = new SolidColorBrush(Colors.Blue);
@@ -786,15 +780,15 @@ namespace Overlord_Map_Visualizer
             int triangleCounter;
             float dfMul = 5;
 
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < WaterLevel; i++)
             {
 
                 triangleCounter = waterPoint3DCollection.Count;
 
-                waterPoint3DCollection.Add(new Point3D(-halfSize, WaterLevel - i * dfMul - halfheight, - halfSize));
-                waterPoint3DCollection.Add(new Point3D(+halfSize, WaterLevel - i * dfMul - halfheight, +halfSize));
-                waterPoint3DCollection.Add(new Point3D(-halfSize, WaterLevel - i * dfMul - halfheight, + halfSize));
-                waterPoint3DCollection.Add(new Point3D(+halfSize, WaterLevel - i * dfMul - halfheight, - halfSize));
+                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, - Height));
+                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, +Height));
+                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, + Height));
+                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, - Height));
 
                 triangleIndices.Add(triangleCounter);
                 triangleIndices.Add(triangleCounter + 1);
