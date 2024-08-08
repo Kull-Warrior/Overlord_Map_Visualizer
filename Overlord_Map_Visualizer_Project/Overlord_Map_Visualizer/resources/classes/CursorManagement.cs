@@ -27,13 +27,12 @@ namespace Overlord_Map_Visualizer
         public Button Add;
         public Button Sub;
 
-        public int CursorDiameter = 51;
+        public Slider SizeSlider;
 
         public CursorManagement()
         {
             Mode = CursorMode.Select;
             SubMode = CursorSubMode.Set;
-            CursorDiameter = 51;
         }
 
         public void Update()
@@ -50,11 +49,11 @@ namespace Overlord_Map_Visualizer
                     break;
                 case CursorMode.Square:
                     fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, 0xFF, 0xFF, 0xFF));
-                    Mouse.OverrideCursor = CreateCursor(CursorDiameter, CursorDiameter, fillBrush, MediaBrushes.Black);
+                    Mouse.OverrideCursor = CreateCursor(SizeSlider.Value, SizeSlider.Value, fillBrush, MediaBrushes.Black);
                     break;
                 case CursorMode.Circle:
                     fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, 0xFF, 0xFF, 0xFF));
-                    Mouse.OverrideCursor = CreateCursor(CursorDiameter, CursorDiameter, fillBrush, MediaBrushes.Black);
+                    Mouse.OverrideCursor = CreateCursor(SizeSlider.Value, SizeSlider.Value, fillBrush, MediaBrushes.Black);
                     break;
                 case CursorMode.Rotate:
                     fillBrush = MediaBrushes.Black;
@@ -255,6 +254,18 @@ namespace Overlord_Map_Visualizer
                     Sub.Background = MediaBrushes.SkyBlue;
                     break;
             }
+        }
+
+        public void HideCursorSlider()
+        {
+            SizeSlider.Visibility = Visibility.Hidden;
+            SizeSlider.Visibility = Visibility.Hidden;
+        }
+
+        public void ShowCursorSlider()
+        {
+            SizeSlider.Visibility = Visibility.Visible;
+            SizeSlider.Visibility = Visibility.Visible;
         }
     }
 }
