@@ -896,38 +896,27 @@ namespace Overlord_Map_Visualizer
         {
             CurrentCursor.HighlightCurrentCursorMode();
             CurrentCursor.HighlightCurrentCursorSubMode();
-            switch (CurrentCursor.Mode)
+
+            if (CurrentCursor.Mode == CursorMode.Select | CurrentCursor.Mode == CursorMode.Rotate)
             {
-                case CursorMode.Select:
-                    CurrentCursor.ShowCursorModes();
-                    CurrentCursor.HideCursorSubModes();
-                    HideSelectedColor();
-                    CurrentCursor.HideCursorSlider();
-                    break;
-                case CursorMode.Pipette:
-                    CurrentCursor.ShowCursorModes();
-                    CurrentCursor.HideCursorSubModes();
-                    ShowSelectedColor();
-                    CurrentCursor.HideCursorSlider();
-                    break;
-                case CursorMode.Square:
-                    CurrentCursor.ShowCursorModes();
-                    CurrentCursor.ShowCursorSubModes();
-                    ShowSelectedColor();
-                    CurrentCursor.ShowCursorSlider();
-                    break;
-                case CursorMode.Circle:
-                    CurrentCursor.ShowCursorModes();
-                    CurrentCursor.ShowCursorSubModes();
-                    ShowSelectedColor();
-                    CurrentCursor.ShowCursorSlider();
-                    break;
-                case CursorMode.Rotate:
-                    CurrentCursor.ShowCursorModes();
-                    CurrentCursor.HideCursorSubModes();
-                    HideSelectedColor();
-                    CurrentCursor.HideCursorSlider();
-                    break;
+                CurrentCursor.ShowCursorModes();
+                CurrentCursor.HideCursorSubModes();
+                HideSelectedColor();
+                CurrentCursor.HideCursorSlider();
+            }
+            else if (CurrentCursor.Mode == CursorMode.Square | CurrentCursor.Mode == CursorMode.Circle)
+            {
+                CurrentCursor.ShowCursorModes();
+                CurrentCursor.ShowCursorSubModes();
+                ShowSelectedColor();
+                CurrentCursor.ShowCursorSlider();
+            }
+            else
+            {
+                CurrentCursor.ShowCursorModes();
+                CurrentCursor.HideCursorSubModes();
+                ShowSelectedColor();
+                CurrentCursor.HideCursorSlider();
             }
         }
 
