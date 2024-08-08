@@ -10,8 +10,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
-using MediaBrushes = System.Windows.Media.Brushes;
-using MediaColor = System.Windows.Media.Color;
 using Pen = System.Drawing.Pen;
 using PixelFormat = System.Windows.Media.PixelFormat;
 using DrawingPoint = System.Drawing.Point;
@@ -40,8 +38,18 @@ namespace Overlord_Map_Visualizer
 
         private void Initialise()
         {
-            HighlightCurrentCursorMode();
-            HighlightCurrentCursorSubMode();
+            CurrentCursor.Select = cursorModeSelect;
+            CurrentCursor.Pipette = cursorModePipette;
+            CurrentCursor.Square = cursorModeSquare;
+            CurrentCursor.Circle = cursorModeCircle;
+            CurrentCursor.Rotate = cursorModeRotate;
+
+            CurrentCursor.Set = cursorSubModeSet;
+            CurrentCursor.Add = cursorSubModeAdd;
+            CurrentCursor.Sub = cursorSubModeSub;
+
+            CurrentCursor.HighlightCurrentCursorMode();
+            CurrentCursor.HighlightCurrentCursorSubMode();
             SelectedColorCode.Text = "0000";
             cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
 
@@ -730,8 +738,8 @@ namespace Overlord_Map_Visualizer
                     DrawTiffImage(CurrentMap.Width, CurrentMap.Height, DrawingType.Map, mapData);
                     HideImportExportButtons();
                     HideSelectedColor();
-                    HideCursorModes();
-                    HideCursorSubModes();
+                    CurrentCursor.HideCursorModes();
+                    CurrentCursor.HideCursorSubModes();
                     HideCursorSlider();
                     break;
                 case 6:
@@ -747,8 +755,8 @@ namespace Overlord_Map_Visualizer
                     HideImportExportButtons();
                     Reset.Visibility = Visibility.Visible;
                     HideSelectedColor();
-                    HideCursorModes();
-                    HideCursorSubModes();
+                    CurrentCursor.HideCursorModes();
+                    CurrentCursor.HideCursorSubModes();
                     HideCursorSlider();
                     break;
                 default:
@@ -866,38 +874,6 @@ namespace Overlord_Map_Visualizer
             ExportMapImage.Visibility = Visibility.Visible;
         }
 
-        private void HideCursorModes()
-        {
-            cursorModeSelect.Visibility = Visibility.Hidden;
-            cursorModePipette.Visibility = Visibility.Hidden;
-            cursorModeSquare.Visibility = Visibility.Hidden;
-            cursorModeCircle.Visibility = Visibility.Hidden;
-            cursorModeRotate.Visibility = Visibility.Hidden;
-        }
-
-        private void ShowCursorModes()
-        {
-            cursorModeSelect.Visibility = Visibility.Visible;
-            cursorModePipette.Visibility = Visibility.Visible;
-            cursorModeSquare.Visibility = Visibility.Visible;
-            cursorModeCircle.Visibility = Visibility.Visible;
-            cursorModeRotate.Visibility = Visibility.Visible;
-        }
-
-        private void HideCursorSubModes()
-        {
-            cursorSubModeSet.Visibility = Visibility.Hidden;
-            cursorSubModeAdd.Visibility = Visibility.Hidden;
-            cursorSubModeSub.Visibility = Visibility.Hidden;
-        }
-
-        private void ShowCursorSubModes()
-        {
-            cursorSubModeSet.Visibility = Visibility.Visible;
-            cursorSubModeAdd.Visibility = Visibility.Visible;
-            cursorSubModeSub.Visibility = Visibility.Visible;
-        }
-
         private void HideSelectedColor()
         {
             SelectedColorCode.Visibility = Visibility.Hidden;
@@ -926,103 +902,39 @@ namespace Overlord_Map_Visualizer
             cursorDiameterLabel.Visibility = Visibility.Visible;
         }
 
-        private void HighlightCurrentCursorMode()
-        {
-            switch (CurrentCursor.Mode)
-            {
-                case CursorMode.Select:
-                    cursorModeSelect.Background = MediaBrushes.SkyBlue;
-                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    break;
-                case CursorMode.Pipette:
-                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModePipette.Background = MediaBrushes.SkyBlue;
-                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    break;
-                case CursorMode.Square:
-                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeSquare.Background = MediaBrushes.SkyBlue;
-                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    break;
-                case CursorMode.Circle:
-                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeCircle.Background = MediaBrushes.SkyBlue;
-                    cursorModeRotate.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    break;
-                case CursorMode.Rotate:
-                    cursorModeSelect.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModePipette.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeSquare.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeCircle.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorModeRotate.Background = MediaBrushes.SkyBlue;
-                    break;
-            }
-        }
-
-        private void HighlightCurrentCursorSubMode()
-        {
-            switch (CurrentCursor.SubMode)
-            {
-                case CursorSubMode.Set:
-                    cursorSubModeSet.Background = MediaBrushes.SkyBlue;
-                    cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    break;
-                case CursorSubMode.Add:
-                    cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorSubModeAdd.Background = MediaBrushes.SkyBlue;
-                    cursorSubModeSub.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    break;
-                case CursorSubMode.Sub:
-                    cursorSubModeSet.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorSubModeAdd.Background = new SolidColorBrush(MediaColor.FromRgb(0xDD, 0xDD, 0xDD));
-                    cursorSubModeSub.Background = MediaBrushes.SkyBlue;
-                    break;
-            }
-        }
-
         private void UpdateToolBar()
         {
-            HighlightCurrentCursorMode();
-            HighlightCurrentCursorSubMode();
+            CurrentCursor.HighlightCurrentCursorMode();
+            CurrentCursor.HighlightCurrentCursorSubMode();
             switch (CurrentCursor.Mode)
             {
                 case CursorMode.Select:
-                    ShowCursorModes();
-                    HideCursorSubModes();
+                    CurrentCursor.ShowCursorModes();
+                    CurrentCursor.HideCursorSubModes();
                     HideSelectedColor();
                     HideCursorSlider();
                     break;
                 case CursorMode.Pipette:
-                    ShowCursorModes();
-                    HideCursorSubModes();
+                    CurrentCursor.ShowCursorModes();
+                    CurrentCursor.HideCursorSubModes();
                     ShowSelectedColor();
                     HideCursorSlider();
                     break;
                 case CursorMode.Square:
-                    ShowCursorModes();
-                    ShowCursorSubModes();
+                    CurrentCursor.ShowCursorModes();
+                    CurrentCursor.ShowCursorSubModes();
                     ShowSelectedColor();
                     ShowCursorSlider();
                     break;
                 case CursorMode.Circle:
-                    ShowCursorModes();
-                    ShowCursorSubModes();
+                    CurrentCursor.ShowCursorModes();
+                    CurrentCursor.ShowCursorSubModes();
                     ShowSelectedColor();
                     ShowCursorSlider();
                     break;
                 case CursorMode.Rotate:
-                    ShowCursorModes();
-                    HideCursorSubModes();
+                    CurrentCursor.ShowCursorModes();
+                    CurrentCursor.HideCursorSubModes();
                     HideSelectedColor();
                     HideCursorSlider();
                     break;
