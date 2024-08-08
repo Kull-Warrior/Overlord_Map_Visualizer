@@ -24,13 +24,11 @@ namespace Overlord_Map_Visualizer
     {
         private OverlordMap CurrentMap = new OverlordMap();
 
+        private CursorManagement CurrentCursor = new CursorManagement();
+
         private MapMode CurrentMapMode;
 
         private bool IsAnyMapLoaded = false;
-
-        private CursorMode CurrentCursorMode;
-        private CursorSubMode CurrentCursorSubMode;
-        private int CursorDiameter = 51;
 
         Trackball trackball = new Trackball();
 
@@ -43,8 +41,6 @@ namespace Overlord_Map_Visualizer
 
         private void Initialise()
         {
-            CurrentCursorMode = CursorMode.Select;
-            CurrentCursorSubMode = CursorSubMode.Set;
             HighlightCurrentCursorMode();
             HighlightCurrentCursorSubMode();
             SelectedColorCode.Text = "0000";
@@ -545,7 +541,7 @@ namespace Overlord_Map_Visualizer
             if (CurrentMapMode != MapMode.Full && CurrentMapMode != MapMode.ThreeDimensional)
             {
                 byte[] data;
-                switch (CurrentCursorMode)
+                switch (CurrentCursor.Mode)
                 {
                     case CursorMode.Select:
                         MessageBox.Show("Location : X:" + xMouseCoordinate + " | Y:" + yMouseCoordinate);
@@ -579,19 +575,19 @@ namespace Overlord_Map_Visualizer
                             switch (CurrentMapMode)
                             {
                                 case MapMode.HeightMap:
-                                    CurrentMap.EditMapData(CurrentCursorMode, CurrentCursorSubMode, CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.HeightMapDigitsOneAndTwo, CurrentMap.HeightMapDigitsThreeAndFour);
+                                    CurrentMap.EditMapData(CurrentCursor.Mode, CurrentCursor.SubMode, CurrentCursor.CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.HeightMapDigitsOneAndTwo, CurrentMap.HeightMapDigitsThreeAndFour);
                                     break;
                                 case MapMode.MainTextureMap:
-                                    CurrentMap.EditMapData(CurrentCursorMode, CurrentCursorSubMode, CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.MainTextureMap);
+                                    CurrentMap.EditMapData(CurrentCursor.Mode, CurrentCursor.SubMode, CurrentCursor.CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.MainTextureMap);
                                     break;
                                 case MapMode.FoliageMap:
-                                    CurrentMap.EditMapData(CurrentCursorMode, CurrentCursorSubMode, CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.FoliageMap);
+                                    CurrentMap.EditMapData(CurrentCursor.Mode, CurrentCursor.SubMode, CurrentCursor.CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.FoliageMap);
                                     break;
                                 case MapMode.WallTextureMap:
-                                    CurrentMap.EditMapData(CurrentCursorMode, CurrentCursorSubMode, CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.WallTextureMap);
+                                    CurrentMap.EditMapData(CurrentCursor.Mode, CurrentCursor.SubMode, CurrentCursor.CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.WallTextureMap);
                                     break;
                                 case MapMode.UnknownMap:
-                                    CurrentMap.EditMapData(CurrentCursorMode, CurrentCursorSubMode, CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.UnknownMap);
+                                    CurrentMap.EditMapData(CurrentCursor.Mode, CurrentCursor.SubMode, CurrentCursor.CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.UnknownMap);
                                     break;
                             }
                             data = CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode);
@@ -608,19 +604,19 @@ namespace Overlord_Map_Visualizer
                             switch (CurrentMapMode)
                             {
                                 case MapMode.HeightMap:
-                                    CurrentMap.EditMapData(CurrentCursorMode, CurrentCursorSubMode, CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.HeightMapDigitsOneAndTwo, CurrentMap.HeightMapDigitsThreeAndFour);
+                                    CurrentMap.EditMapData(CurrentCursor.Mode, CurrentCursor.SubMode, CurrentCursor.CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.HeightMapDigitsOneAndTwo, CurrentMap.HeightMapDigitsThreeAndFour);
                                     break;
                                 case MapMode.MainTextureMap:
-                                    CurrentMap.EditMapData(CurrentCursorMode, CurrentCursorSubMode, CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.MainTextureMap);
+                                    CurrentMap.EditMapData(CurrentCursor.Mode, CurrentCursor.SubMode, CurrentCursor.CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.MainTextureMap);
                                     break;
                                 case MapMode.FoliageMap:
-                                    CurrentMap.EditMapData(CurrentCursorMode, CurrentCursorSubMode, CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.FoliageMap);
+                                    CurrentMap.EditMapData(CurrentCursor.Mode, CurrentCursor.SubMode, CurrentCursor.CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.FoliageMap);
                                     break;
                                 case MapMode.WallTextureMap:
-                                    CurrentMap.EditMapData(CurrentCursorMode, CurrentCursorSubMode, CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.WallTextureMap);
+                                    CurrentMap.EditMapData(CurrentCursor.Mode, CurrentCursor.SubMode, CurrentCursor.CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.WallTextureMap);
                                     break;
                                 case MapMode.UnknownMap:
-                                    CurrentMap.EditMapData(CurrentCursorMode, CurrentCursorSubMode, CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.UnknownMap);
+                                    CurrentMap.EditMapData(CurrentCursor.Mode, CurrentCursor.SubMode, CurrentCursor.CursorDiameter, xMouseCoordinate, yMouseCoordinate, SelectedColorCode.Text, CurrentMap.UnknownMap);
                                     break;
                             }
                             data = CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode);
@@ -760,7 +756,7 @@ namespace Overlord_Map_Visualizer
                     break;
             }
 
-            if (CurrentCursorMode == CursorMode.Square)
+            if (CurrentCursor.Mode == CursorMode.Square)
             {
                 UpdateCursor();
             }
@@ -815,7 +811,7 @@ namespace Overlord_Map_Visualizer
                     SelectedColorHeight.Content = "This color corresponds to a height of\r\n" + (((digitThree * Math.Pow(16, 1)) + (digitTwo * Math.Pow(16, 0)) + (digitOne * Math.Pow(16, -1))) / 2);
                 }
 
-                if (CurrentCursorMode == CursorMode.Square)
+                if (CurrentCursor.Mode == CursorMode.Square)
                 {
                     UpdateCursor();
                 }
@@ -843,7 +839,7 @@ namespace Overlord_Map_Visualizer
         private void CursorMode_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
-            CurrentCursorMode = (CursorMode)Enum.Parse(typeof(CursorMode), (string)button.Content);
+            CurrentCursor.Mode = (CursorMode)Enum.Parse(typeof(CursorMode), (string)button.Content);
             UpdateCursor();
             UpdateToolBar();
         }
@@ -851,14 +847,14 @@ namespace Overlord_Map_Visualizer
         private void CursorSubMode_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
-            CurrentCursorSubMode = (CursorSubMode)Enum.Parse(typeof(CursorSubMode), (string)button.Content);
+            CurrentCursor.SubMode = (CursorSubMode)Enum.Parse(typeof(CursorSubMode), (string)button.Content);
             UpdateToolBar();
         }
 
         private void UpdateCursor()
         {
             SolidColorBrush fillBrush;
-            switch (CurrentCursorMode)
+            switch (CurrentCursor.Mode)
             {
                 case CursorMode.Select:
                     Mouse.OverrideCursor = null;
@@ -869,11 +865,11 @@ namespace Overlord_Map_Visualizer
                     break;
                 case CursorMode.Square:
                     fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, 0xFF, 0xFF, 0xFF));
-                    Mouse.OverrideCursor = CreateCursor(CursorDiameter, CursorDiameter, fillBrush, MediaBrushes.Black);
+                    Mouse.OverrideCursor = CreateCursor(CurrentCursor.CursorDiameter, CurrentCursor.CursorDiameter, fillBrush, MediaBrushes.Black);
                     break;
                 case CursorMode.Circle:
                     fillBrush = new SolidColorBrush(MediaColor.FromArgb(127, 0xFF, 0xFF, 0xFF));
-                    Mouse.OverrideCursor = CreateCursor(CursorDiameter, CursorDiameter, fillBrush, MediaBrushes.Black);
+                    Mouse.OverrideCursor = CreateCursor(CurrentCursor.CursorDiameter, CurrentCursor.CursorDiameter, fillBrush, MediaBrushes.Black);
                     break;
                 case CursorMode.Rotate:
                     fillBrush = MediaBrushes.Black;
@@ -889,7 +885,7 @@ namespace Overlord_Map_Visualizer
             DrawingVisual drawingVisual = new DrawingVisual();
             using (DrawingContext drawingContext = drawingVisual.RenderOpen())
             {
-                switch (CurrentCursorMode)
+                switch (CurrentCursor.Mode)
                 {
                     case CursorMode.Square:
                         borderWidth = 2;
@@ -1059,7 +1055,7 @@ namespace Overlord_Map_Visualizer
 
         private void HighlightCurrentCursorMode()
         {
-            switch (CurrentCursorMode)
+            switch (CurrentCursor.Mode)
             {
                 case CursorMode.Select:
                     cursorModeSelect.Background = MediaBrushes.SkyBlue;
@@ -1101,7 +1097,7 @@ namespace Overlord_Map_Visualizer
 
         private void HighlightCurrentCursorSubMode()
         {
-            switch (CurrentCursorSubMode)
+            switch (CurrentCursor.SubMode)
             {
                 case CursorSubMode.Set:
                     cursorSubModeSet.Background = MediaBrushes.SkyBlue;
@@ -1125,7 +1121,7 @@ namespace Overlord_Map_Visualizer
         {
             HighlightCurrentCursorMode();
             HighlightCurrentCursorSubMode();
-            switch (CurrentCursorMode)
+            switch (CurrentCursor.Mode)
             {
                 case CursorMode.Select:
                     ShowCursorModes();
@@ -1165,8 +1161,8 @@ namespace Overlord_Map_Visualizer
             if (IsAnyMapLoaded)
             {
                 cursorDiameterLabel.Content = "Cursor Diameter: " + CursorSizeSlider.Value;
-                CursorDiameter = (int) CursorSizeSlider.Value;
-                if (CurrentCursorMode == CursorMode.Square || CurrentCursorMode == CursorMode.Circle)
+                CurrentCursor.CursorDiameter = (int) CursorSizeSlider.Value;
+                if (CurrentCursor.Mode == CursorMode.Square || CurrentCursor.Mode == CursorMode.Circle)
                 {
                     UpdateCursor();
                 }
