@@ -80,6 +80,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="resources\classes\CursorManagement.cs" />
     <Compile Include="resources\classes\FileReader.cs" />
     <Compile Include="resources\classes\TrackBall.cs" />
     <Compile Include="resources\enums\cursorEnums.cs" />
