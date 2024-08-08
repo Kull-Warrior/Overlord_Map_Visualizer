@@ -186,6 +186,68 @@ namespace Overlord_Map_Visualizer
                     return 0;
                 case string a when a.Contains("2P_RockyRace"):
                     return 0;
+                case string a when a.Contains("LM0A Netherworld"):
+                    return 0;
+                case string a when a.Contains("LM0C Netherworld Burrows"):
+                    return 0;
+                case string a when a.Contains("LM0D Netherworld Foundations"):
+                    return 0;
+                case string a when a.Contains("Exp - LM0B Netherworld Arena"):
+                    return 0;
+                case string a when a.Contains("LM1A Hunting Grounds"):
+                    return 15;
+                case string a when a.Contains("LM1C Nordberg Town"):
+                    return 22;
+                case string a when a.Contains("LM1D Nordberg Fairyland"):
+                    return 18;
+                case string a when a.Contains("LM1E Nordhaven"):
+                    return 22;
+                case string a when a.Contains("LM1F Prelude"):
+                    return 22;
+                case string a when a.Contains("LM1G Nordberg Commune"):
+                    return 30;
+                case string a when a.Contains("LM2A Everlight Gates"):
+                    return 25.25;
+                case string a when a.Contains("LM2B Everlight Jungle A"):
+                    return 74;
+                case string a when a.Contains("LM2C Everlight Facility"):
+                    return 71;
+                case string a when a.Contains("LM2D Everlight Jungle B"):
+                    return 70;
+                case string a when a.Contains("LM2E Spider Boss"):
+                    return 48.0625;
+                case string a when a.Contains("LM2F Everlight Town"):
+                    return 26.5;
+                case string a when a.Contains("LM3A Wasteland"):
+                    return 0;
+                case string a when a.Contains("LM3B Wasteland Sanctuary Depths"):
+                    return 16;
+                case string a when a.Contains("LM3C Wasteland Sanctuary Town"):
+                    return 0;
+                case string a when a.Contains("LM4A Empire Heartland Harbour"):
+                    return 20;
+                case string a when a.Contains("LM4B Empire Heartland City"):
+                    return 36.5;
+                case string a when a.Contains("LM4C Empire Heartland Assault"):
+                    return 15;
+                case string a when a.Contains("LM4D Empire City"):
+                    return 15;
+                case string a when a.Contains("LM4E Empire Sewers"):
+                    return 41;
+                case string a when a.Contains("LM4F Empire Arena"):
+                    return 40;
+                case string a when a.Contains("LM4G Empire Palace"):
+                    return 16;
+                case string a when a.Contains("LM4H Empire EndBoss"):
+                    return 15;
+                case string a when a.Contains("MPC1_Arena"):
+                    return 53;
+                case string a when a.Contains("MPC2_Invasion"):
+                    return 16;
+                case string a when a.Contains("MPV1_Dominate"):
+                    return 15;
+                case string a when a.Contains("MPV2_PiratePlunder"):
+                    return 25.3125;
                 default:
                     return 0;
             }
