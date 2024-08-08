@@ -454,26 +454,24 @@ namespace Overlord_Map_Visualizer
                 {
                     case OverlordObjectType.BrownMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 215, 183, 020));
-                        //allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, CurrentMap.ObjectList[i].X, CurrentMap.ObjectList[i].Y, solidBrush);
                         break;
                     case OverlordObjectType.RedMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 255, 000, 000));
-                        //allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, CurrentMap.ObjectList[i].X, CurrentMap.ObjectList[i].Y, solidBrush);
                         break;
                     case OverlordObjectType.GreenMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 000, 255, 000));
-                        //allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, CurrentMap.ObjectList[i].X, CurrentMap.ObjectList[i].Y, solidBrush);
                         break;
                     case OverlordObjectType.BlueMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 255));
-                        //allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, CurrentMap.ObjectList[i].X, CurrentMap.ObjectList[i].Y, solidBrush);
                         break;
                     case OverlordObjectType.TowerGate:
-                        solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 000));
-                        //allMapObjectLocationsBitmap = DrawTowerGate(allMapObjectLocationsBitmap, MapObjectList[i].X, MapObjectList[i].Y, solidBrush);
+                        allMapObjectLocationsBitmap = DrawTowerGate(allMapObjectLocationsBitmap, CurrentMap.ObjectList[i].X, CurrentMap.ObjectList[i].Y);
                         break;
                     default:
-                        solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 000));
                         break;
                 }
             }
