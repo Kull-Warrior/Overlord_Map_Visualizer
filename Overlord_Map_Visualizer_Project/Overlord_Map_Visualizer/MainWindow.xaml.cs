@@ -827,24 +827,6 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private void SelectedColorCode_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            //if (e.Key == Key.Back && SelectedColorCode.SelectionStart > 0)
-            //{
-            //    string insertText = "0";
-            //    int selectionIndex = SelectedColorCode.SelectionStart;
-            //    SelectedColorCode.Text = SelectedColorCode.Text.Insert(selectionIndex, insertText);
-            //    SelectedColorCode.SelectionStart = selectionIndex; // restore cursor position
-            //}
-            //if (e.Key == Key.Delete && SelectedColorCode.SelectionStart < SelectedColorCode.MaxLength)
-            //{
-            //    string insertText = "0";
-            //    int selectionIndex = SelectedColorCode.SelectionStart;
-            //    SelectedColorCode.Text = SelectedColorCode.Text.Insert(selectionIndex, insertText);
-            //    SelectedColorCode.SelectionStart = selectionIndex; // restore cursor position
-            //}
-        }
-
         private void CursorMode_Click(object sender, RoutedEventArgs e)
         {
             Button button = (Button)sender;
