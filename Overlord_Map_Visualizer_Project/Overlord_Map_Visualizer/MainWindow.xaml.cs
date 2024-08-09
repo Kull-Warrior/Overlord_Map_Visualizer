@@ -539,117 +539,88 @@ namespace Overlord_Map_Visualizer
             if (CurrentMapMode != MapMode.Full && CurrentMapMode != MapMode.ThreeDimensional)
             {
                 TiffImage image;
-                switch (CurrentCursor.Mode)
+
+                if (CurrentCursor.Mode == CursorMode.Select)
                 {
-                    case CursorMode.Select:
-                        MessageBox.Show("Location : X:" + CurrentCursor.X + " | Y:" + CurrentCursor.Y);
-                        break;
-                    case CursorMode.Pipette:
+                    MessageBox.Show("Location : X:" + CurrentCursor.X + " | Y:" + CurrentCursor.Y);
+                }
+                else if (CurrentCursor.Mode == CursorMode.Pipette)
+                {
+                    switch (CurrentMapMode)
+                    {
+                        case MapMode.HeightMap:
+                            SelectedColorCode.Text = CurrentMap.HeightMapDigitsThreeAndFour[CurrentCursor.X, CurrentCursor.Y].ToString("X2") + CurrentMap.HeightMapDigitsOneAndTwo[CurrentCursor.X, CurrentCursor.Y].ToString("X2");
+                            break;
+                        case MapMode.MainTextureMap:
+                            SelectedColorCode.Text = CurrentMap.MainTextureMap[CurrentCursor.X, CurrentCursor.Y].ToString("X1");
+                            break;
+                        case MapMode.FoliageMap:
+                            SelectedColorCode.Text = CurrentMap.FoliageMap[CurrentCursor.X, CurrentCursor.Y].ToString("X1");
+                            break;
+                        case MapMode.WallTextureMap:
+                            SelectedColorCode.Text = CurrentMap.WallTextureMap[CurrentCursor.X, CurrentCursor.Y].ToString("X1");
+                            break;
+                        case MapMode.UnknownMap:
+                            SelectedColorCode.Text = CurrentMap.UnknownMap[CurrentCursor.X, CurrentCursor.Y].ToString("X1");
+                            break;
+                        default:
+                            SelectedColorCode.Text = "0000";
+                            break;
+                    }
+                }
+                else if (CurrentCursor.Mode == CursorMode.Rotate)
+                {
+                    switch (CurrentMapMode)
+                    {
+                        case MapMode.HeightMap:
+                            CurrentMap.RotateMapData(CurrentMap.HeightMapDigitsOneAndTwo);
+                            CurrentMap.RotateMapData(CurrentMap.HeightMapDigitsThreeAndFour);
+                            break;
+                        case MapMode.MainTextureMap:
+                            CurrentMap.RotateMapData(CurrentMap.MainTextureMap);
+                            break;
+                        case MapMode.FoliageMap:
+                            CurrentMap.RotateMapData(CurrentMap.FoliageMap);
+                            break;
+                        case MapMode.WallTextureMap:
+                            CurrentMap.RotateMapData(CurrentMap.WallTextureMap);
+                            break;
+                        case MapMode.UnknownMap:
+                            CurrentMap.RotateMapData(CurrentMap.UnknownMap);
+                            break;
+                    }
+                    image = new TiffImage(CurrentMap.Width, CurrentMap.Height, CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode));
+                    DrawTiffImage(image.Encode(), DrawingType.Map);
+                }
+                else
+                {
+                    if (SelectedColorCode.Text.Length == GetNeededColorCodeLength())
+                    {
                         switch (CurrentMapMode)
                         {
                             case MapMode.HeightMap:
-                                SelectedColorCode.Text = CurrentMap.HeightMapDigitsThreeAndFour[CurrentCursor.X, CurrentCursor.Y].ToString("X2") + CurrentMap.HeightMapDigitsOneAndTwo[CurrentCursor.X, CurrentCursor.Y].ToString("X2");
+                                CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.HeightMapDigitsOneAndTwo, CurrentMap.HeightMapDigitsThreeAndFour);
                                 break;
                             case MapMode.MainTextureMap:
-                                SelectedColorCode.Text = CurrentMap.MainTextureMap[CurrentCursor.X, CurrentCursor.Y].ToString("X1");
+                                CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.MainTextureMap);
                                 break;
                             case MapMode.FoliageMap:
-                                SelectedColorCode.Text = CurrentMap.FoliageMap[CurrentCursor.X, CurrentCursor.Y].ToString("X1");
+                                CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.FoliageMap);
                                 break;
                             case MapMode.WallTextureMap:
-                                SelectedColorCode.Text = CurrentMap.WallTextureMap[CurrentCursor.X, CurrentCursor.Y].ToString("X1");
+                                CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.WallTextureMap);
                                 break;
                             case MapMode.UnknownMap:
-                                SelectedColorCode.Text = CurrentMap.UnknownMap[CurrentCursor.X, CurrentCursor.Y].ToString("X1");
-                                break;
-                            default:
-                                SelectedColorCode.Text = "0000";
-                                break;
-                        }
-                        break;
-                    case CursorMode.Square:
-                        if (SelectedColorCode.Text.Length == GetNeededColorCodeLength())
-                        {
-                            switch (CurrentMapMode)
-                            {
-                                case MapMode.HeightMap:
-                                    CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.HeightMapDigitsOneAndTwo, CurrentMap.HeightMapDigitsThreeAndFour);
-                                    break;
-                                case MapMode.MainTextureMap:
-                                    CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.MainTextureMap);
-                                    break;
-                                case MapMode.FoliageMap:
-                                    CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.FoliageMap);
-                                    break;
-                                case MapMode.WallTextureMap:
-                                    CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.WallTextureMap);
-                                    break;
-                                case MapMode.UnknownMap:
-                                    CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.UnknownMap);
-                                    break;
-                            }
-                            image = new TiffImage(CurrentMap.Width, CurrentMap.Height, CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode));
-                            DrawTiffImage(image.Encode(), DrawingType.Map);
-                        }
-                        else
-                        {
-                            MessageBox.Show("Error\nThe selected color has to be " + GetNeededColorCodeLength() + " digits long.");
-                        }
-                        break;
-                    case CursorMode.Circle:
-                        if (SelectedColorCode.Text.Length == GetNeededColorCodeLength())
-                        {
-                            switch (CurrentMapMode)
-                            {
-                                case MapMode.HeightMap:
-                                    CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.HeightMapDigitsOneAndTwo, CurrentMap.HeightMapDigitsThreeAndFour);
-                                    break;
-                                case MapMode.MainTextureMap:
-                                    CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.MainTextureMap);
-                                    break;
-                                case MapMode.FoliageMap:
-                                    CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.FoliageMap);
-                                    break;
-                                case MapMode.WallTextureMap:
-                                    CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.WallTextureMap);
-                                    break;
-                                case MapMode.UnknownMap:
-                                    CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.UnknownMap);
-                                    break;
-                            }
-                            image = new TiffImage(CurrentMap.Width, CurrentMap.Height, CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode));
-                            DrawTiffImage(image.Encode(), DrawingType.Map);
-                        }
-                        else
-                        {
-                            MessageBox.Show("Error\nThe selected color has to be " + GetNeededColorCodeLength() + " digits long.");
-                        }
-                        break;
-                    case CursorMode.Rotate:
-                        switch (CurrentMapMode)
-                        {
-                            case MapMode.HeightMap:
-                                CurrentMap.RotateMapData(CurrentMap.HeightMapDigitsOneAndTwo);
-                                CurrentMap.RotateMapData(CurrentMap.HeightMapDigitsThreeAndFour);
-                                break;
-                            case MapMode.MainTextureMap:
-                                CurrentMap.RotateMapData(CurrentMap.MainTextureMap);
-                                break;
-                            case MapMode.FoliageMap:
-                                CurrentMap.RotateMapData(CurrentMap.FoliageMap);
-                                break;
-                            case MapMode.WallTextureMap:
-                                CurrentMap.RotateMapData(CurrentMap.WallTextureMap);
-                                break;
-                            case MapMode.UnknownMap:
-                                CurrentMap.RotateMapData(CurrentMap.UnknownMap);
+                                CurrentMap.EditMapData(CurrentCursor, SelectedColorCode.Text, CurrentMap.UnknownMap);
                                 break;
                         }
                         image = new TiffImage(CurrentMap.Width, CurrentMap.Height, CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode));
                         DrawTiffImage(image.Encode(), DrawingType.Map);
-                        break;
-                    default:
-                        break;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Error\nThe selected color has to be " + GetNeededColorCodeLength() + " digits long.");
+                    }
                 }
             }
             else if (CurrentMapMode == MapMode.Full)
