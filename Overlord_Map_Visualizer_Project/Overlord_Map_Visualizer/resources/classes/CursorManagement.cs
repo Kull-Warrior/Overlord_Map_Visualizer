@@ -29,6 +29,9 @@ namespace Overlord_Map_Visualizer
 
         public Slider SizeSlider;
 
+        public int X;
+        public int Y;
+
         public CursorManagement()
         {
             Mode = CursorMode.Select;

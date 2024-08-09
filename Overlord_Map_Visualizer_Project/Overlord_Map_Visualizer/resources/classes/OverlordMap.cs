@@ -522,41 +522,41 @@ namespace Overlord_Map_Visualizer
             return data;
         }
 
-        public void EditMapData(CursorMode CurrentCursorMode, CursorSubMode CurrentCursorSubMode, int cursorDiameter, int xMouseCoordinate, int yMouseCoordinate, string colorCode, byte[,] data)
+        public void EditMapData(CursorManagement cursor, string colorCode, byte[,] data)
         {
             int yMin = 0;
             int xMin = 0;
             int xMax = 511;
             int yMax = 511;
-            int cursorRadius = cursorDiameter / 2;
+            int cursorRadius = (int)(cursor.SizeSlider.Value / 2);
 
-            if ((xMouseCoordinate - cursorRadius) >= xMin)
+            if ((cursor.X - cursorRadius) >= xMin)
             {
-                xMin = xMouseCoordinate - cursorRadius;
+                xMin = cursor.X - cursorRadius;
             }
-            if ((xMouseCoordinate + cursorRadius) <= xMax)
+            if ((cursor.X + cursorRadius) <= xMax)
             {
-                xMax = xMouseCoordinate + cursorRadius;
+                xMax = cursor.X + cursorRadius;
             }
 
-            if ((yMouseCoordinate - cursorRadius) >= yMin)
+            if ((cursor.Y - cursorRadius) >= yMin)
             {
-                yMin = yMouseCoordinate - cursorRadius;
+                yMin = cursor.Y - cursorRadius;
             }
-            if ((yMouseCoordinate + cursorRadius) <= yMax)
+            if ((cursor.Y + cursorRadius) <= yMax)
             {
-                yMax = yMouseCoordinate + cursorRadius;
+                yMax = cursor.Y + cursorRadius;
             }
 
             for (int y = yMin; y <= yMax; y++)
             {
                 for (int x = xMin; x <= xMax; x++)
                 {
-                    if (CurrentCursorMode == CursorMode.Square || (((x - xMouseCoordinate) * (x - xMouseCoordinate)) + ((y - yMouseCoordinate) * (y - yMouseCoordinate)) < (int)Math.Ceiling((decimal)cursorDiameter / 2) * (int)Math.Ceiling((decimal)cursorDiameter / 2)))
+                    if (cursor.Mode == CursorMode.Square || (((x - cursor.X) * (x - cursor.X)) + ((y - cursor.Y) * (y - cursor.Y)) < (int)Math.Ceiling((decimal)cursor.SizeSlider.Value / 2) * (int)Math.Ceiling((decimal)cursor.SizeSlider.Value / 2)))
                     {
                         byte selectedValue = Convert.ToByte(colorCode, 16);
                         int pixelValue = data[x, y];
-                        switch (CurrentCursorSubMode)
+                        switch (cursor.SubMode)
                         {
                             case CursorSubMode.Set:
                                 data[x, y] = selectedValue;
@@ -587,37 +587,37 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        public void EditMapData(CursorMode CurrentCursorMode, CursorSubMode CurrentCursorSubMode, int cursorDiameter, int xMouseCoordinate, int yMouseCoordinate, string colorCode, byte[,] lowerByteData, byte[,] higherByteData)
+        public void EditMapData(CursorManagement cursor, string colorCode, byte[,] lowerByteData, byte[,] higherByteData)
         {
             int yMin = 0;
             int xMin = 0;
             int xMax = 511;
             int yMax = 511;
-            int cursorRadius = cursorDiameter / 2;
+            int cursorRadius = (int)(cursor.SizeSlider.Value / 2);
 
-            if ((xMouseCoordinate - cursorRadius) >= xMin)
+            if ((cursor.X - cursorRadius) >= xMin)
             {
-                xMin = xMouseCoordinate - cursorRadius;
+                xMin = cursor.X - cursorRadius;
             }
-            if ((xMouseCoordinate + cursorRadius) <= xMax)
+            if ((cursor.X + cursorRadius) <= xMax)
             {
-                xMax = xMouseCoordinate + cursorRadius;
+                xMax = cursor.X + cursorRadius;
             }
 
-            if ((yMouseCoordinate - cursorRadius) >= yMin)
+            if ((cursor.Y - cursorRadius) >= yMin)
             {
-                yMin = yMouseCoordinate - cursorRadius;
+                yMin = cursor.Y - cursorRadius;
             }
-            if ((yMouseCoordinate + cursorRadius) <= yMax)
+            if ((cursor.Y + cursorRadius) <= yMax)
             {
-                yMax = yMouseCoordinate + cursorRadius;
+                yMax = cursor.Y + cursorRadius;
             }
 
             for (int y = yMin; y <= yMax; y++)
             {
                 for (int x = xMin; x <= xMax; x++)
                 {
-                    if (CurrentCursorMode == CursorMode.Square || (((x - xMouseCoordinate) * (x - xMouseCoordinate)) + ((y - yMouseCoordinate) * (y - yMouseCoordinate)) < (int)Math.Ceiling((decimal)cursorDiameter / 2) * (int)Math.Ceiling((decimal)cursorDiameter / 2)))
+                    if (cursor.Mode == CursorMode.Square || (((x - cursor.X) * (x - cursor.X)) + ((y - cursor.Y) * (y - cursor.Y)) < (int)Math.Ceiling((decimal)cursor.SizeSlider.Value / 2) * (int)Math.Ceiling((decimal)cursor.SizeSlider.Value / 2)))
                     {
                         byte[] tempByteArray = new byte[2];
 
@@ -626,7 +626,7 @@ namespace Overlord_Map_Visualizer
 
                         int selectedValue = (tempByteArray[1] << 8) + tempByteArray[0];
                         int pixelValue = (higherByteData[x, y] << 8) + lowerByteData[x, y];
-                        switch (CurrentCursorSubMode)
+                        switch (cursor.SubMode)
                         {
                             case CursorSubMode.Set:
                                 lowerByteData[x, y] = tempByteArray[0];
