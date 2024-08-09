@@ -7,11 +7,9 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
 using Pen = System.Drawing.Pen;
-using PixelFormat = System.Windows.Media.PixelFormat;
 using DrawingPoint = System.Drawing.Point;
 using System.Windows.Media.Media3D;
 
