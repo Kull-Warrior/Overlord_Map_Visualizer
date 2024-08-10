@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Collections.Generic;
 
 namespace Overlord_Map_Visualizer
 {
@@ -245,6 +246,195 @@ namespace Overlord_Map_Visualizer
                 default:
                     return 0;
             }
+        }
+
+        public List<OverlordObject> GetMapObjects(OverlordMap map)
+        {
+            List<OverlordObject> objects = new List<OverlordObject>();
+
+            switch (map.FilePath)
+            {
+                case string a when a.Contains("Exp - HalflingMain"):
+                    break;
+                case string a when a.Contains("Exp - Halfling Abyss"):
+                    break;
+                case string a when a.Contains("Exp - ElfMain"):
+                    break;
+                case string a when a.Contains("Exp - Elf Abyss"):
+                    break;
+                case string a when a.Contains("Exp - PaladinMain"):
+                    break;
+                case string a when a.Contains("Exp - Paladin Abyss"):
+                    break;
+                case string a when a.Contains("Exp - DwarfMain"):
+                    break;
+                case string a when a.Contains("Exp - Dwarf Abyss"):
+                    break;
+                case string a when a.Contains("Exp - WarriorMain"):
+                    break;
+                case string a when a.Contains("Exp - Warrior Abyss - 01"):
+                    break;
+                case string a when a.Contains("Exp - Warrior Abyss - 02"):
+                    break;
+                case string a when a.Contains("Exp - Tower_Dungeon"):
+                    break;
+                case string a when a.Contains("Exp - Tower_Spawnpit"):
+                    break;
+                case string a when a.Contains("Exp - Tower"):
+                    break;
+                case string a when a.Contains("HalflingMain"):
+                    break;
+                case string a when a.Contains("SlaveCamp"):
+                    break;
+                case string a when a.Contains("HalflingHomes1of2"):
+                    break;
+                case string a when a.Contains("HalflingHomes2of2"):
+                    break;
+                case string a when a.Contains("HellsKitchen"):
+                    break;
+                case string a when a.Contains("EntryCastleSpree"):
+                    break;
+                case string a when a.Contains("SpreeDungeon"):
+                    break;
+                case string a when a.Contains("ElfMain"):
+                    break;
+                case string a when a.Contains("GreenCave"):
+                    break;
+                case string a when a.Contains("SkullDen"):
+                    break;
+                case string a when a.Contains("TrollTemple"):
+                    break;
+                case string a when a.Contains("PaladinMain"):
+                    break;
+                case string a when a.Contains("BlueCave"):
+                    break;
+                case string a when a.Contains("Sewers1of2"):
+                    break;
+                case string a when a.Contains("Sewers2of2"):
+                    break;
+                case string a when a.Contains("Red Light Inn"):
+                    break;
+                case string a when a.Contains("Citadel"):
+                    break;
+                case string a when a.Contains("DwarfMain"):
+                    break;
+                case string a when a.Contains("GoldMine"):
+                    break;
+                case string a when a.Contains("Quarry"):
+                    break;
+                case string a when a.Contains("HomeyHalls1of2"):
+                    break;
+                case string a when a.Contains("HomeyHalls2of2"):
+                    break;
+                case string a when a.Contains("ArcaniumMine"):
+                    break;
+                case string a when a.Contains("RoyalHalls"):
+                    break;
+                case string a when a.Contains("WarriorMain"):
+                    break;
+                case string a when a.Contains("2P_Deathtrap"):
+                    break;
+                case string a when a.Contains("2P_Gates"):
+                    break;
+                case string a when a.Contains("2P_LastStand"):
+                    break;
+                case string a when a.Contains("2P_PartyCrashers"):
+                    break;
+                case string a when a.Contains("2P_Plunder"):
+                    break;
+                case string a when a.Contains("2P_TombRobber"):
+                    break;
+                case string a when a.Contains("Tower_Dungeon"):
+                    break;
+                case string a when a.Contains("Tower_Spawnpit"):
+                    break;
+                case string a when a.Contains("Tower"):
+                    break;
+                case string a when a.Contains("PlayerMap"):
+                    break;
+                case string a when a.Contains("2P_Arena2"):
+                    break;
+                case string a when a.Contains("2P_Bombs"):
+                    break;
+                case string a when a.Contains("2P_GrabTheMaidens"):
+                    break;
+                case string a when a.Contains("2P_KillTheHoard"):
+                    break;
+                case string a when a.Contains("2P_KingoftheHill"):
+                    break;
+                case string a when a.Contains("2P_March_Mellow_Maidens"):
+                    break;
+                case string a when a.Contains("2P_Misty"):
+                    break;
+                case string a when a.Contains("2P_RockyRace"):
+                    break;
+                case string a when a.Contains("LM0A Netherworld"):
+                    break;
+                case string a when a.Contains("LM0C Netherworld Burrows"):
+                    break;
+                case string a when a.Contains("LM0D Netherworld Foundations"):
+                    break;
+                case string a when a.Contains("Exp - LM0B Netherworld Arena"):
+                    break;
+                case string a when a.Contains("LM1A Hunting Grounds"):
+                    break;
+                case string a when a.Contains("LM1C Nordberg Town"):
+                    break;
+                case string a when a.Contains("LM1D Nordberg Fairyland"):
+                    break;
+                case string a when a.Contains("LM1E Nordhaven"):
+                    break;
+                case string a when a.Contains("LM1F Prelude"):
+                    break;
+                case string a when a.Contains("LM1G Nordberg Commune"):
+                    break;
+                case string a when a.Contains("LM2A Everlight Gates"):
+                    break;
+                case string a when a.Contains("LM2B Everlight Jungle A"):
+                    break;
+                case string a when a.Contains("LM2C Everlight Facility"):
+                    break;
+                case string a when a.Contains("LM2D Everlight Jungle B"):
+                    break;
+                case string a when a.Contains("LM2E Spider Boss"):
+                    break;
+                case string a when a.Contains("LM2F Everlight Town"):
+                    break;
+                case string a when a.Contains("LM3A Wasteland"):
+                    break;
+                case string a when a.Contains("LM3B Wasteland Sanctuary Depths"):
+                    break;
+                case string a when a.Contains("LM3C Wasteland Sanctuary Town"):
+                    break;
+                case string a when a.Contains("LM4A Empire Heartland Harbour"):
+                    break;
+                case string a when a.Contains("LM4B Empire Heartland City"):
+                    break;
+                case string a when a.Contains("LM4C Empire Heartland Assault"):
+                    break;
+                case string a when a.Contains("LM4D Empire City"):
+                    break;
+                case string a when a.Contains("LM4E Empire Sewers"):
+                    break;
+                case string a when a.Contains("LM4F Empire Arena"):
+                    break;
+                case string a when a.Contains("LM4G Empire Palace"):
+                    break;
+                case string a when a.Contains("LM4H Empire EndBoss"):
+                    break;
+                case string a when a.Contains("MPC1_Arena"):
+                    break;
+                case string a when a.Contains("MPC2_Invasion"):
+                    break;
+                case string a when a.Contains("MPV1_Dominate"):
+                    break;
+                case string a when a.Contains("MPV2_PiratePlunder"):
+                    break;
+                default:
+                    break;
+            }
+
+            return objects;
         }
     }
 }
