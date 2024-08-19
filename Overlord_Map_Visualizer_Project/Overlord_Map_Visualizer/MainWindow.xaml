@@ -75,10 +75,12 @@
                 <ModelVisual3D.Content>
                     <Model3DGroup>
                         <Model3DGroup.Children>
-                            <Model3DGroup x:Name="Map3DTerrainAndWater">
-
-                            </Model3DGroup>
-
+                            <Model3DGroup x:Name="Map3DTerrainAndWater"></Model3DGroup>
+                            <Model3DGroup x:Name="Map3DTowerGates"></Model3DGroup>
+                            <Model3DGroup x:Name="Map3DMinionGateBrown"></Model3DGroup>
+                            <Model3DGroup x:Name="Map3DMinionGateRed"></Model3DGroup>
+                            <Model3DGroup x:Name="Map3DMinionGateGreen"></Model3DGroup>
+                            <Model3DGroup x:Name="Map3DMinionGateBlue"></Model3DGroup>
                             <Model3DGroup x:Name="Map3DLight">
                                 <DirectionalLight Color="White" Direction="0.2,-1,0"/>
                             </Model3DGroup>

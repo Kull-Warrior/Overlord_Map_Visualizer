@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
@@ -10,7 +9,6 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
 using Pen = System.Drawing.Pen;
-using DrawingPoint = System.Drawing.Point;
 using System.Windows.Media.Media3D;
 
 namespace Overlord_Map_Visualizer
@@ -227,20 +225,28 @@ namespace Overlord_Map_Visualizer
                 byte[] data = reader.ReadMapDataFromFile(openFileDialog.FileName, offset, CurrentMap.Width, CurrentMap.Height, bytesPerPoint);
                 CurrentMap.SetMapData(data, bytesPerPoint, mapMode, isTiffImage);
                 CurrentMap.WaterLevel = reader.GetMapWaterLevel(CurrentMap);
+                CurrentMap.ObjectList = reader.GetMapObjects(CurrentMap);
 
                 if(CurrentMapMode == MapMode.ThreeDimensional)
                 {
                     Map3DTerrainAndWater.Children.Clear();
+                    Map3DMinionGateBrown.Children.Clear();
+                    Map3DMinionGateRed.Children.Clear();
+                    Map3DMinionGateGreen.Children.Clear();
+                    Map3DMinionGateBlue.Children.Clear();
+                    Map3DTowerGates.Children.Clear();
 
                     GeometryModel3D terrainGeometryModel = CurrentMap.GetTerrainGeometryModel();
                     Draw3DModel(terrainGeometryModel);
                     GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();
                     Draw3DModel(waterGeometryModel);
+                    DrawAllMapObjects3D();
                 }
                 else
                 {
                     TiffImage image = new TiffImage(CurrentMap.Width, CurrentMap.Height, CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode));
                     DrawTiffImage(image.Encode(), DrawingType.Map);
+                    DrawAllMapObjects2D();
                 }
 
                 if (!IsAnyMapLoaded)
@@ -435,7 +441,44 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        private void DrawAllMapObjects()
+        private void DrawAllMapObjects3D()
+        {
+            DiffuseMaterial tempMaterial;
+            for (int i = 0; i < CurrentMap.ObjectList.Count; i++)
+            {
+                switch (CurrentMap.ObjectList[i].Type)
+                {
+                    case OverlordObjectType.BrownMinionGate:
+                        tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.SandyBrown);
+                        Map3DMinionGateBrown.Children.Add(CurrentMap.ObjectList[i].DrawMinionGate(tempMaterial));
+                        break;
+                    case OverlordObjectType.RedMinionGate:
+                        tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.Red);
+                        Map3DMinionGateRed.Children.Add(CurrentMap.ObjectList[i].DrawMinionGate(tempMaterial));
+                        break;
+                    case OverlordObjectType.GreenMinionGate:
+                        tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.Green);
+                        Map3DMinionGateGreen.Children.Add(CurrentMap.ObjectList[i].DrawMinionGate(tempMaterial));
+                        break;
+                    case OverlordObjectType.BlueMinionGate:
+                        tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.Blue);
+                        Map3DMinionGateBlue.Children.Add(CurrentMap.ObjectList[i].DrawMinionGate(tempMaterial));
+                        break;
+                    case OverlordObjectType.TowerGate:
+                        tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.BlanchedAlmond);
+                        Map3DTowerGates.Children.Add(CurrentMap.ObjectList[i].DrawMinionGate(tempMaterial));
+                        break;
+                    case OverlordObjectType.TowerGateVariant:
+                        tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.BlanchedAlmond);
+                        Map3DTowerGates.Children.Add(CurrentMap.ObjectList[i].DrawTowerGate(tempMaterial));
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void DrawAllMapObjects2D()
         {
             SolidBrush solidBrush;
             Bitmap allMapObjectLocationsBitmap = new Bitmap(CurrentMap.Width, CurrentMap.Height);
@@ -446,22 +489,22 @@ namespace Overlord_Map_Visualizer
                 {
                     case OverlordObjectType.BrownMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 215, 183, 020));
-                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, (int)CurrentMap.ObjectList[i].X, (int)CurrentMap.ObjectList[i].Y, solidBrush);
+                        allMapObjectLocationsBitmap = CurrentMap.ObjectList[i].DrawMinionGate(allMapObjectLocationsBitmap, solidBrush);
                         break;
                     case OverlordObjectType.RedMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 255, 000, 000));
-                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, (int)CurrentMap.ObjectList[i].X, (int)CurrentMap.ObjectList[i].Y, solidBrush);
+                        allMapObjectLocationsBitmap = CurrentMap.ObjectList[i].DrawMinionGate(allMapObjectLocationsBitmap, solidBrush);
                         break;
                     case OverlordObjectType.GreenMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 000, 255, 000));
-                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, (int)CurrentMap.ObjectList[i].X, (int)CurrentMap.ObjectList[i].Y, solidBrush);
+                        allMapObjectLocationsBitmap = CurrentMap.ObjectList[i].DrawMinionGate(allMapObjectLocationsBitmap, solidBrush);
                         break;
                     case OverlordObjectType.BlueMinionGate:
                         solidBrush = new SolidBrush(Color.FromArgb(255, 000, 000, 255));
-                        allMapObjectLocationsBitmap = DrawMinionGate(allMapObjectLocationsBitmap, (int)CurrentMap.ObjectList[i].X, (int)CurrentMap.ObjectList[i].Y, solidBrush);
+                        allMapObjectLocationsBitmap = CurrentMap.ObjectList[i].DrawMinionGate(allMapObjectLocationsBitmap, solidBrush);
                         break;
                     case OverlordObjectType.TowerGate:
-                        allMapObjectLocationsBitmap = DrawTowerGate(allMapObjectLocationsBitmap, (int)CurrentMap.ObjectList[i].X, (int)CurrentMap.ObjectList[i].Y);
+                        allMapObjectLocationsBitmap = CurrentMap.ObjectList[i].DrawTowerGate(allMapObjectLocationsBitmap, (int)CurrentMap.ObjectList[i].X, (int)CurrentMap.ObjectList[i].Y);
                         break;
                     default:
                         break;
@@ -472,56 +515,6 @@ namespace Overlord_Map_Visualizer
             allMapObjectLocationsBitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
 
             LocationMarkers.Source = GetBmpImageFromBmp(allMapObjectLocationsBitmap);
-        }
-
-        private Bitmap DrawMinionGate(Bitmap entireLocationBitmap, int x, int y, SolidBrush objectSolidColor)
-        {
-            int diameter = 7;
-
-            using (Graphics locationGraphics = Graphics.FromImage(entireLocationBitmap))
-            using (Pen objectPen = new Pen(objectSolidColor))
-            {
-                locationGraphics.DrawEllipse(objectPen, x - (diameter / 2), y - (diameter / 2), diameter, diameter);
-                locationGraphics.FillEllipse(objectSolidColor, x - (diameter / 2), y - (diameter / 2), diameter, diameter);
-
-                return entireLocationBitmap;
-            }
-        }
-
-        private Bitmap DrawTowerGate(Bitmap entireLocationBitmap, int x, int y)
-        {
-            using (Graphics locationGraphics = Graphics.FromImage(entireLocationBitmap))
-            using (Pen borderPen = new Pen(new SolidBrush(Color.FromArgb(255, 255, 255, 255))))
-            using (Pen objectPen = new Pen(new SolidBrush(Color.FromArgb(255, 000, 000, 000))))
-            {
-                locationGraphics.DrawLine(objectPen, 0, 0, 0, 0);
-                GraphicsPath path = new GraphicsPath();
-                DrawingPoint point01 = new DrawingPoint(x - 14, y - 09);
-                DrawingPoint point02 = new DrawingPoint(x - 13, y - 09);
-                DrawingPoint point03 = new DrawingPoint(x - 13, y - 11);
-                DrawingPoint point04 = new DrawingPoint(x - 12, y - 11);
-                DrawingPoint point05 = new DrawingPoint(x - 12, y - 12);
-                DrawingPoint point06 = new DrawingPoint(x - 10, y - 12);
-                DrawingPoint point07 = new DrawingPoint(x - 10, y - 10);
-                DrawingPoint point08 = new DrawingPoint(x - 09, y - 10);
-                DrawingPoint point09 = new DrawingPoint(x - 09, y - 08);
-                DrawingPoint point10 = new DrawingPoint(x - 08, y - 08);
-
-                locationGraphics.DrawPath(objectPen, path);
-
-                //locationGraphics.DrawRectangle(objectPen, new Rectangle(x, y, 28, 24));
-                return entireLocationBitmap;
-            }
-        }
-
-        private Bitmap DrawTowerGateVariant(Bitmap entireLocationBitmap, int x, int y)
-        {
-            using (Graphics locationGraphics = Graphics.FromImage(entireLocationBitmap))
-            using (Pen borderPen = new Pen(new SolidBrush(Color.FromArgb(255, 255, 255, 255))))
-            using (Pen objectPen = new Pen(new SolidBrush(Color.FromArgb(255, 000, 000, 000))))
-            {
-                return entireLocationBitmap;
-            }
         }
 
         private void Draw3DModel(GeometryModel3D model3D)
@@ -631,6 +624,11 @@ namespace Overlord_Map_Visualizer
         {
             TiffImage mapImage, selectedColorImage;
             Map3DTerrainAndWater.Children.Clear();
+            Map3DMinionGateBrown.Children.Clear();
+            Map3DMinionGateRed.Children.Clear();
+            Map3DMinionGateGreen.Children.Clear();
+            Map3DMinionGateBlue.Children.Clear();
+            Map3DTowerGates.Children.Clear();
             trackball.Enabled = false;
             Reset.Visibility = Visibility.Hidden;
 
@@ -711,6 +709,7 @@ namespace Overlord_Map_Visualizer
                     Draw3DModel(terrainGeometryModel);
                     GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();
                     Draw3DModel(waterGeometryModel);
+                    DrawAllMapObjects3D();
                     trackball.Enabled = true;
                     HideImportExportButtons();
                     Reset.Visibility = Visibility.Visible;
