@@ -235,14 +235,37 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        public Bitmap DrawTowerGateVariant(Bitmap entireLocationBitmap, int x, int y)
+        public Bitmap DrawTowerGateVariant(Bitmap entireLocationBitmap)
         {
+            int diameter = 15;
+
             using (Graphics locationGraphics = Graphics.FromImage(entireLocationBitmap))
             using (Pen borderPen = new Pen(new SolidBrush(Color.FromArgb(255, 255, 255, 255))))
             using (Pen objectPen = new Pen(new SolidBrush(Color.FromArgb(255, 000, 000, 000))))
+            using (SolidBrush backgroundBrush = new SolidBrush(Color.FromArgb(255, 0, 0, 0)))
+            using (SolidBrush objectBrush = new SolidBrush(Color.FromArgb(255, 0, 0, 0)))
             {
+                DrawingPoint origin = new DrawingPoint((int)(X - (diameter / 2)), (int)(Z - (diameter / 2)));
+                locationGraphics.DrawEllipse(borderPen, origin.X, origin.Y, diameter, diameter);
+                locationGraphics.FillEllipse(backgroundBrush, X - (diameter / 2), Z - (diameter / 2), diameter, diameter);
+
+                locationGraphics.DrawRectangle(objectPen, new Rectangle(origin.X + 11, origin.Y + 8, 3, 6));
+                locationGraphics.FillRectangle(objectBrush, new Rectangle(origin.X + 11, origin.Y + 8, 3, 6));
+
+                locationGraphics.DrawRectangle(objectPen, new Rectangle(origin.X + 6, origin.Y + 8, 3, 6));
+                locationGraphics.FillRectangle(objectBrush, new Rectangle(origin.X + 6, origin.Y + 8, 3, 6));
+
+                locationGraphics.DrawRectangle(objectPen, new Rectangle(origin.X + 1, origin.Y + 8, 3, 6));
+                locationGraphics.FillRectangle(objectBrush, new Rectangle(origin.X + 1, origin.Y + 8, 3, 6));
+
+                locationGraphics.DrawRectangle(objectPen, new Rectangle(origin.X + 4, origin.Y + 3, 6, 7));
+                locationGraphics.FillRectangle(objectBrush, new Rectangle(origin.X + 4, origin.Y + 3, 6, 7));
+
+                locationGraphics.DrawRectangle(objectPen, new Rectangle(origin.X + 3, origin.Y + 1, 8, 1));
+                locationGraphics.FillRectangle(objectBrush, new Rectangle(origin.X + 3, origin.Y + 1, 8, 1));
+
                 return entireLocationBitmap;
             }
-        }        
+        }
     }
 }
