@@ -450,27 +450,27 @@ namespace Overlord_Map_Visualizer
                 {
                     case OverlordObjectType.BrownMinionGate:
                         tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.SandyBrown);
-                        Map3DMinionGateBrown.Children.Add(CurrentMap.ObjectList[i].DrawMinionGate(tempMaterial));
+                        Map3DMinionGateBrown.Children.Add(CurrentMap.ObjectList[i].DrawCube(tempMaterial, 1));
                         break;
                     case OverlordObjectType.RedMinionGate:
                         tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.Red);
-                        Map3DMinionGateRed.Children.Add(CurrentMap.ObjectList[i].DrawMinionGate(tempMaterial));
+                        Map3DMinionGateRed.Children.Add(CurrentMap.ObjectList[i].DrawCube(tempMaterial, 1));
                         break;
                     case OverlordObjectType.GreenMinionGate:
                         tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.Green);
-                        Map3DMinionGateGreen.Children.Add(CurrentMap.ObjectList[i].DrawMinionGate(tempMaterial));
+                        Map3DMinionGateGreen.Children.Add(CurrentMap.ObjectList[i].DrawCube(tempMaterial, 1));
                         break;
                     case OverlordObjectType.BlueMinionGate:
                         tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.Blue);
-                        Map3DMinionGateBlue.Children.Add(CurrentMap.ObjectList[i].DrawMinionGate(tempMaterial));
+                        Map3DMinionGateBlue.Children.Add(CurrentMap.ObjectList[i].DrawCube(tempMaterial, 1));
                         break;
                     case OverlordObjectType.TowerGate:
                         tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.BlanchedAlmond);
-                        Map3DTowerGates.Children.Add(CurrentMap.ObjectList[i].DrawMinionGate(tempMaterial));
+                        Map3DTowerGates.Children.Add(CurrentMap.ObjectList[i].DrawCube(tempMaterial, 10));
                         break;
                     case OverlordObjectType.TowerGateVariant:
                         tempMaterial = new DiffuseMaterial(System.Windows.Media.Brushes.BlanchedAlmond);
-                        Map3DTowerGates.Children.Add(CurrentMap.ObjectList[i].DrawTowerGate(tempMaterial));
+                        Map3DTowerGates.Children.Add(CurrentMap.ObjectList[i].DrawCube(tempMaterial, 10));
                         break;
                     default:
                         break;

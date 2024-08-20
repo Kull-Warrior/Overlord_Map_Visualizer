@@ -56,16 +56,14 @@ namespace Overlord_Map_Visualizer
             }
         }
 
-        public GeometryModel3D DrawMinionGate(DiffuseMaterial material)
+        public GeometryModel3D DrawCube(DiffuseMaterial material, float diameter)
         {
-            float radius = 0.5f;
+            float radius = diameter / 2;
             GeometryModel3D cube = new GeometryModel3D(new MeshGeometry3D(), material);
             cube.BackMaterial = cube.Material;
 
             Point3DCollection point3DCollection = new Point3DCollection();
             Int32Collection triangleIndices = new Int32Collection();
-
-            ((MeshGeometry3D)cube.Geometry).Positions = point3DCollection;
 
             point3DCollection.Add(new Point3D(X - radius, Y - radius, Z - radius));
             point3DCollection.Add(new Point3D(X + radius, Y - radius, Z - radius));
@@ -76,55 +74,57 @@ namespace Overlord_Map_Visualizer
             point3DCollection.Add(new Point3D(X - radius, Y + radius, Z + radius));
             point3DCollection.Add(new Point3D(X + radius, Y + radius, Z + radius));
 
+            ((MeshGeometry3D)cube.Geometry).Positions = point3DCollection;
+
+            triangleIndices.Add(2);
+            triangleIndices.Add(3);
+            triangleIndices.Add(1);
+
+            triangleIndices.Add(2);
+            triangleIndices.Add(1);
+            triangleIndices.Add(0);
+
+            triangleIndices.Add(7);
+            triangleIndices.Add(1);
+            triangleIndices.Add(3);
+
+            triangleIndices.Add(7);
+            triangleIndices.Add(5);
+            triangleIndices.Add(1);
+
+            triangleIndices.Add(6);
+            triangleIndices.Add(5);
+            triangleIndices.Add(7);
+
+            triangleIndices.Add(6);
+            triangleIndices.Add(4);
+            triangleIndices.Add(5);
+
+            triangleIndices.Add(6);
+            triangleIndices.Add(2);
+            triangleIndices.Add(0);
+
+            triangleIndices.Add(6);
+            triangleIndices.Add(0);
+            triangleIndices.Add(4);
+
+            triangleIndices.Add(2);
+            triangleIndices.Add(7);
+            triangleIndices.Add(3);
+
+            triangleIndices.Add(2);
+            triangleIndices.Add(6);
+            triangleIndices.Add(7);
+
+            triangleIndices.Add(0);
+            triangleIndices.Add(1);
+            triangleIndices.Add(5);
+
+            triangleIndices.Add(0);
+            triangleIndices.Add(5);
+            triangleIndices.Add(4);
+
             ((MeshGeometry3D)cube.Geometry).TriangleIndices = triangleIndices;
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(3);
-            triangleIndices.Add(1);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(1);
-            triangleIndices.Add(0);
-
-            triangleIndices.Add(7);
-            triangleIndices.Add(1);
-            triangleIndices.Add(3);
-
-            triangleIndices.Add(7);
-            triangleIndices.Add(5);
-            triangleIndices.Add(1);
-
-            triangleIndices.Add(6);
-            triangleIndices.Add(5);
-            triangleIndices.Add(7);
-
-            triangleIndices.Add(6);
-            triangleIndices.Add(4);
-            triangleIndices.Add(5);
-
-            triangleIndices.Add(6);
-            triangleIndices.Add(2);
-            triangleIndices.Add(0);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(0);
-            triangleIndices.Add(4);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(7);
-            triangleIndices.Add(3);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(6);
-            triangleIndices.Add(7);
-
-            triangleIndices.Add(0);
-            triangleIndices.Add(1);
-            triangleIndices.Add(5);
-
-            triangleIndices.Add(0);
-            triangleIndices.Add(5);
-            triangleIndices.Add(4);
 
             Transform3DGroup myTransformGroup = new Transform3DGroup();
 
@@ -180,98 +180,6 @@ namespace Overlord_Map_Visualizer
             {
                 return entireLocationBitmap;
             }
-        }
-
-        public GeometryModel3D DrawTowerGate(DiffuseMaterial material)
-        {
-            float radius = 5;
-            GeometryModel3D cube = new GeometryModel3D(new MeshGeometry3D(), material);
-            cube.BackMaterial = cube.Material;
-
-            Point3DCollection point3DCollection = new Point3DCollection();
-            Int32Collection triangleIndices = new Int32Collection();
-
-            ((MeshGeometry3D)cube.Geometry).Positions = point3DCollection;
-
-            point3DCollection.Add(new Point3D(X - radius, Y - radius, Z - radius));
-            point3DCollection.Add(new Point3D(X + radius, Y - radius, Z - radius));
-            point3DCollection.Add(new Point3D(X - radius, Y + radius, Z - radius));
-            point3DCollection.Add(new Point3D(X + radius, Y + radius, Z - radius));
-            point3DCollection.Add(new Point3D(X - radius, Y - radius, Z + radius));
-            point3DCollection.Add(new Point3D(X + radius, Y - radius, Z + radius));
-            point3DCollection.Add(new Point3D(X - radius, Y + radius, Z + radius));
-            point3DCollection.Add(new Point3D(X + radius, Y + radius, Z + radius));
-
-            ((MeshGeometry3D)cube.Geometry).TriangleIndices = triangleIndices;
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(3);
-            triangleIndices.Add(1);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(1);
-            triangleIndices.Add(0);
-
-            triangleIndices.Add(7);
-            triangleIndices.Add(1);
-            triangleIndices.Add(3);
-
-            triangleIndices.Add(7);
-            triangleIndices.Add(5);
-            triangleIndices.Add(1);
-
-            triangleIndices.Add(6);
-            triangleIndices.Add(5);
-            triangleIndices.Add(7);
-
-            triangleIndices.Add(6);
-            triangleIndices.Add(4);
-            triangleIndices.Add(5);
-
-            triangleIndices.Add(6);
-            triangleIndices.Add(2);
-            triangleIndices.Add(0);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(0);
-            triangleIndices.Add(4);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(7);
-            triangleIndices.Add(3);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(6);
-            triangleIndices.Add(7);
-
-            triangleIndices.Add(0);
-            triangleIndices.Add(1);
-            triangleIndices.Add(5);
-
-            triangleIndices.Add(0);
-            triangleIndices.Add(5);
-            triangleIndices.Add(4);
-
-            Transform3DGroup myTransformGroup = new Transform3DGroup();
-
-            // Create a transform to scale the size.
-            ScaleTransform3D myScaleTransform = new ScaleTransform3D();
-
-            // Create a transform to rotate the button
-            RotateTransform3D myRotateTransform = new RotateTransform3D();
-
-            //Create a transform to move from one position to other
-            TranslateTransform3D myTranslateTransform = new TranslateTransform3D();
-
-            myTransformGroup.Children.Add(myScaleTransform);
-            myTransformGroup.Children.Add(myRotateTransform);
-            myTransformGroup.Children.Add(myTranslateTransform);
-
-            cube.Transform = myTransformGroup;
-
-            return cube;
-        }
-
-        
+        }        
     }
 }
