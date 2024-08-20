@@ -58,6 +58,7 @@ namespace Overlord_Map_Visualizer
 
         public GeometryModel3D DrawMinionGate(DiffuseMaterial material)
         {
+            float radius = 0.5f;
             GeometryModel3D cube = new GeometryModel3D(new MeshGeometry3D(), material);
             cube.BackMaterial = cube.Material;
 
@@ -66,14 +67,14 @@ namespace Overlord_Map_Visualizer
 
             ((MeshGeometry3D)cube.Geometry).Positions = point3DCollection;
 
-            point3DCollection.Add(new Point3D(X - 0.5, Y - 0.5, Z - 0.5));
-            point3DCollection.Add(new Point3D(X + 0.5, Y - 0.5, Z - 0.5));
-            point3DCollection.Add(new Point3D(X - 0.5, Y + 0.5, Z - 0.5));
-            point3DCollection.Add(new Point3D(X + 0.5, Y + 0.5, Z - 0.5));
-            point3DCollection.Add(new Point3D(X - 0.5, Y - 0.5, Z + 0.5));
-            point3DCollection.Add(new Point3D(X + 0.5, Y - 0.5, Z + 0.5));
-            point3DCollection.Add(new Point3D(X - 0.5, Y + 0.5, Z + 0.5));
-            point3DCollection.Add(new Point3D(X + 0.5, Y + 0.5, Z + 0.5));
+            point3DCollection.Add(new Point3D(X - radius, Y - radius, Z - radius));
+            point3DCollection.Add(new Point3D(X + radius, Y - radius, Z - radius));
+            point3DCollection.Add(new Point3D(X - radius, Y + radius, Z - radius));
+            point3DCollection.Add(new Point3D(X + radius, Y + radius, Z - radius));
+            point3DCollection.Add(new Point3D(X - radius, Y - radius, Z + radius));
+            point3DCollection.Add(new Point3D(X + radius, Y - radius, Z + radius));
+            point3DCollection.Add(new Point3D(X - radius, Y + radius, Z + radius));
+            point3DCollection.Add(new Point3D(X + radius, Y + radius, Z + radius));
 
             ((MeshGeometry3D)cube.Geometry).TriangleIndices = triangleIndices;
 
@@ -183,6 +184,7 @@ namespace Overlord_Map_Visualizer
 
         public GeometryModel3D DrawTowerGate(DiffuseMaterial material)
         {
+            float radius = 5;
             GeometryModel3D cube = new GeometryModel3D(new MeshGeometry3D(), material);
             cube.BackMaterial = cube.Material;
 
@@ -191,14 +193,14 @@ namespace Overlord_Map_Visualizer
 
             ((MeshGeometry3D)cube.Geometry).Positions = point3DCollection;
 
-            point3DCollection.Add(new Point3D(X - 0.5, Y - 0.5, Z - 0.5));
-            point3DCollection.Add(new Point3D(X + 0.5, Y - 0.5, Z - 0.5));
-            point3DCollection.Add(new Point3D(X - 0.5, Y + 0.5, Z - 0.5));
-            point3DCollection.Add(new Point3D(X + 0.5, Y + 0.5, Z - 0.5));
-            point3DCollection.Add(new Point3D(X - 0.5, Y - 0.5, Z + 0.5));
-            point3DCollection.Add(new Point3D(X + 0.5, Y - 0.5, Z + 0.5));
-            point3DCollection.Add(new Point3D(X - 0.5, Y + 0.5, Z + 0.5));
-            point3DCollection.Add(new Point3D(X + 0.5, Y + 0.5, Z + 0.5));
+            point3DCollection.Add(new Point3D(X - radius, Y - radius, Z - radius));
+            point3DCollection.Add(new Point3D(X + radius, Y - radius, Z - radius));
+            point3DCollection.Add(new Point3D(X - radius, Y + radius, Z - radius));
+            point3DCollection.Add(new Point3D(X + radius, Y + radius, Z - radius));
+            point3DCollection.Add(new Point3D(X - radius, Y - radius, Z + radius));
+            point3DCollection.Add(new Point3D(X + radius, Y - radius, Z + radius));
+            point3DCollection.Add(new Point3D(X - radius, Y + radius, Z + radius));
+            point3DCollection.Add(new Point3D(X + radius, Y + radius, Z + radius));
 
             ((MeshGeometry3D)cube.Geometry).TriangleIndices = triangleIndices;
 
