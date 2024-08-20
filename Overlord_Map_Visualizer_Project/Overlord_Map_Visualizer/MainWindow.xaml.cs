@@ -504,7 +504,10 @@ namespace Overlord_Map_Visualizer
                         allMapObjectLocationsBitmap = CurrentMap.ObjectList[i].DrawMinionGate(allMapObjectLocationsBitmap, solidBrush);
                         break;
                     case OverlordObjectType.TowerGate:
-                        allMapObjectLocationsBitmap = CurrentMap.ObjectList[i].DrawTowerGate(allMapObjectLocationsBitmap, (int)CurrentMap.ObjectList[i].X, (int)CurrentMap.ObjectList[i].Y);
+                        allMapObjectLocationsBitmap = CurrentMap.ObjectList[i].DrawTowerGateVariant(allMapObjectLocationsBitmap);
+                        break;
+                    case OverlordObjectType.TowerGateVariant:
+                        allMapObjectLocationsBitmap = CurrentMap.ObjectList[i].DrawTowerGateVariant(allMapObjectLocationsBitmap);
                         break;
                     default:
                         break;
