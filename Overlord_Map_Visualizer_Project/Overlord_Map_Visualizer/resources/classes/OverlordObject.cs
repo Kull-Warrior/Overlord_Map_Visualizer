@@ -146,6 +146,69 @@ namespace Overlord_Map_Visualizer
             return cube;
         }
 
+        public GeometryModel3D DrawPyramid(DiffuseMaterial material, float diameter, float height)
+        {
+            float radius = diameter / 2;
+            GeometryModel3D cube = new GeometryModel3D(new MeshGeometry3D(), material);
+            cube.BackMaterial = cube.Material;
+
+            Point3DCollection point3DCollection = new Point3DCollection();
+            Int32Collection triangleIndices = new Int32Collection();
+
+            point3DCollection.Add(new Point3D(X - radius, Y, Z - radius));
+            point3DCollection.Add(new Point3D(X - radius, Y, Z + radius));
+            point3DCollection.Add(new Point3D(X + radius, Y, Z - radius));
+            point3DCollection.Add(new Point3D(X + radius, Y, Z + radius));
+            point3DCollection.Add(new Point3D(X, Y + height, Z));
+
+            ((MeshGeometry3D)cube.Geometry).Positions = point3DCollection;
+
+            triangleIndices.Add(0);
+            triangleIndices.Add(1);
+            triangleIndices.Add(4);
+
+            triangleIndices.Add(0);
+            triangleIndices.Add(2);
+            triangleIndices.Add(4);
+
+            triangleIndices.Add(3);
+            triangleIndices.Add(1);
+            triangleIndices.Add(4);
+
+            triangleIndices.Add(3);
+            triangleIndices.Add(2);
+            triangleIndices.Add(4);
+
+            triangleIndices.Add(0);
+            triangleIndices.Add(1);
+            triangleIndices.Add(3);
+
+            triangleIndices.Add(0);
+            triangleIndices.Add(2);
+            triangleIndices.Add(3);
+
+            ((MeshGeometry3D)cube.Geometry).TriangleIndices = triangleIndices;
+
+            Transform3DGroup myTransformGroup = new Transform3DGroup();
+
+            // Create a transform to scale the size.
+            ScaleTransform3D myScaleTransform = new ScaleTransform3D();
+
+            // Create a transform to rotate the button
+            RotateTransform3D myRotateTransform = new RotateTransform3D();
+
+            //Create a transform to move from one position to other
+            TranslateTransform3D myTranslateTransform = new TranslateTransform3D();
+
+            myTransformGroup.Children.Add(myScaleTransform);
+            myTransformGroup.Children.Add(myRotateTransform);
+            myTransformGroup.Children.Add(myTranslateTransform);
+
+            cube.Transform = myTransformGroup;
+
+            return cube;
+        }
+
         public Bitmap DrawTowerGate(Bitmap entireLocationBitmap, int x, int y)
         {
             using (Graphics locationGraphics = Graphics.FromImage(entireLocationBitmap))
