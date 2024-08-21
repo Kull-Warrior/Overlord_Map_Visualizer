@@ -65,64 +65,84 @@ namespace Overlord_Map_Visualizer
             Point3DCollection point3DCollection = new Point3DCollection();
             Int32Collection triangleIndices = new Int32Collection();
 
-            point3DCollection.Add(new Point3D(X - radius, Y - radius, Z - radius));
-            point3DCollection.Add(new Point3D(X + radius, Y - radius, Z - radius));
-            point3DCollection.Add(new Point3D(X - radius, Y + radius, Z - radius));
-            point3DCollection.Add(new Point3D(X + radius, Y + radius, Z - radius));
-            point3DCollection.Add(new Point3D(X - radius, Y - radius, Z + radius));
-            point3DCollection.Add(new Point3D(X + radius, Y - radius, Z + radius));
-            point3DCollection.Add(new Point3D(X - radius, Y + radius, Z + radius));
-            point3DCollection.Add(new Point3D(X + radius, Y + radius, Z + radius));
+            Point3D point0 = new Point3D(X - radius, Y - radius, Z - radius);
+            Point3D point1 = new Point3D(X + radius, Y - radius, Z - radius);
+            Point3D point2 = new Point3D(X - radius, Y - radius, Z + radius);
+            Point3D point3 = new Point3D(X + radius, Y - radius, Z + radius);
+            Point3D point4 = new Point3D(X - radius, Y + radius, Z - radius);
+            Point3D point5 = new Point3D(X + radius, Y + radius, Z - radius);
+            Point3D point6 = new Point3D(X - radius, Y + radius, Z + radius);
+            Point3D point7 = new Point3D(X + radius, Y + radius, Z + radius);
+
+            //Triangle 01
+            point3DCollection.Add(point0);
+            point3DCollection.Add(point1);
+            point3DCollection.Add(point2);
+
+            //Triangle 02
+            point3DCollection.Add(point3);
+            point3DCollection.Add(point2);
+            point3DCollection.Add(point1);
+
+            //Triangle 03
+            point3DCollection.Add(point0);
+            point3DCollection.Add(point2);
+            point3DCollection.Add(point4);
+
+            //Triangle 04
+            point3DCollection.Add(point6);
+            point3DCollection.Add(point2);
+            point3DCollection.Add(point4);
+
+            //Triangle 05
+            point3DCollection.Add(point0);
+            point3DCollection.Add(point1);
+            point3DCollection.Add(point4);
+
+            //Triangle 06
+            point3DCollection.Add(point5);
+            point3DCollection.Add(point1);
+            point3DCollection.Add(point4);
+
+            //Triangle 07
+            point3DCollection.Add(point7);
+            point3DCollection.Add(point5);
+            point3DCollection.Add(point6);
+
+            //Triangle 08
+            point3DCollection.Add(point4);
+            point3DCollection.Add(point5);
+            point3DCollection.Add(point6);
+
+            //Triangle 09
+            point3DCollection.Add(point7);
+            point3DCollection.Add(point3);
+            point3DCollection.Add(point6);
+
+            //Triangle 10
+            point3DCollection.Add(point2);
+            point3DCollection.Add(point3);
+            point3DCollection.Add(point6);
+
+            //Triangle 11
+            point3DCollection.Add(point7);
+            point3DCollection.Add(point3);
+            point3DCollection.Add(point5);
+
+            //Triangle 12
+            point3DCollection.Add(point1);
+            point3DCollection.Add(point3);
+            point3DCollection.Add(point5);
 
             ((MeshGeometry3D)cube.Geometry).Positions = point3DCollection;
 
-            triangleIndices.Add(2);
-            triangleIndices.Add(3);
-            triangleIndices.Add(1);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(1);
-            triangleIndices.Add(0);
-
-            triangleIndices.Add(7);
-            triangleIndices.Add(1);
-            triangleIndices.Add(3);
-
-            triangleIndices.Add(7);
-            triangleIndices.Add(5);
-            triangleIndices.Add(1);
-
-            triangleIndices.Add(6);
-            triangleIndices.Add(5);
-            triangleIndices.Add(7);
-
-            triangleIndices.Add(6);
-            triangleIndices.Add(4);
-            triangleIndices.Add(5);
-
-            triangleIndices.Add(6);
-            triangleIndices.Add(2);
-            triangleIndices.Add(0);
-
-            triangleIndices.Add(6);
-            triangleIndices.Add(0);
-            triangleIndices.Add(4);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(7);
-            triangleIndices.Add(3);
-
-            triangleIndices.Add(2);
-            triangleIndices.Add(6);
-            triangleIndices.Add(7);
-
-            triangleIndices.Add(0);
-            triangleIndices.Add(1);
-            triangleIndices.Add(5);
-
-            triangleIndices.Add(0);
-            triangleIndices.Add(5);
-            triangleIndices.Add(4);
+            for (int i = 0; i < 36; i += 3)
+            {
+                //Triangle
+                triangleIndices.Add(i);
+                triangleIndices.Add(i + 1);
+                triangleIndices.Add(i + 2);
+            }
 
             ((MeshGeometry3D)cube.Geometry).TriangleIndices = triangleIndices;
 
@@ -155,37 +175,51 @@ namespace Overlord_Map_Visualizer
             Point3DCollection point3DCollection = new Point3DCollection();
             Int32Collection triangleIndices = new Int32Collection();
 
-            point3DCollection.Add(new Point3D(X - radius, Y, Z - radius));
-            point3DCollection.Add(new Point3D(X - radius, Y, Z + radius));
-            point3DCollection.Add(new Point3D(X + radius, Y, Z - radius));
-            point3DCollection.Add(new Point3D(X + radius, Y, Z + radius));
-            point3DCollection.Add(new Point3D(X, Y + height, Z));
+            Point3D point0 = new Point3D(X - radius, Y, Z - radius);
+            Point3D point1 = new Point3D(X - radius, Y, Z + radius);
+            Point3D point2 = new Point3D(X + radius, Y, Z - radius);
+            Point3D point3 = new Point3D(X + radius, Y, Z + radius);
+            Point3D point4 = new Point3D(X, Y + height, Z);
+
+            //Triangle 01
+            point3DCollection.Add(point0);
+            point3DCollection.Add(point1);
+            point3DCollection.Add(point4);
+
+            //Triangle 02
+            point3DCollection.Add(point0);
+            point3DCollection.Add(point2);
+            point3DCollection.Add(point4);
+
+            //Triangle 03
+            point3DCollection.Add(point3);
+            point3DCollection.Add(point1);
+            point3DCollection.Add(point4);
+
+            //Triangle 04
+            point3DCollection.Add(point3);
+            point3DCollection.Add(point2);
+            point3DCollection.Add(point4);
+
+            //Triangle 05
+            point3DCollection.Add(point0);
+            point3DCollection.Add(point1);
+            point3DCollection.Add(point3);
+
+            //Triangle 06
+            point3DCollection.Add(point0);
+            point3DCollection.Add(point2);
+            point3DCollection.Add(point3);
 
             ((MeshGeometry3D)cube.Geometry).Positions = point3DCollection;
 
-            triangleIndices.Add(0);
-            triangleIndices.Add(1);
-            triangleIndices.Add(4);
-
-            triangleIndices.Add(0);
-            triangleIndices.Add(2);
-            triangleIndices.Add(4);
-
-            triangleIndices.Add(3);
-            triangleIndices.Add(1);
-            triangleIndices.Add(4);
-
-            triangleIndices.Add(3);
-            triangleIndices.Add(2);
-            triangleIndices.Add(4);
-
-            triangleIndices.Add(0);
-            triangleIndices.Add(1);
-            triangleIndices.Add(3);
-
-            triangleIndices.Add(0);
-            triangleIndices.Add(2);
-            triangleIndices.Add(3);
+            for (int i = 0; i < 18; i += 3)
+            {
+                //Triangle
+                triangleIndices.Add(i);
+                triangleIndices.Add(i + 1);
+                triangleIndices.Add(i + 2);
+            }
 
             ((MeshGeometry3D)cube.Geometry).TriangleIndices = triangleIndices;
 
