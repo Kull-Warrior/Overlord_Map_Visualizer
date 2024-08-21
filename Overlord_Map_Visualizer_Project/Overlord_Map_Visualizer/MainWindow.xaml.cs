@@ -634,6 +634,7 @@ namespace Overlord_Map_Visualizer
             Map3DTowerGates.Children.Clear();
             trackball.Enabled = false;
             Reset.Visibility = Visibility.Hidden;
+            LocationMarkers.Visibility = Visibility.Visible;
 
             switch (MapModeDropDown.SelectedIndex)
             {
@@ -713,6 +714,7 @@ namespace Overlord_Map_Visualizer
                     GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();
                     Draw3DModel(waterGeometryModel);
                     DrawAllMapObjects3D();
+                    LocationMarkers.Visibility = Visibility.Hidden;
                     trackball.Enabled = true;
                     HideImportExportButtons();
                     Reset.Visibility = Visibility.Visible;
