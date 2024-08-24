@@ -80,6 +80,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="resources\classes\CursorManagement.cs" />
+    <Compile Include="resources\classes\FileReader.cs" />
+    <Compile Include="resources\classes\TiffImage.cs" />
+    <Compile Include="resources\classes\TrackBall.cs" />
+    <Compile Include="resources\enums\cursorEnums.cs" />
+    <Compile Include="resources\enums\drawingEnums.cs" />
+    <Compile Include="resources\enums\mapEnums.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -93,7 +100,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OverlordObject.cs" />
+    <Compile Include="resources\classes\FileWriter.cs" />
+    <Compile Include="resources\classes\OverlordMap.cs" />
+    <Compile Include="resources\classes\OverlordObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
