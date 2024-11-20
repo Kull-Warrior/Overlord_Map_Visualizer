@@ -10,6 +10,8 @@ using System.Windows.Media.Imaging;
 using Color = System.Drawing.Color;
 using Pen = System.Drawing.Pen;
 using System.Windows.Media.Media3D;
+using System.Windows.Media;
+using System.Collections.Generic;
 
 namespace Overlord_Map_Visualizer
 {
@@ -236,8 +238,14 @@ namespace Overlord_Map_Visualizer
                     Map3DMinionGateBlue.Children.Clear();
                     Map3DTowerGates.Children.Clear();
 
-                    GeometryModel3D terrainGeometryModel = CurrentMap.GetTerrainGeometryModel();
-                    Draw3DModel(terrainGeometryModel);
+                    List<GeometryModel3D> terrainTiles = CurrentMap.GetTerrainGeometryModel();
+                    for (int i = 0; i < terrainTiles.Count; i++)
+                    {
+                        Console.WriteLine("Drawing Tile : ");
+                        Console.WriteLine(i);
+                        Draw3DModel(terrainTiles[i]);
+                    }
+                    
                     GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();
                     Draw3DModel(waterGeometryModel);
                     DrawAllMapObjects3D();
@@ -709,8 +717,12 @@ namespace Overlord_Map_Visualizer
                     Mouse.OverrideCursor = null;
                     mapImage = new TiffImage(CurrentMap.Width, CurrentMap.Height, CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode));
                     DrawTiffImage(mapImage.Encode(), DrawingType.Map);
-                    GeometryModel3D terrainGeometryModel = CurrentMap.GetTerrainGeometryModel();
-                    Draw3DModel(terrainGeometryModel);
+                    List<GeometryModel3D> terrainTiles = CurrentMap.GetTerrainGeometryModel();
+                    for (int i = 0; i < terrainTiles.Count; i++)
+                    {
+                        Draw3DModel(terrainTiles[i]);
+                    }
+
                     GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();
                     Draw3DModel(waterGeometryModel);
                     DrawAllMapObjects3D();

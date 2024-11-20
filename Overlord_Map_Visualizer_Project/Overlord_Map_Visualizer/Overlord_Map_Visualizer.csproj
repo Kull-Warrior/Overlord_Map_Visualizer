@@ -158,7 +158,10 @@
     <Resource Include="Overlord_Normal.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="resources\general\" />
+    <Resource Include="resources\general\stone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\general\base.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using MediaBrushes = System.Windows.Media.Brushes;
 
@@ -700,49 +701,60 @@ namespace Overlord_Map_Visualizer
             return floatMap;
         }
 
-        public GeometryModel3D GetTerrainGeometryModel()
+        public List<GeometryModel3D> GetTerrainGeometryModel()
         {
+            List<GeometryModel3D> terrainTiles = new List<GeometryModel3D>();
             float[,] floatMap = GetFloatMap();
 
-            //creation of the terrain
-            GeometryModel3D terrainGeometryModel = new GeometryModel3D(new MeshGeometry3D(), new DiffuseMaterial(MediaBrushes.Gray));
-            terrainGeometryModel.BackMaterial = terrainGeometryModel.Material;
-            Point3DCollection point3DCollection = new Point3DCollection();
-            Int32Collection triangleIndices = new Int32Collection();
+            ImageBrush colors_brush = new ImageBrush();
+            colors_brush.ImageSource = new BitmapImage(new Uri("pack://application:,,,/resources/general/stone.png"));
+            DiffuseMaterial colors_material = new DiffuseMaterial(colors_brush);
 
-            //adding point
-            for (var y = 0; y < 512; y++)
+            for (int y = 0; y < Height - 1; y++)
             {
-                for (var x = 0; x < 512; x++)
+                for (int x = 0; x < Width - 1; x++)
                 {
-                    point3DCollection.Add(new Point3D(x, floatMap[x, y], y)); ;
+                    terrainTiles.Add(GetTerrainTile(new Point3D(x, floatMap[x, y], y), new Point3D(x + 1, floatMap[x + 1, y], y), new Point3D(x, floatMap[x, y + 1], y + 1), new Point3D(x + 1, floatMap[x + 1, y + 1], y + 1), colors_material));
                 }
             }
-            ((MeshGeometry3D)terrainGeometryModel.Geometry).Positions = point3DCollection;
 
-            //defining triangles
-            int ind1, ind2;
-            int xLenght = 512;
+            return terrainTiles;
+        }
 
-            for (var y = 0; y < 512 - 1; y++)
-            {
-                for (var x = 0; x < 512 - 1; x++)
-                {
-                    ind1 = x + y * xLenght;
-                    ind2 = ind1 + xLenght;
+        public GeometryModel3D GetTerrainTile(Point3D lowerLeft, Point3D lowerRight, Point3D upperLeft, Point3D upperRight, DiffuseMaterial colors_material)
+        {
+            // Make a mesh to hold the surface.
+            MeshGeometry3D mesh = new MeshGeometry3D();
 
-                    //first triangle
-                    triangleIndices.Add(ind1);
-                    triangleIndices.Add(ind2 + 1);
-                    triangleIndices.Add(ind2);
+            // Set the triangle's points.
+            mesh.Positions.Add(lowerLeft);
+            mesh.Positions.Add(lowerRight);
+            mesh.Positions.Add(upperRight);
+            mesh.Positions.Add(lowerLeft);
+            mesh.Positions.Add(upperLeft);
+            mesh.Positions.Add(upperRight);
 
-                    //second triangle
-                    triangleIndices.Add(ind1);
-                    triangleIndices.Add(ind1 + 1);
-                    triangleIndices.Add(ind2 + 1);
-                }
-            }
-            ((MeshGeometry3D)terrainGeometryModel.Geometry).TriangleIndices = triangleIndices;
+            // Set the points' texture coordinates.
+            mesh.TextureCoordinates.Add(new System.Windows.Point(0, 0));
+            mesh.TextureCoordinates.Add(new System.Windows.Point(1, 0));
+            mesh.TextureCoordinates.Add(new System.Windows.Point(1, 1));
+            mesh.TextureCoordinates.Add(new System.Windows.Point(0, 0));
+            mesh.TextureCoordinates.Add(new System.Windows.Point(0, 1));
+            mesh.TextureCoordinates.Add(new System.Windows.Point(1, 1));
+
+            // Create the triangle.
+            mesh.TriangleIndices.Add(0);
+            mesh.TriangleIndices.Add(1);
+            mesh.TriangleIndices.Add(2);
+            mesh.TriangleIndices.Add(3);
+            mesh.TriangleIndices.Add(4);
+            mesh.TriangleIndices.Add(5);
+
+            // Make the mesh's model.
+            GeometryModel3D tile = new GeometryModel3D(mesh, colors_material);
+
+            // Make the surface visible from both sides.
+            tile.BackMaterial = colors_material;
 
             Transform3DGroup myTransformGroup = new Transform3DGroup();
 
@@ -759,11 +771,10 @@ namespace Overlord_Map_Visualizer
             myTransformGroup.Children.Add(myRotateTransform);
             myTransformGroup.Children.Add(myTranslateTransform);
 
-            terrainGeometryModel.Transform = myTransformGroup;
+            tile.Transform = myTransformGroup;
 
-            return terrainGeometryModel;
+            return tile;
         }
-
         public GeometryModel3D GetWaterGeometryModel()
         {
             // creation of the water layers
