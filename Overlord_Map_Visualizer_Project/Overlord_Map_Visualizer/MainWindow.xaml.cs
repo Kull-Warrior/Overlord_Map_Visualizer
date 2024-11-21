@@ -238,12 +238,12 @@ namespace Overlord_Map_Visualizer
                     Map3DMinionGateBlue.Children.Clear();
                     Map3DTowerGates.Children.Clear();
 
-                    List<GeometryModel3D> terrainTiles = CurrentMap.GetTerrainGeometryModel();
-                    for (int i = 0; i < terrainTiles.Count; i++)
+                    List<GeometryModel3D> terrainTilesGroups = CurrentMap.GetTerrainGeometryModel();
+                    for (int i = 0; i < terrainTilesGroups.Count; i++)
                     {
                         Console.WriteLine("Drawing Tile : ");
                         Console.WriteLine(i);
-                        Draw3DModel(terrainTiles[i]);
+                        Draw3DModel(terrainTilesGroups[i]);
                     }
                     
                     GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();
@@ -717,10 +717,10 @@ namespace Overlord_Map_Visualizer
                     Mouse.OverrideCursor = null;
                     mapImage = new TiffImage(CurrentMap.Width, CurrentMap.Height, CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Height, CurrentMapMode));
                     DrawTiffImage(mapImage.Encode(), DrawingType.Map);
-                    List<GeometryModel3D> terrainTiles = CurrentMap.GetTerrainGeometryModel();
-                    for (int i = 0; i < terrainTiles.Count; i++)
+                    List<GeometryModel3D> terrainTilesGroups = CurrentMap.GetTerrainGeometryModel();
+                    for (int i = 0; i < terrainTilesGroups.Count; i++)
                     {
-                        Draw3DModel(terrainTiles[i]);
+                        Draw3DModel(terrainTilesGroups[i]);
                     }
 
                     GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();

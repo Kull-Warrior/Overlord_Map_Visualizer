@@ -703,40 +703,52 @@ namespace Overlord_Map_Visualizer
 
         public List<GeometryModel3D> GetTerrainGeometryModel()
         {
-            List<GeometryModel3D> terrainTiles = new List<GeometryModel3D>();
-            MeshGeometry3D mesh = new MeshGeometry3D();
+            List<GeometryModel3D> terrainTileGroups = new List<GeometryModel3D>();
+            List<MeshGeometry3D> meshes = new List<MeshGeometry3D>();
+            List<DiffuseMaterial> materials = new List<DiffuseMaterial>();
+            List<ImageBrush> brushes = new List<ImageBrush>();
             float[,] floatMap = GetFloatMap();
 
-            ImageBrush colors_brush = new ImageBrush();
-            colors_brush.ImageSource = new BitmapImage(new Uri("pack://application:,,,/resources/general/stone.png"));
-            DiffuseMaterial colors_material = new DiffuseMaterial(colors_brush);
+            for (int i = 0; i < 16; i++)
+            {
+                meshes.Add(new MeshGeometry3D());
+                brushes.Add(new ImageBrush());
+
+                BitmapImage baseImage = new BitmapImage(new Uri("pack://application:,,,/resources/tile_palette/default/"+ i + ".png"));
+                brushes[i].ImageSource = baseImage;
+                materials.Add(new DiffuseMaterial(brushes[i]));
+            }
 
             for (int y = 0; y < Height - 1; y++)
             {
                 for (int x = 0; x < Width - 1; x++)
                 {
-                    MeshGeometry3D temp_mesh = GetTerrainTile(new Point3D(x, floatMap[x, y], y), new Point3D(x + 1, floatMap[x + 1, y], y), new Point3D(x, floatMap[x, y + 1], y + 1), new Point3D(x + 1, floatMap[x + 1, y + 1], y + 1), mesh.TriangleIndices.Count);
+                    MeshGeometry3D temp_mesh = GetTerrainTile(new Point3D(x, floatMap[x, y], y), new Point3D(x + 1, floatMap[x + 1, y], y), new Point3D(x, floatMap[x, y + 1], y + 1), new Point3D(x + 1, floatMap[x + 1, y + 1], y + 1), meshes[MainTextureMap[x, y]].TriangleIndices.Count);
 
                     for (int i = 0; i < 6; i++)
                     {
-                        mesh.Positions.Add(temp_mesh.Positions[i]);
-                        mesh.TextureCoordinates.Add(temp_mesh.TextureCoordinates[i]);
-                        mesh.TriangleIndices.Add(temp_mesh.TriangleIndices[i]);
+                        meshes[MainTextureMap[x,y]].Positions.Add(temp_mesh.Positions[i]);
+                        meshes[MainTextureMap[x, y]].TextureCoordinates.Add(temp_mesh.TextureCoordinates[i]);
+                        meshes[MainTextureMap[x, y]].TriangleIndices.Add(temp_mesh.TriangleIndices[i]);
                     }
                 }
             }
 
-            // Make the mesh's model.
-            GeometryModel3D tile = new GeometryModel3D(mesh, colors_material);
-            // Make the surface visible from both sides.
-            tile.BackMaterial = colors_material;
+            for (int i = 0; i < 16; i++)
+            {
+                //Make the mesh's model. 
+                GeometryModel3D tileGroup = new GeometryModel3D(meshes[i], materials[i]);
+                
+                // Make the surface visible from both sides.
+                tileGroup.BackMaterial = materials[i];
 
-            terrainTiles.Add(tile);
+                terrainTileGroups.Add(tileGroup);
 
-            // Make the surface visible from both sides.
-            tile.BackMaterial = colors_material;
+                // Make the surface visible from both sides.
+                tileGroup.BackMaterial = materials[i];
+            }
 
-            return terrainTiles;
+            return terrainTileGroups;
         }
 
         public MeshGeometry3D GetTerrainTile(Point3D lowerLeft, Point3D lowerRight, Point3D upperLeft, Point3D upperRight, int triangleIndicesOffset)
