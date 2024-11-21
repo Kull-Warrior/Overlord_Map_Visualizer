@@ -704,6 +704,7 @@ namespace Overlord_Map_Visualizer
         public List<GeometryModel3D> GetTerrainGeometryModel()
         {
             List<GeometryModel3D> terrainTiles = new List<GeometryModel3D>();
+            MeshGeometry3D mesh = new MeshGeometry3D();
             float[,] floatMap = GetFloatMap();
 
             ImageBrush colors_brush = new ImageBrush();
@@ -714,14 +715,31 @@ namespace Overlord_Map_Visualizer
             {
                 for (int x = 0; x < Width - 1; x++)
                 {
-                    terrainTiles.Add(GetTerrainTile(new Point3D(x, floatMap[x, y], y), new Point3D(x + 1, floatMap[x + 1, y], y), new Point3D(x, floatMap[x, y + 1], y + 1), new Point3D(x + 1, floatMap[x + 1, y + 1], y + 1), colors_material));
+                    MeshGeometry3D temp_mesh = GetTerrainTile(new Point3D(x, floatMap[x, y], y), new Point3D(x + 1, floatMap[x + 1, y], y), new Point3D(x, floatMap[x, y + 1], y + 1), new Point3D(x + 1, floatMap[x + 1, y + 1], y + 1), mesh.TriangleIndices.Count);
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        mesh.Positions.Add(temp_mesh.Positions[i]);
+                        mesh.TextureCoordinates.Add(temp_mesh.TextureCoordinates[i]);
+                        mesh.TriangleIndices.Add(temp_mesh.TriangleIndices[i]);
+                    }
                 }
             }
+
+            // Make the mesh's model.
+            GeometryModel3D tile = new GeometryModel3D(mesh, colors_material);
+            // Make the surface visible from both sides.
+            tile.BackMaterial = colors_material;
+
+            terrainTiles.Add(tile);
+
+            // Make the surface visible from both sides.
+            tile.BackMaterial = colors_material;
 
             return terrainTiles;
         }
 
-        public GeometryModel3D GetTerrainTile(Point3D lowerLeft, Point3D lowerRight, Point3D upperLeft, Point3D upperRight, DiffuseMaterial colors_material)
+        public MeshGeometry3D GetTerrainTile(Point3D lowerLeft, Point3D lowerRight, Point3D upperLeft, Point3D upperRight, int triangleIndicesOffset)
         {
             // Make a mesh to hold the surface.
             MeshGeometry3D mesh = new MeshGeometry3D();
@@ -743,37 +761,14 @@ namespace Overlord_Map_Visualizer
             mesh.TextureCoordinates.Add(new System.Windows.Point(1, 1));
 
             // Create the triangle.
-            mesh.TriangleIndices.Add(0);
-            mesh.TriangleIndices.Add(1);
-            mesh.TriangleIndices.Add(2);
-            mesh.TriangleIndices.Add(3);
-            mesh.TriangleIndices.Add(4);
-            mesh.TriangleIndices.Add(5);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 0);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 1);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 2);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 3);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 4);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 5);
 
-            // Make the mesh's model.
-            GeometryModel3D tile = new GeometryModel3D(mesh, colors_material);
-
-            // Make the surface visible from both sides.
-            tile.BackMaterial = colors_material;
-
-            Transform3DGroup myTransformGroup = new Transform3DGroup();
-
-            // Create a transform to scale the size.
-            ScaleTransform3D myScaleTransform = new ScaleTransform3D();
-
-            // Create a transform to rotate the button
-            RotateTransform3D myRotateTransform = new RotateTransform3D();
-
-            //Create a transform to move from one position to other
-            TranslateTransform3D myTranslateTransform = new TranslateTransform3D();
-
-            myTransformGroup.Children.Add(myScaleTransform);
-            myTransformGroup.Children.Add(myRotateTransform);
-            myTransformGroup.Children.Add(myTranslateTransform);
-
-            tile.Transform = myTransformGroup;
-
-            return tile;
+            return mesh;
         }
         public GeometryModel3D GetWaterGeometryModel()
         {
