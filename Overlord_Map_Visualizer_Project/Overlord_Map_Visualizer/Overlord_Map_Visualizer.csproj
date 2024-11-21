@@ -158,12 +158,8 @@
     <Resource Include="Overlord_Normal.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="resources\general\stone.png" />
+    <Folder Include="resources\general\" />
   </ItemGroup>
-  <ItemGroup>
-    <Resource Include="resources\general\base.png" />
-  </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Resource Include="resources\tile_palette\default\0.png" />
     <Resource Include="resources\tile_palette\default\1.png" />
