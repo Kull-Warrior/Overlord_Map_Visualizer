@@ -527,8 +527,8 @@ namespace Overlord_Map_Visualizer
         {
             int yMin = 0;
             int xMin = 0;
-            int xMax = 511;
-            int yMax = 511;
+            int xMax = Width - 1;
+            int yMax = Depth - 1;
             int cursorRadius = (int)(cursor.SizeSlider.Value / 2);
 
             if ((cursor.X - cursorRadius) >= xMin)
@@ -592,8 +592,8 @@ namespace Overlord_Map_Visualizer
         {
             int yMin = 0;
             int xMin = 0;
-            int xMax = 511;
-            int yMax = 511;
+            int xMax = Width - 1;
+            int yMax = Depth - 1;
             int cursorRadius = (int)(cursor.SizeSlider.Value / 2);
 
             if ((cursor.X - cursorRadius) >= xMin)
