@@ -241,8 +241,6 @@ namespace Overlord_Map_Visualizer
                     List<GeometryModel3D> terrainTilesGroups = CurrentMap.GetTerrainGeometryModel();
                     for (int i = 0; i < terrainTilesGroups.Count; i++)
                     {
-                        Console.WriteLine("Drawing Tile : ");
-                        Console.WriteLine(i);
                         Draw3DModel(terrainTilesGroups[i]);
                     }
                     
