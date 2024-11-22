@@ -149,6 +149,22 @@
     <Resource Include="resources\cursor\Rotate_Black_Border_White.ico" />
     <Resource Include="resources\cursor\Rotate_White_Border_Black.ico" />
     <Resource Include="resources\cursor\Rotate_White_Border_None.ico" />
+    <Resource Include="resources\tile_palette\0.png" />
+    <Resource Include="resources\tile_palette\1.png" />
+    <Resource Include="resources\tile_palette\10.png" />
+    <Resource Include="resources\tile_palette\11.png" />
+    <Resource Include="resources\tile_palette\12.png" />
+    <Resource Include="resources\tile_palette\13.png" />
+    <Resource Include="resources\tile_palette\14.png" />
+    <Resource Include="resources\tile_palette\15.png" />
+    <Resource Include="resources\tile_palette\2.png" />
+    <Resource Include="resources\tile_palette\3.png" />
+    <Resource Include="resources\tile_palette\4.png" />
+    <Resource Include="resources\tile_palette\5.png" />
+    <Resource Include="resources\tile_palette\6.png" />
+    <Resource Include="resources\tile_palette\7.png" />
+    <Resource Include="resources\tile_palette\8.png" />
+    <Resource Include="resources\tile_palette\9.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="resources\map_overlay\Map_Icon_Passageway.png" />
@@ -159,24 +175,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="resources\general\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="resources\tile_palette\default\0.png" />
-    <Resource Include="resources\tile_palette\default\1.png" />
-    <Resource Include="resources\tile_palette\default\10.png" />
-    <Resource Include="resources\tile_palette\default\11.png" />
-    <Resource Include="resources\tile_palette\default\12.png" />
-    <Resource Include="resources\tile_palette\default\13.png" />
-    <Resource Include="resources\tile_palette\default\14.png" />
-    <Resource Include="resources\tile_palette\default\15.png" />
-    <Resource Include="resources\tile_palette\default\2.png" />
-    <Resource Include="resources\tile_palette\default\3.png" />
-    <Resource Include="resources\tile_palette\default\4.png" />
-    <Resource Include="resources\tile_palette\default\5.png" />
-    <Resource Include="resources\tile_palette\default\6.png" />
-    <Resource Include="resources\tile_palette\default\7.png" />
-    <Resource Include="resources\tile_palette\default\8.png" />
-    <Resource Include="resources\tile_palette\default\9.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

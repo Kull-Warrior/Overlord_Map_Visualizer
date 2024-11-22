@@ -436,5 +436,190 @@ namespace Overlord_Map_Visualizer
 
             return objects;
         }
+
+        public int[] GetTileMap(OverlordMap map)
+        {
+            switch (map.FilePath)
+            {
+                case string a when a.Contains("Exp - HalflingMain"):
+                    return new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                case string a when a.Contains("Exp - Halfling Abyss"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - ElfMain"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - Elf Abyss"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - PaladinMain"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - Paladin Abyss"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - DwarfMain"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - Dwarf Abyss"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - WarriorMain"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - Warrior Abyss - 01"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - Warrior Abyss - 02"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - Tower_Dungeon"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - Tower_Spawnpit"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - Tower"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("HalflingMain"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("SlaveCamp"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("HalflingHomes1of2"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("HalflingHomes2of2"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("HellsKitchen"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("EntryCastleSpree"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("SpreeDungeon"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("ElfMain"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("GreenCave"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("SkullDen"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("TrollTemple"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("PaladinMain"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("BlueCave"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Sewers1of2"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Sewers2of2"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Red Light Inn"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Citadel"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("DwarfMain"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("GoldMine"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Quarry"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("HomeyHalls1of2"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("HomeyHalls2of2"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("ArcaniumMine"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("RoyalHalls"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("WarriorMain"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_Deathtrap"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_Gates"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_LastStand"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_PartyCrashers"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_Plunder"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_TombRobber"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Tower_Dungeon"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Tower_Spawnpit"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Tower"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("PlayerMap"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_Arena2"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_Bombs"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_GrabTheMaidens"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_KillTheHoard"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_KingoftheHill"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_March_Mellow_Maidens"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_Misty"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("2P_RockyRace"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM0A Netherworld"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM0C Netherworld Burrows"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM0D Netherworld Foundations"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("Exp - LM0B Netherworld Arena"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM1A Hunting Grounds"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM1C Nordberg Town"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM1D Nordberg Fairyland"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM1E Nordhaven"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM1F Prelude"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM1G Nordberg Commune"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM2A Everlight Gates"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM2B Everlight Jungle A"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM2C Everlight Facility"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM2D Everlight Jungle B"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM2E Spider Boss"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM2F Everlight Town"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM3A Wasteland"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM3B Wasteland Sanctuary Depths"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM3C Wasteland Sanctuary Town"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM4A Empire Heartland Harbour"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM4B Empire Heartland City"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM4C Empire Heartland Assault"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM4D Empire City"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM4E Empire Sewers"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM4F Empire Arena"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM4G Empire Palace"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("LM4H Empire EndBoss"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("MPC1_Arena"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("MPC2_Invasion"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("MPV1_Dominate"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                case string a when a.Contains("MPV2_PiratePlunder"):
+                    return new int[] { 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00, 00 };
+                default:
+                    return new int[] { 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15};
+            }
+        }
     }
 }
