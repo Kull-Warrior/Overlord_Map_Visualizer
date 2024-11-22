@@ -13,6 +13,7 @@ namespace Overlord_Map_Visualizer
         public int Width { get; set; }
         public int Depth { get; set; }
 
+        public int[] TileMap { get; set; }
         public double WaterLevel { get; set; }
 
         public byte[,] HeightMapDigitsOneAndTwo { get; set; }
@@ -714,7 +715,7 @@ namespace Overlord_Map_Visualizer
                 meshes.Add(new MeshGeometry3D());
                 brushes.Add(new ImageBrush());
 
-                BitmapImage baseImage = new BitmapImage(new Uri("pack://application:,,,/resources/tile_palette/default/"+ i + ".png"));
+                BitmapImage baseImage = new BitmapImage(new Uri("pack://application:,,,/resources/tile_palette/"+ TileMap[i] + ".png"));
                 brushes[i].ImageSource = baseImage;
                 materials.Add(new DiffuseMaterial(brushes[i]));
             }
