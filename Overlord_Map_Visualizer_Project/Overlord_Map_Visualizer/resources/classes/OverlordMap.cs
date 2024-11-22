@@ -11,7 +11,7 @@ namespace Overlord_Map_Visualizer
     {
         public string FilePath { get; set; }
         public int Width { get; set; }
-        public int Height { get; set; }
+        public int Depth { get; set; }
 
         public double WaterLevel { get; set; }
 
@@ -28,15 +28,15 @@ namespace Overlord_Map_Visualizer
         {
             FilePath = "";
             Width = 512;
-            Height = 512;
+            Depth = 512;
             WaterLevel = 0;
-            HeightMapDigitsOneAndTwo = new byte[Width, Height];
-            HeightMapDigitsThreeAndFour = new byte[Width, Height];
+            HeightMapDigitsOneAndTwo = new byte[Width, Depth];
+            HeightMapDigitsThreeAndFour = new byte[Width, Depth];
 
-            MainTextureMap = new byte[Width, Height];
-            FoliageMap = new byte[Width, Height];
-            WallTextureMap = new byte[Width, Height];
-            UnknownMap = new byte[Width, Height];
+            MainTextureMap = new byte[Width, Depth];
+            FoliageMap = new byte[Width, Depth];
+            WallTextureMap = new byte[Width, Depth];
+            UnknownMap = new byte[Width, Depth];
 
             ObjectList = new List<OverlordObject>();
         }
@@ -45,7 +45,7 @@ namespace Overlord_Map_Visualizer
         {
             FilePath = filePath;
             Width = width;
-            Height = height;
+            Depth = height;
             WaterLevel = waterLevel;
             HeightMapDigitsOneAndTwo = heightMapDigitsOneAndTwo;
             HeightMapDigitsThreeAndFour = heightMapDigitsThreeAndFour;
@@ -233,14 +233,14 @@ namespace Overlord_Map_Visualizer
 
         public byte[] GetMapData(int bytesPerPoint, MapMode mapMode)
         {
-            int totalNumberOfBytes = Width * Height * bytesPerPoint;
+            int totalNumberOfBytes = Width * Depth * bytesPerPoint;
             byte[] data = new byte[totalNumberOfBytes];
             int xOffset = bytesPerPoint;
             int yOffset = 0;
             int numberOfBytesInRow = Width * bytesPerPoint;
             int totalOffset;
 
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < Depth; y++)
             {
                 if (y != 0)
                 {
@@ -289,7 +289,7 @@ namespace Overlord_Map_Visualizer
             int numberOfBytesInRow = Width * bytesPerPoint;
             int totalOffset;
 
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < Depth; y++)
             {
                 if (y != 0)
                 {
@@ -667,28 +667,28 @@ namespace Overlord_Map_Visualizer
         {
             for (int x = 0; x < Width / 2; x++)
             {
-                for (int y = x; y < Height - x - 1; y++)
+                for (int y = x; y < Depth - x - 1; y++)
                 {
                     byte temp = byteData[x, y];
 
                     byteData[x, y] = byteData[Width - 1 - y, x];
 
-                    byteData[Width - 1 - y, x] = byteData[Width - 1 - x, Height - 1 - y];
+                    byteData[Width - 1 - y, x] = byteData[Width - 1 - x, Depth - 1 - y];
 
-                    byteData[Width - 1 - x, Height - 1 - y] = byteData[y, Height - 1 - x];
+                    byteData[Width - 1 - x, Depth - 1 - y] = byteData[y, Depth - 1 - x];
 
-                    byteData[y, Height - 1 - x] = temp;
+                    byteData[y, Depth - 1 - x] = temp;
                 }
             }
         }
 
         public float[,] GetFloatMap()
         {
-            float[,] floatMap = new float[Width, Height];
+            float[,] floatMap = new float[Width, Depth];
 
             for (int x = 0; x < Width; x++)
             {
-                for (int y = 0; y < Height; y++)
+                for (int y = 0; y < Depth; y++)
                 {
                     double highestDigit = Math.Pow(16, 1) * (HeightMapDigitsThreeAndFour[x, y] & 0x0F);
                     double middleDigit = Math.Pow(16, 0) * ((HeightMapDigitsOneAndTwo[x, y] & 0xF0) >> 4);
@@ -719,7 +719,7 @@ namespace Overlord_Map_Visualizer
                 materials.Add(new DiffuseMaterial(brushes[i]));
             }
 
-            for (int y = 0; y < Height - 1; y++)
+            for (int y = 0; y < Depth - 1; y++)
             {
                 for (int x = 0; x < Width - 1; x++)
                 {
@@ -803,10 +803,10 @@ namespace Overlord_Map_Visualizer
 
                 triangleCounter = waterPoint3DCollection.Count;
 
-                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, - Height));
-                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, +Height));
-                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, + Height));
-                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, - Height));
+                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, - Depth));
+                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, +Depth));
+                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, + Depth));
+                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, - Depth));
 
                 triangleIndices.Add(triangleCounter);
                 triangleIndices.Add(triangleCounter + 1);
