@@ -535,8 +535,8 @@ namespace Overlord_Map_Visualizer
 
         private void ToolClick(object sender, MouseButtonEventArgs e)
         {
-            CurrentCursor.X = 511 - (int)e.GetPosition(Map).X;
-            CurrentCursor.Y = 511 - (int)e.GetPosition(Map).Y;
+            CurrentCursor.X = CurrentMap.Width - 1 - (int)e.GetPosition(Map).X;
+            CurrentCursor.Y = CurrentMap.Depth - 1 - (int)e.GetPosition(Map).Y;
 
             if (CurrentMapMode != MapMode.Full && CurrentMapMode != MapMode.ThreeDimensional)
             {
