@@ -1,5 +1,8 @@
 ﻿using System.IO;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace Overlord_Map_Visualizer
 {
@@ -620,6 +623,88 @@ namespace Overlord_Map_Visualizer
                 default:
                     return new int[] { 00, 01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15};
             }
+        }
+
+        public string GetEnvironment(string filePath)
+        {
+            List<string> environments = new List<string>();
+            List<int> rpkFileOffsets = new List<int>();
+
+            int offset = 0;
+            int blockSize = 512;
+            
+            using (BinaryReader reader = new BinaryReader(new FileStream(filePath, FileMode.Open)))
+            {
+                //Finding all rpk file offsets
+                while (reader.BaseStream.Position < reader.BaseStream.Length)
+                {
+                    byte[] block = new byte[blockSize];
+                    if (offset + blockSize > reader.BaseStream.Length)
+                    {
+                        blockSize = (int)(reader.BaseStream.Length - reader.BaseStream.Position);
+                    }
+                    reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+                    block = reader.ReadBytes(blockSize);
+
+                    string converted = Encoding.ASCII.GetString(block, 0, block.Length);
+
+                    foreach (Match match in Regex.Matches(converted, "rpk"))
+                    {
+                        rpkFileOffsets.Add(offset + match.Index);
+                    }
+                    offset += blockSize;
+                }
+
+                //Reading rpk name and filtering by environments
+                for (int i = 0; i < rpkFileOffsets.Count; i++)
+                {
+                    byte[] block = new byte[32];
+                    reader.BaseStream.Seek(rpkFileOffsets[i] - 29, SeekOrigin.Begin);
+                    block = reader.ReadBytes(32);
+
+                    string converted = Encoding.ASCII.GetString(block, 0, block.Length);
+
+                    if (converted.Contains("Exp - Env "))
+                    {
+                        environments.Add(converted.Substring(converted.IndexOf("Exp - Env")));
+                    }
+                    else if (converted.Contains("Env "))
+                    {
+                        MatchCollection matches = Regex.Matches(converted, "Env ");
+                        
+                        List<string> imgCodes = matches.Cast<Match>().Select(x => x.Groups["content"].Value).ToList();
+                        if (matches.Count > 1)
+                        {
+                            environments.Add(converted.Substring(matches[matches.Count - 1].Index));
+                        }
+                        else
+                        {
+                            environments.Add(converted.Substring(converted.IndexOf("Env ")));
+                        }
+                    }
+                    else if (converted.Contains("Environment "))
+                    {
+                        environments.Add(converted.Substring(converted.IndexOf("Environment ")));
+                    }
+                }
+            }
+
+            //Removing all Environments not containing a tile map
+            environments.Remove("Env Tower - Main.rpk");
+            environments.Remove("Env Spawning Pits.rpk");
+            environments.Remove("Env Spawning Pits.rpk");
+            environments.Remove("Exp - MP Env Rocky Race.rpk");
+            environments.Remove("Exp - Env HellSet.rpk");
+            environments.Remove("Env Multiplayer 1.rpk");
+            environments.Remove("Exp - MP Env Halls.rpk");
+
+            if (filePath.Contains("Exp - Warrior Abyss - 01"))
+                return environments[1];
+            else
+                if (environments.Count > 0)
+                    return environments[0];
+                else
+                    return "default";
         }
     }
 }
