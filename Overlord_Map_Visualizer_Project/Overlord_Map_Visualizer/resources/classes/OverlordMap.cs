@@ -13,6 +13,8 @@ namespace Overlord_Map_Visualizer
         public int Width { get; set; }
         public int Depth { get; set; }
 
+        public string Environment { get; set; }
+
         public int[] TileMap { get; set; }
         public double WaterLevel { get; set; }
 

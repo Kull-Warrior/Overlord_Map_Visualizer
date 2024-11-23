@@ -226,6 +226,7 @@ namespace Overlord_Map_Visualizer
                 }
                 byte[] data = reader.ReadMapDataFromFile(openFileDialog.FileName, offset, CurrentMap.Width, CurrentMap.Depth, bytesPerPoint);
                 CurrentMap.SetMapData(data, bytesPerPoint, mapMode, isTiffImage);
+                CurrentMap.Environment =reader.GetEnvironment(CurrentMap.FilePath);
                 CurrentMap.TileMap = reader.GetTileMap(CurrentMap);
                 CurrentMap.WaterLevel = reader.GetMapWaterLevel(CurrentMap);
                 CurrentMap.ObjectList = reader.GetMapObjects(CurrentMap);
