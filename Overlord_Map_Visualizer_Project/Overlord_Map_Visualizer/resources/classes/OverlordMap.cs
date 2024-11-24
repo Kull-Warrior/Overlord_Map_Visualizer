@@ -15,6 +15,8 @@ namespace Overlord_Map_Visualizer
 
         public string Environment { get; set; }
 
+        public BitmapImage[] TileMapImages { get; set; }
+
         public int[] TileMap { get; set; }
         public double WaterLevel { get; set; }
 

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using System;
+using System.Windows.Documents;
 
 namespace Overlord_Map_Visualizer
 {
@@ -438,6 +442,282 @@ namespace Overlord_Map_Visualizer
             }
 
             return objects;
+        }
+
+        public BitmapImage[] GetTileMapImages(OverlordMap map)
+        {
+            BitmapImage[] images = new BitmapImage[16];
+            string gameDirectory = "";
+
+            if (map.FilePath.Contains("Overlord II"))
+            {
+                gameDirectory = map.FilePath.Remove(map.FilePath.IndexOf("Overlord II") + 11);
+            }
+            else if (map.FilePath.Contains("Overlord"))
+            {
+                gameDirectory = map.FilePath.Remove(map.FilePath.IndexOf("Overlord") + 8);
+            }
+
+            if (Directory.Exists(@gameDirectory + "/Resources") | Directory.Exists(@gameDirectory + "/Expansion"))
+            {
+                BitmapImage fullTilemap = new BitmapImage();
+                string environmentPath = "";
+                var extensions = new List<string> { ".prp" };
+                string[] files = Directory.GetFiles(gameDirectory, "*.*", SearchOption.AllDirectories).Where(f => extensions.IndexOf(System.IO.Path.GetExtension(f)) >= 0 ).ToArray();
+
+                for (int i = 0; i < files.Length;i++)
+                {
+                    if (files[i].Contains(map.Environment))
+                    {
+                        environmentPath = files[i];
+                    }
+                }
+
+                fullTilemap = GetTilemapFromRpkFile(environmentPath);
+
+                Console.WriteLine(environmentPath);
+            }
+            else//Use default texture
+            {
+
+            }
+
+            return images;
+        }
+
+        private List<int[]> GetItem(List<int[]> list, int ID)
+        {
+            List<int[]> listA = new List<int[]>();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i][0]==ID)
+                {
+                    listA.Add(list[i]);
+                }
+            }
+
+            return listA;
+        }
+
+        private List<int[]> GetList(int listType, BinaryReader reader)
+        {
+            List<int[]> list = new List<int[]>();
+            int countSmall, countBig;
+
+            if (listType >= 128)
+            {
+                countSmall = listType - 128;
+                countBig = reader.ReadInt32();
+
+                for (int i = 0; i < countSmall; i++)
+                {
+                    int[] ints = new int[2];
+                    ints[0] = reader.ReadByte();
+                    ints[1] = reader.ReadByte();
+                    list.Add(ints);
+                }
+                for (int i = 0; i < countBig; i++)
+                {
+                    int[] ints = new int[2];
+                    ints[0] = reader.ReadInt32();
+                    ints[1] = reader.ReadInt32();
+                    list.Add(ints);
+                }
+            }
+            else
+            {
+                countSmall = listType;
+                for (int i = 0; i < countSmall; i++)
+                {
+                    int[] ints = new int[2];
+                    ints[0] = reader.ReadByte();
+                    ints[1] = reader.ReadByte();
+                    list.Add(ints);
+                }
+            }
+            int position = (int) reader.BaseStream.Position;
+            List<int[]> listA = new List<int[]>();
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                int[] item = new int[2];
+                item[0] = list[i][0];
+                item[1] = position + list[i][1];
+                listA.Add(item);
+            }
+
+            return listA;
+        }
+
+        private BitmapImage GetTilemapFromRpkFile (string filePath)
+        {
+            BitmapImage tilemap = new BitmapImage();
+
+            List<byte> ddsData = new List<byte>();
+            byte[] pngData = new byte[2048 * 2048];
+
+            using (BinaryReader reader = new BinaryReader(new FileStream(filePath, FileMode.Open)))
+            {
+                reader.BaseStream.Seek(16, SeekOrigin.Begin);
+                string title = Encoding.ASCII.GetString(reader.ReadBytes(160), 0, 160);
+
+                int type = reader.ReadBytes(1)[0];
+                List<int[]> list0 = GetList(type, reader);
+                List<int[]> list26 = GetItem(list0, 26);
+
+                for (int i0 = 0; i0 < list26.Count; i0++)
+                {
+                    reader.BaseStream.Seek(list26[i0][1], SeekOrigin.Begin);
+                    reader.ReadBytes(3);
+                    int type1 = reader.ReadBytes(1)[0];
+                    List<int[]> list1 = GetList(type1, reader);
+
+                    for (int i1 = 0; i1 < list1.Count; i1++)
+                    {
+                        reader.BaseStream.Seek(list1[i1][1], SeekOrigin.Begin);
+                        int[] flag = new int[4];
+                        flag[0] = reader.ReadByte();
+                        flag[1] = reader.ReadByte();
+                        flag[2] = reader.ReadByte();
+                        flag[3] = reader.ReadByte();
+
+                        if (flag.SequenceEqual(new int[] { 061, 000, 065, 000 }) | flag.SequenceEqual(new int[] { 153, 000, 065, 000 }) | flag.SequenceEqual(new int[] { 152, 000, 065, 000 }))
+                        {
+                            string textureChunk = "";
+                            string name = "";
+                            int type2 = reader.ReadBytes(1)[0];
+                            List<int[]> list2 = GetList(type2, reader);
+                            for (int i2 = 0; i2 < list2.Count; i2++)
+                            {
+                                reader.BaseStream.Seek(list2[i2][1], SeekOrigin.Begin);
+
+                                if (list2[i2][0] == 20)
+                                {
+                                    textureChunk = Encoding.ASCII.GetString(reader.ReadBytes(32), 0, 32);
+                                }
+
+                                if (list2[i2][0] == 21)
+                                {
+                                    name = Encoding.ASCII.GetString(reader.ReadBytes(32), 0, 32);
+                                }
+
+                                if (list2[i2][0] == 1)
+                                {
+                                    int type3 = reader.ReadBytes(1)[0];
+                                    List<int[]> list3 = GetList(type3, reader);
+                                    for (int i3 = 0; i3 < list3.Count; i3++)
+                                    {
+                                        reader.BaseStream.Seek(list3[i3][1], SeekOrigin.Begin);
+
+                                        if (list3[i3][0] == 20)
+                                        {
+                                            reader.ReadBytes(3);
+                                            int type4 = reader.ReadBytes(1)[0];
+                                            List<int[]> list4 = GetList(type4, reader);
+
+                                            for (int i4 = 0; i4 < list4.Count; i4++)
+                                            {
+                                                reader.BaseStream.Seek(list4[i4][1], SeekOrigin.Begin);
+                                                int[] flag1 = new int[4];
+                                                flag1[0] = reader.ReadByte();
+                                                flag1[1] = reader.ReadByte();
+                                                flag1[2] = reader.ReadByte();
+                                                flag1[3] = reader.ReadByte();
+
+                                                if (flag1.SequenceEqual(new int[] { 036, 000, 065, 000 }))
+                                                {
+                                                    int width = 0;
+                                                    int height = 0;
+                                                    string format = "";
+                                                    int offset = 0;
+                                                    int blockSize = 0;
+
+                                                    int type5 = reader.ReadBytes(1)[0];
+                                                    List<int[]> list5 = GetList(type5, reader);
+                                                    for (int i5 = 0; i5 < list5.Count; i5++)
+                                                    {
+                                                        reader.BaseStream.Seek(list5[i5][1], SeekOrigin.Begin);
+
+                                                        if (list5[i5][0] == 20)
+                                                        {
+                                                            width = reader.ReadInt32();
+                                                        }
+                                                        if (list5[i5][0] == 21)
+                                                        {
+                                                            height = reader.ReadInt32();
+                                                        }
+                                                        if (list5[i5][0] == 23)
+                                                        {
+                                                            int formatNumber = reader.ReadInt32();
+
+                                                            if (formatNumber == 7)
+                                                            {
+                                                                format = "DXT1";
+                                                            }
+                                                            if (formatNumber == 11)
+                                                            {
+                                                                format = "DXT5";
+                                                            }
+                                                            if (formatNumber == 9)
+                                                            {
+                                                                format = "DXT3";
+                                                            }
+                                                            if (formatNumber == 5)
+                                                            {
+                                                                format = "tga32";
+                                                            }
+                                                            if (formatNumber == 3)
+                                                            {
+                                                                format = "tga24";
+                                                            }
+                                                        }
+                                                        if (list5[i5][0] == 22)
+                                                        {
+                                                            offset = (int)reader.BaseStream.Position;
+                                                        }
+                                                    }
+
+                                                    reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+
+                                                    if (!name.Contains("NM") && format.Contains("DXT") && width == 2048 && height == 2048)
+                                                    {
+                                                        int mipmapCount = (int)(Math.Floor(Math.Log(Math.Max(width, height), 2)) + 1);
+
+                                                        if (format == "DXT1")
+                                                        {
+                                                            blockSize = 8;
+                                                        }
+                                                        else
+                                                        {
+                                                            blockSize = 16;
+                                                        }
+
+                                                        int tempWidth = width;
+                                                        int tempHeight = height;
+
+                                                        //Number of mipmaps is ignored here but could be used to read the entire dds file
+                                                        for (int i = 0; i < 1; i++)
+                                                        {
+                                                            int blocksWidth = (int)Math.Ceiling((double)tempWidth / (double)4);
+                                                            int blocksHeight = (int)Math.Ceiling((double)tempHeight / (double)4);
+                                                            int size = blocksWidth * blocksHeight * blockSize;
+
+                                                            ddsData.AddRange(reader.ReadBytes(size));
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return tilemap;
         }
 
         public int[] GetTileMap(OverlordMap map)
