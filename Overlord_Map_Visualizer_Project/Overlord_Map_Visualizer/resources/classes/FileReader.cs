@@ -658,9 +658,9 @@ namespace Overlord_Map_Visualizer
                 //Reading rpk name and filtering by environments
                 for (int i = 0; i < rpkFileOffsets.Count; i++)
                 {
-                    byte[] block = new byte[32];
+                    byte[] block = new byte[28];
                     reader.BaseStream.Seek(rpkFileOffsets[i] - 29, SeekOrigin.Begin);
-                    block = reader.ReadBytes(32);
+                    block = reader.ReadBytes(28);
 
                     string converted = Encoding.ASCII.GetString(block, 0, block.Length);
 
@@ -690,13 +690,13 @@ namespace Overlord_Map_Visualizer
             }
 
             //Removing all Environments not containing a tile map
-            environments.Remove("Env Tower - Main.rpk");
-            environments.Remove("Env Spawning Pits.rpk");
-            environments.Remove("Env Spawning Pits.rpk");
-            environments.Remove("Exp - MP Env Rocky Race.rpk");
-            environments.Remove("Exp - Env HellSet.rpk");
-            environments.Remove("Env Multiplayer 1.rpk");
-            environments.Remove("Exp - MP Env Halls.rpk");
+            environments.Remove("Env Tower - Main");
+            environments.Remove("Env Spawning Pits");
+            environments.Remove("Env Spawning Pits");
+            environments.Remove("Exp - MP Env Rocky Race");
+            environments.Remove("Exp - Env HellSet");
+            environments.Remove("Env Multiplayer 1");
+            environments.Remove("Exp - MP Env Halls");
 
             if (filePath.Contains("Exp - Warrior Abyss - 01"))
                 return environments[1];
