@@ -241,7 +241,7 @@ namespace Overlord_Map_Visualizer
                     Map3DMinionGateBlue.Children.Clear();
                     Map3DTowerGates.Children.Clear();
 
-                    List<GeometryModel3D> terrainTilesGroups = CurrentMap.GetTerrainGeometryModel();
+                    List<GeometryModel3D> terrainTilesGroups = CurrentMap.GetTerrainGeometryModel(CurrentMap.TileMapImages);
                     for (int i = 0; i < terrainTilesGroups.Count; i++)
                     {
                         Draw3DModel(terrainTilesGroups[i]);
@@ -718,7 +718,7 @@ namespace Overlord_Map_Visualizer
                     Mouse.OverrideCursor = null;
                     mapImage = new TiffImage(CurrentMap.Width, CurrentMap.Depth, CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Depth, CurrentMapMode));
                     DrawTiffImage(mapImage.Encode(), DrawingType.Map);
-                    List<GeometryModel3D> terrainTilesGroups = CurrentMap.GetTerrainGeometryModel();
+                    List<GeometryModel3D> terrainTilesGroups = CurrentMap.GetTerrainGeometryModel(CurrentMap.TileMapImages);
                     for (int i = 0; i < terrainTilesGroups.Count; i++)
                     {
                         Draw3DModel(terrainTilesGroups[i]);

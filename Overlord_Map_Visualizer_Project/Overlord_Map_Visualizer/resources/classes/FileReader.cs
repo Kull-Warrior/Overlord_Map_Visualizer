@@ -7,6 +7,11 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System;
 using System.Windows.Documents;
+using Pfim;
+using Microsoft.SqlServer.Server;
+using System.Drawing;
+using System.Windows.Markup;
+using System.Runtime.InteropServices;
 
 namespace Overlord_Map_Visualizer
 {
@@ -474,6 +479,22 @@ namespace Overlord_Map_Visualizer
                 }
 
                 fullTilemap = GetTilemapFromRpkFile(environmentPath);
+                images[0] = fullTilemap;
+                images[1] = fullTilemap;
+                images[2] = fullTilemap;
+                images[3] = fullTilemap;
+                images[4] = fullTilemap;
+                images[5] = fullTilemap;
+                images[6] = fullTilemap;
+                images[7] = fullTilemap;
+                images[8] = fullTilemap;
+                images[9] = fullTilemap;
+                images[10] = fullTilemap;
+                images[11] = fullTilemap;
+                images[12] = fullTilemap;
+                images[13] = fullTilemap;
+                images[14] = fullTilemap;
+                images[15] = fullTilemap;
 
                 Console.WriteLine(environmentPath);
             }
@@ -550,11 +571,77 @@ namespace Overlord_Map_Visualizer
             return listA;
         }
 
-        private BitmapImage GetTilemapFromRpkFile (string filePath)
+        private byte[] GetDDSHeader(int width, int height, string format)
         {
-            BitmapImage tilemap = new BitmapImage();
+            Byte[] header = new Byte[128];
 
-            List<byte> ddsData = new List<byte>();
+            Byte[] fileIdentifier = new Byte[4] { 0x44,0x44,0x53,0x20};
+            Byte[] headerSize = new Byte[4] { 0x7C,0x00,0x00,0x00};
+            Byte[] flags = new Byte[4] { 0x07,0x10,0x02,0x00};
+            Byte[] imageHeight = BitConverter.GetBytes(height);
+            Byte[] imageWidth = BitConverter.GetBytes(width);
+            Byte[] pitchOrLinearSize = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+            Byte[] depth = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+            Byte[] mipMapCount = new Byte[4] { 0x01, 0x00, 0x00, 0x00 };
+            Byte[] reserved = new Byte[44] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+            Byte[] ddpiPixelFormatHeaderSize = new Byte[4] { 0x20, 0x00, 0x00, 0x00 };
+            Byte[] ddpiPixelFormatFlags = new Byte[4] { 0x20, 0x00, 0x00, 0x00 };
+            Byte[] ddpiPixelFourCC;
+            if (format =="DXT3")
+                ddpiPixelFourCC = new Byte[4] { 0x44, 0x58, 0x54, 0x33 };
+            else
+                ddpiPixelFourCC = new Byte[4] { 0x44, 0x58, 0x54, 0x35 };
+            Byte[] ddpiPixelRGBBitCount = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+            Byte[] ddpiPixelRBitMask = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+            Byte[] ddpiPixelGBitMask = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+            Byte[] ddpiPixelBBitMask = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+            Byte[] ddpiPixelRGBAlphaBitMask = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+            Byte[] Caps = new Byte[4] { 0x08, 0x10, 0x40, 0x00 };
+            Byte[] Caps2 = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+            Byte[] Caps3 = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+            Byte[] Caps4 = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+            Byte[] reserved2 = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
+
+            Buffer.BlockCopy(fileIdentifier, 0, header, 0, 4);
+            Buffer.BlockCopy(headerSize, 0, header, 4, 4);
+            Buffer.BlockCopy(flags, 0, header, 8, 4);
+            Buffer.BlockCopy(imageHeight, 0, header, 12, 4);
+            Buffer.BlockCopy(imageWidth, 0, header, 16, 4);
+            Buffer.BlockCopy(pitchOrLinearSize, 0, header, 20, 4);
+            Buffer.BlockCopy(depth, 0, header, 24, 4);
+            Buffer.BlockCopy(mipMapCount, 0, header, 28, 4);
+            Buffer.BlockCopy(reserved, 0, header, 32, 4);
+            Buffer.BlockCopy(ddpiPixelFormatHeaderSize, 0, header, 76, 4);
+            Buffer.BlockCopy(ddpiPixelFormatFlags, 0, header, 80, 4);
+            Buffer.BlockCopy(ddpiPixelFourCC, 0, header, 84, 4);
+            Buffer.BlockCopy(ddpiPixelRGBBitCount, 0, header, 88, 4);
+            Buffer.BlockCopy(ddpiPixelRBitMask, 0, header, 92, 4);
+            Buffer.BlockCopy(ddpiPixelGBitMask, 0, header, 96, 4);
+            Buffer.BlockCopy(ddpiPixelBBitMask, 0, header, 100, 4);
+            Buffer.BlockCopy(ddpiPixelRGBAlphaBitMask, 0, header, 104, 4);
+            Buffer.BlockCopy(Caps, 0, header, 108, 4);
+            Buffer.BlockCopy(Caps2, 0, header, 112, 4);
+            Buffer.BlockCopy(Caps3, 0, header, 116, 4);
+            Buffer.BlockCopy(Caps4, 0, header, 120, 4);
+            Buffer.BlockCopy(reserved2, 0, header, 124, 4);
+
+            return header;
+        }
+
+        void RemoveImageTransparancy(Bitmap src)
+        {
+            Bitmap target = new Bitmap(src.Size.Width, src.Size.Height);
+            Graphics g = Graphics.FromImage(target);
+            g.DrawRectangle(new Pen(new SolidBrush(Color.White)), 0, 0, target.Width, target.Height);
+            g.DrawImage(src, 0, 0);
+            target.Save("Your target path");
+        }
+
+        private BitmapImage GetTilemapFromRpkFile(string filePath)
+        {
+            BitmapImage tilemap;
+
+            byte[] ddsData = new byte[128 + 4194304];
             byte[] pngData = new byte[2048 * 2048];
 
             using (BinaryReader reader = new BinaryReader(new FileStream(filePath, FileMode.Open)))
@@ -703,7 +790,11 @@ namespace Overlord_Map_Visualizer
                                                             int blocksHeight = (int)Math.Ceiling((double)tempHeight / (double)4);
                                                             int size = blocksWidth * blocksHeight * blockSize;
 
-                                                            ddsData.AddRange(reader.ReadBytes(size));
+                                                            byte[] header = GetDDSHeader(width,height,format);
+                                                            byte[] data = reader.ReadBytes(size);
+
+                                                            Buffer.BlockCopy(header, 0, ddsData, 0, 128);
+                                                            Buffer.BlockCopy(data, 0, ddsData, 128, size);
                                                         }
                                                     }
                                                 }
@@ -713,6 +804,50 @@ namespace Overlord_Map_Visualizer
                                 }
                             }
                         }
+                    }
+                }
+            }
+
+            using (Stream ddsDataStream = new MemoryStream(ddsData))
+            {
+                using (IImage image = Pfimage.FromStream(ddsDataStream))
+                {
+                    System.Drawing.Imaging.PixelFormat format;
+
+                    // Convert from Pfim's backend agnostic image format into GDI+'s image format
+                    switch (image.Format)
+                    {
+                        case ImageFormat.Rgba32:
+                            format = System.Drawing.Imaging.PixelFormat.Format32bppArgb;
+                            break;
+                        default:
+                            // see the sample for more details
+                            throw new NotImplementedException();
+                    }
+
+                    IntPtr data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
+
+                    Bitmap bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+
+                    using (MemoryStream memoryStream = new MemoryStream())
+                    {
+                        var bitmapNoTransparancy = new Bitmap(bitmap.Size.Width, bitmap.Size.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                        var g = Graphics.FromImage(bitmapNoTransparancy);
+
+                        g.Clear(Color.White);
+                        g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+                        g.DrawImage(bitmap, 0, 0);
+
+                        bitmapNoTransparancy.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+
+                        memoryStream.Position = 0;
+
+                        tilemap = new BitmapImage();
+                        tilemap.BeginInit();
+                        tilemap.StreamSource = memoryStream;
+                        tilemap.CacheOption = BitmapCacheOption.OnLoad;
+                        tilemap.EndInit();
+                        tilemap.Freeze();
                     }
                 }
             }
