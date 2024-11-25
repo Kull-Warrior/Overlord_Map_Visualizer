@@ -706,7 +706,7 @@ namespace Overlord_Map_Visualizer
             return floatMap;
         }
 
-        public List<GeometryModel3D> GetTerrainGeometryModel()
+        public List<GeometryModel3D> GetTerrainGeometryModel(BitmapImage[] tilemap)
         {
             List<GeometryModel3D> terrainTileGroups = new List<GeometryModel3D>();
             List<MeshGeometry3D> meshes = new List<MeshGeometry3D>();
@@ -719,8 +719,7 @@ namespace Overlord_Map_Visualizer
                 meshes.Add(new MeshGeometry3D());
                 brushes.Add(new ImageBrush());
 
-                BitmapImage baseImage = new BitmapImage(new Uri("pack://application:,,,/resources/tile_palette/"+ TileMap[i] + ".png"));
-                brushes[i].ImageSource = baseImage;
+                brushes[i].ImageSource = tilemap[i];
                 materials.Add(new DiffuseMaterial(brushes[i]));
             }
 
