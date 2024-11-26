@@ -87,7 +87,7 @@ namespace Overlord_Map_Visualizer
                     camera.LookDirection = m.Transform(camera.LookDirection);
                 }
 
-                if(IsRotatingHorizontally)
+                if (IsRotatingHorizontally)
                 {
                     double angleD = u * diffX;
 

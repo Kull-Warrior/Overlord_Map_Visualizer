@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
-using MediaBrushes = System.Windows.Media.Brushes;
 
 namespace Overlord_Map_Visualizer
 {
@@ -697,7 +696,7 @@ namespace Overlord_Map_Visualizer
                     double highestDigit = Math.Pow(16, 1) * (HeightMapDigitsThreeAndFour[x, y] & 0x0F);
                     double middleDigit = Math.Pow(16, 0) * ((HeightMapDigitsOneAndTwo[x, y] & 0xF0) >> 4);
                     double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
-                    
+
                     floatMap[x, y] = (float)(highestDigit + middleDigit + smallestDigit) / 2;
                 }
             }
@@ -730,7 +729,7 @@ namespace Overlord_Map_Visualizer
 
                     for (int i = 0; i < 6; i++)
                     {
-                        meshes[MainTextureMap[x,y]].Positions.Add(temp_mesh.Positions[i]);
+                        meshes[MainTextureMap[x, y]].Positions.Add(temp_mesh.Positions[i]);
                         meshes[MainTextureMap[x, y]].TextureCoordinates.Add(temp_mesh.TextureCoordinates[i]);
                         meshes[MainTextureMap[x, y]].TriangleIndices.Add(temp_mesh.TriangleIndices[i]);
                     }
@@ -741,7 +740,7 @@ namespace Overlord_Map_Visualizer
             {
                 //Make the mesh's model. 
                 GeometryModel3D tileGroup = new GeometryModel3D(meshes[i], materials[i]);
-                
+
                 // Make the surface visible from both sides.
                 tileGroup.BackMaterial = materials[i];
 
@@ -806,10 +805,10 @@ namespace Overlord_Map_Visualizer
 
                 triangleCounter = waterPoint3DCollection.Count;
 
-                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, - Depth));
+                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, -Depth));
                 waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, +Depth));
-                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, + Depth));
-                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, - Depth));
+                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, +Depth));
+                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, -Depth));
 
                 triangleIndices.Add(triangleCounter);
                 triangleIndices.Add(triangleCounter + 1);
