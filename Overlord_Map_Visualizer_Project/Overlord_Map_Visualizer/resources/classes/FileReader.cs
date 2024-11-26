@@ -474,25 +474,7 @@ namespace Overlord_Map_Visualizer
                     }
                 }
 
-                fullTilemap = GetTilemapFromRpkFile(environmentPath);
-                images[0] = fullTilemap;
-                images[1] = fullTilemap;
-                images[2] = fullTilemap;
-                images[3] = fullTilemap;
-                images[4] = fullTilemap;
-                images[5] = fullTilemap;
-                images[6] = fullTilemap;
-                images[7] = fullTilemap;
-                images[8] = fullTilemap;
-                images[9] = fullTilemap;
-                images[10] = fullTilemap;
-                images[11] = fullTilemap;
-                images[12] = fullTilemap;
-                images[13] = fullTilemap;
-                images[14] = fullTilemap;
-                images[15] = fullTilemap;
-
-                Console.WriteLine(environmentPath);
+                images = GetTilemapFromRpkFile(environmentPath);
             }
             else//Use default texture
             {
@@ -636,12 +618,11 @@ namespace Overlord_Map_Visualizer
             target.Save("Your target path");
         }
 
-        private BitmapImage GetTilemapFromRpkFile(string filePath)
+        private BitmapImage[] GetTilemapFromRpkFile(string filePath)
         {
-            BitmapImage tilemap;
+            BitmapImage[] tilemap = new BitmapImage[16];
 
             byte[] ddsData = new byte[128 + 4194304];
-            byte[] pngData = new byte[2048 * 2048];
 
             using (BinaryReader reader = new BinaryReader(new FileStream(filePath, FileMode.Open)))
             {
@@ -828,25 +809,29 @@ namespace Overlord_Map_Visualizer
 
                     Bitmap bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
 
-                    using (MemoryStream memoryStream = new MemoryStream())
+                    for (int y = 0; y < 4; y++)
                     {
-                        var bitmapNoTransparancy = new Bitmap(bitmap.Size.Width, bitmap.Size.Height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-                        var g = Graphics.FromImage(bitmapNoTransparancy);
+                        for (int x = 0; x < 4; x++)
+                        {
+                            using (MemoryStream memoryStream = new MemoryStream())
+                            {
+                                int index = (4 * y) + x;
+                                Bitmap tile = new Bitmap(bitmap.Size.Width / 4, bitmap.Size.Height / 4, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
 
-                        g.Clear(Color.White);
-                        g.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
-                        g.DrawImage(bitmap, 0, 0);
+                                Graphics tileGraphics = Graphics.FromImage(tile);
 
-                        bitmapNoTransparancy.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+                                tileGraphics.DrawImage(bitmap, x * (bitmap.Size.Width / 4), y * bitmap.Size.Height / 4, bitmap.Size.Width / 4, bitmap.Size.Height / 4);
+                                
+                                memoryStream.Position = 0;
 
-                        memoryStream.Position = 0;
-
-                        tilemap = new BitmapImage();
-                        tilemap.BeginInit();
-                        tilemap.StreamSource = memoryStream;
-                        tilemap.CacheOption = BitmapCacheOption.OnLoad;
-                        tilemap.EndInit();
-                        tilemap.Freeze();
+                                tilemap[index] = new BitmapImage();
+                                tilemap[index].BeginInit();
+                                tilemap[index].StreamSource = memoryStream;
+                                tilemap[index].CacheOption = BitmapCacheOption.OnLoad;
+                                tilemap[index].EndInit();
+                                tilemap[index].Freeze();
+                            }
+                        }
                     }
                 }
             }
