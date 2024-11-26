@@ -798,7 +798,7 @@ namespace Overlord_Map_Visualizer
                     switch (image.Format)
                     {
                         case ImageFormat.Rgba32:
-                            format = System.Drawing.Imaging.PixelFormat.Format32bppArgb;
+                            format = System.Drawing.Imaging.PixelFormat.Format32bppRgb;
                             break;
                         default:
                             // see the sample for more details
@@ -808,6 +808,19 @@ namespace Overlord_Map_Visualizer
                     IntPtr data = Marshal.UnsafeAddrOfPinnedArrayElement(image.Data, 0);
 
                     Bitmap bitmap = new Bitmap(image.Width, image.Height, image.Stride, format, data);
+                    BitmapImage tilemapImage;
+
+                    using (MemoryStream memoryStream = new MemoryStream())
+                    {
+                        bitmap.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+
+                        tilemapImage = new BitmapImage();
+                        tilemapImage.BeginInit();
+                        tilemapImage.StreamSource = memoryStream;
+                        tilemapImage.CacheOption = BitmapCacheOption.OnLoad;
+                        tilemapImage.EndInit();
+                        tilemapImage.Freeze();
+                    }
 
                     for (int y = 0; y < 4; y++)
                     {
@@ -816,12 +829,11 @@ namespace Overlord_Map_Visualizer
                             using (MemoryStream memoryStream = new MemoryStream())
                             {
                                 int index = (4 * y) + x;
-                                Bitmap tile = new Bitmap(bitmap.Size.Width / 4, bitmap.Size.Height / 4, System.Drawing.Imaging.PixelFormat.Format32bppRgb);
 
-                                Graphics tileGraphics = Graphics.FromImage(tile);
+                                Bitmap tile = bitmap.Clone(new Rectangle(512 * x, 512 * y, 512, 512), System.Drawing.Imaging.PixelFormat.Format32bppRgb);
 
-                                tileGraphics.DrawImage(bitmap, x * (bitmap.Size.Width / 4), y * bitmap.Size.Height / 4, bitmap.Size.Width / 4, bitmap.Size.Height / 4);
-                                
+                                tile.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+
                                 memoryStream.Position = 0;
 
                                 tilemap[index] = new BitmapImage();
