@@ -1,17 +1,13 @@
-﻿using System.IO;
+﻿using Pfim;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Linq;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System;
-using System.Windows.Documents;
-using Pfim;
-using Microsoft.SqlServer.Server;
-using System.Drawing;
-using System.Windows.Markup;
-using System.Runtime.InteropServices;
 
 namespace Overlord_Map_Visualizer
 {
@@ -468,9 +464,9 @@ namespace Overlord_Map_Visualizer
                 BitmapImage fullTilemap = new BitmapImage();
                 string environmentPath = "";
                 var extensions = new List<string> { ".prp" };
-                string[] files = Directory.GetFiles(gameDirectory, "*.*", SearchOption.AllDirectories).Where(f => extensions.IndexOf(System.IO.Path.GetExtension(f)) >= 0 ).ToArray();
+                string[] files = Directory.GetFiles(gameDirectory, "*.*", SearchOption.AllDirectories).Where(f => extensions.IndexOf(Path.GetExtension(f)) >= 0).ToArray();
 
-                for (int i = 0; i < files.Length;i++)
+                for (int i = 0; i < files.Length; i++)
                 {
                     if (files[i].Contains(map.Environment))
                     {
@@ -515,7 +511,7 @@ namespace Overlord_Map_Visualizer
 
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i][0]==ID)
+                if (list[i][0] == ID)
                 {
                     listA.Add(list[i]);
                 }
@@ -560,7 +556,7 @@ namespace Overlord_Map_Visualizer
                     list.Add(ints);
                 }
             }
-            int position = (int) reader.BaseStream.Position;
+            int position = (int)reader.BaseStream.Position;
             List<int[]> listA = new List<int[]>();
 
             for (int i = 0; i < list.Count; i++)
@@ -578,9 +574,9 @@ namespace Overlord_Map_Visualizer
         {
             Byte[] header = new Byte[128];
 
-            Byte[] fileIdentifier = new Byte[4] { 0x44,0x44,0x53,0x20};
-            Byte[] headerSize = new Byte[4] { 0x7C,0x00,0x00,0x00};
-            Byte[] flags = new Byte[4] { 0x07,0x10,0x02,0x00};
+            Byte[] fileIdentifier = new Byte[4] { 0x44, 0x44, 0x53, 0x20 };
+            Byte[] headerSize = new Byte[4] { 0x7C, 0x00, 0x00, 0x00 };
+            Byte[] flags = new Byte[4] { 0x07, 0x10, 0x02, 0x00 };
             Byte[] imageHeight = BitConverter.GetBytes(height);
             Byte[] imageWidth = BitConverter.GetBytes(width);
             Byte[] pitchOrLinearSize = new Byte[4] { 0x00, 0x00, 0x00, 0x00 };
@@ -590,7 +586,7 @@ namespace Overlord_Map_Visualizer
             Byte[] ddpiPixelFormatHeaderSize = new Byte[4] { 0x20, 0x00, 0x00, 0x00 };
             Byte[] ddpiPixelFormatFlags = new Byte[4] { 0x20, 0x00, 0x00, 0x00 };
             Byte[] ddpiPixelFourCC;
-            if (format =="DXT3")
+            if (format == "DXT3")
                 ddpiPixelFourCC = new Byte[4] { 0x44, 0x58, 0x54, 0x33 };
             else
                 ddpiPixelFourCC = new Byte[4] { 0x44, 0x58, 0x54, 0x35 };
@@ -793,7 +789,7 @@ namespace Overlord_Map_Visualizer
                                                             int blocksHeight = (int)Math.Ceiling((double)tempHeight / (double)4);
                                                             int size = blocksWidth * blocksHeight * blockSize;
 
-                                                            byte[] header = GetDDSHeader(width,height,format);
+                                                            byte[] header = GetDDSHeader(width, height, format);
                                                             byte[] data = reader.ReadBytes(size);
 
                                                             Buffer.BlockCopy(header, 0, ddsData, 0, 128);
@@ -865,7 +861,7 @@ namespace Overlord_Map_Visualizer
 
             int offset = 0;
             int blockSize = 512;
-            
+
             using (BinaryReader reader = new BinaryReader(new FileStream(filePath, FileMode.Open)))
             {
                 //Finding all rpk file offsets
@@ -904,7 +900,7 @@ namespace Overlord_Map_Visualizer
                     else if (converted.Contains("Env "))
                     {
                         MatchCollection matches = Regex.Matches(converted, "Env ");
-                        
+
                         List<string> imgCodes = matches.Cast<Match>().Select(x => x.Groups["content"].Value).ToList();
                         if (matches.Count > 1)
                         {
@@ -932,12 +928,20 @@ namespace Overlord_Map_Visualizer
             environments.Remove("Exp - MP Env Halls");
 
             if (filePath.Contains("Exp - Warrior Abyss - 01"))
+            {
                 return environments[1];
+            }
             else
+            {
                 if (environments.Count > 0)
+                {
                     return environments[0];
+                }
                 else
+                {
                     return "default";
+                }
+            }
         }
     }
 }

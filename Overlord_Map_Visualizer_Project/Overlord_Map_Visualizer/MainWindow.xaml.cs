@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -7,11 +8,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using Color = System.Drawing.Color;
 using Pen = System.Drawing.Pen;
-using System.Windows.Media.Media3D;
-using System.Windows.Media;
-using System.Collections.Generic;
 
 namespace Overlord_Map_Visualizer
 {
@@ -197,7 +196,7 @@ namespace Overlord_Map_Visualizer
                         isTiffImage = false;
                         FilePath.Text = openFileDialog.FileName;
                         CurrentMap.FilePath = openFileDialog.FileName;
-                        offset = reader.GetMapDataOffset(CurrentMap.FilePath, CurrentMap.Width,CurrentMap.Depth);
+                        offset = reader.GetMapDataOffset(CurrentMap.FilePath, CurrentMap.Width, CurrentMap.Depth);
                         break;
                     case "tiff":
                         bytesPerPoint = 6;
@@ -226,12 +225,12 @@ namespace Overlord_Map_Visualizer
                 }
                 byte[] data = reader.ReadMapDataFromFile(openFileDialog.FileName, offset, CurrentMap.Width, CurrentMap.Depth, bytesPerPoint);
                 CurrentMap.SetMapData(data, bytesPerPoint, mapMode, isTiffImage);
-                CurrentMap.Environment =reader.GetEnvironment(CurrentMap.FilePath);
-                CurrentMap.TileMapImages =reader.GetTileMapImages(CurrentMap);
+                CurrentMap.Environment = reader.GetEnvironment(CurrentMap.FilePath);
+                CurrentMap.TileMapImages = reader.GetTileMapImages(CurrentMap);
                 CurrentMap.WaterLevel = reader.GetMapWaterLevel(CurrentMap);
                 CurrentMap.ObjectList = reader.GetMapObjects(CurrentMap);
 
-                if(CurrentMapMode == MapMode.ThreeDimensional)
+                if (CurrentMapMode == MapMode.ThreeDimensional)
                 {
                     Map3DTerrainAndWater.Children.Clear();
                     Map3DMinionGateBrown.Children.Clear();
@@ -245,7 +244,7 @@ namespace Overlord_Map_Visualizer
                     {
                         Draw3DModel(terrainTilesGroups[i]);
                     }
-                    
+
                     GeometryModel3D waterGeometryModel = CurrentMap.GetWaterGeometryModel();
                     Draw3DModel(waterGeometryModel);
                     DrawAllMapObjects3D();
@@ -285,7 +284,7 @@ namespace Overlord_Map_Visualizer
 
             if (button.Name == "ExportToOMPFileButton")
             {
-                offset = reader.GetMapDataOffset(CurrentMap.FilePath,CurrentMap.Width,CurrentMap.Depth);
+                offset = reader.GetMapDataOffset(CurrentMap.FilePath, CurrentMap.Width, CurrentMap.Depth);
                 bytesPerPoint = 4;
                 filePath = CurrentMap.FilePath;
                 data = CurrentMap.GetMapData(bytesPerPoint, MapMode.Full);
@@ -311,7 +310,7 @@ namespace Overlord_Map_Visualizer
                     filter = "ogd files (*.ogd)|*.ogd";
                     bytesPerPoint = 1;
                 }
-                if(button.Name == "ExportMapImage")
+                if (button.Name == "ExportMapImage")
                 {
                     dialogTitle = "Select Directory and file name for the overlord map image";
                     fileExtension = "tiff";
@@ -330,7 +329,7 @@ namespace Overlord_Map_Visualizer
 
                 if (saveFileDialog.ShowDialog() == true)
                 {
-                    if(button.Name == "ExportMapImage")
+                    if (button.Name == "ExportMapImage")
                     {
                         data = CurrentMap.CreateTiffData(CurrentMap.Width, CurrentMap.Depth, CurrentMapMode);
                         writer.WriteTiffDataToFile(saveFileDialog.FileName, data, CurrentMap.Width, CurrentMap.Depth);
@@ -385,7 +384,7 @@ namespace Overlord_Map_Visualizer
                 for (int x = 0; x < width; x++)
                 {
                     totalOffset = x * xOffset + yOffset;
-                    if(CurrentMapMode == MapMode.HeightMap)
+                    if (CurrentMapMode == MapMode.HeightMap)
                     {
                         byte[] singleColorDataTwoByte = new byte[2];
 
@@ -491,7 +490,7 @@ namespace Overlord_Map_Visualizer
             SolidBrush solidBrush;
             Bitmap allMapObjectLocationsBitmap = new Bitmap(CurrentMap.Width, CurrentMap.Depth);
 
-            for(int i = 0; i < CurrentMap.ObjectList.Count; i++)
+            for (int i = 0; i < CurrentMap.ObjectList.Count; i++)
             {
                 switch (CurrentMap.ObjectList[i].Type)
                 {
