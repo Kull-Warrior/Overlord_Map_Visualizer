@@ -500,7 +500,10 @@ namespace Overlord_Map_Visualizer
             }
             else//Use default texture
             {
-
+                for (int i = 0; i < images.Length; i++)
+                {
+                    images[i] = new BitmapImage(new Uri("pack://application:,,,/resources/tile_palette/" + i + ".png"));
+                }
             }
 
             return images;
