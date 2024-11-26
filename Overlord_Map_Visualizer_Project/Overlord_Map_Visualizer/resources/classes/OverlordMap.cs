@@ -17,7 +17,6 @@ namespace Overlord_Map_Visualizer
 
         public BitmapImage[] TileMapImages { get; set; }
 
-        public int[] TileMap { get; set; }
         public double WaterLevel { get; set; }
 
         public byte[,] HeightMapDigitsOneAndTwo { get; set; }
