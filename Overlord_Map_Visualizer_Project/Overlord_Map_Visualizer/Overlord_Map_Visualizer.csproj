@@ -40,6 +40,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -49,6 +50,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Overlord_Normal.ico</ApplicationIcon>
@@ -59,9 +61,6 @@
     </Win32Resource>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Pfim, Version=0.11.3.0, Culture=neutral, PublicKeyToken=c0ebc20d008ae134, processorArchitecture=MSIL">
-      <HintPath>..\packages\Pfim.0.11.3\lib\netstandard2.0\Pfim.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -85,6 +84,43 @@
     </ApplicationDefinition>
     <Compile Include="resources\classes\CursorManagement.cs" />
     <Compile Include="resources\classes\FileReader.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Bc4Dds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Bc4sDds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Bc5Dds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Bc5sDds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Bc6hBc7\Constants.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Bc6hBc7\Helpers.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Bc6hBc7\INTColor.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Bc6hBc7\LDRColorA.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Bc6hDds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Bc7Dds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Colors.cs" />
+    <Compile Include="resources\classes\Pfim\dds\CompressedDds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\D3D10ResourceDimension.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Dds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\DdsHeader.cs" />
+    <Compile Include="resources\classes\Pfim\dds\DdsHeaderDxt10.cs" />
+    <Compile Include="resources\classes\Pfim\dds\DdsLoadInfo.cs" />
+    <Compile Include="resources\classes\Pfim\dds\DxgiFormat.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Dxt1Dds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Dxt3Dds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\Dxt5Dds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\IDecodeDds.cs" />
+    <Compile Include="resources\classes\Pfim\dds\UncompressedDds.cs" />
+    <Compile Include="resources\classes\Pfim\DefaultAllocator.cs" />
+    <Compile Include="resources\classes\Pfim\IImage.cs" />
+    <Compile Include="resources\classes\Pfim\IImageAllocator.cs" />
+    <Compile Include="resources\classes\Pfim\ImageFormat.cs" />
+    <Compile Include="resources\classes\Pfim\MipMapOffset.cs" />
+    <Compile Include="resources\classes\Pfim\Pfimage.cs" />
+    <Compile Include="resources\classes\Pfim\PfimConfig.cs" />
+    <Compile Include="resources\classes\Pfim\targa\CompressedTarga.cs" />
+    <Compile Include="resources\classes\Pfim\targa\IDecodeTarga.cs" />
+    <Compile Include="resources\classes\Pfim\targa\Targa.cs" />
+    <Compile Include="resources\classes\Pfim\targa\TargaHeader.cs" />
+    <Compile Include="resources\classes\Pfim\targa\UncompressedTarga.cs" />
+    <Compile Include="resources\classes\Pfim\TargetFormat.cs" />
+    <Compile Include="resources\classes\Pfim\Util.cs" />
     <Compile Include="resources\classes\TiffImage.cs" />
     <Compile Include="resources\classes\TrackBall.cs" />
     <Compile Include="resources\enums\cursorEnums.cs" />
@@ -128,6 +164,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="resources\classes\Pfim\Pfim.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
