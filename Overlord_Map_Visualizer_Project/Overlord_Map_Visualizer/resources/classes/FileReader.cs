@@ -738,7 +738,9 @@ namespace Overlord_Map_Visualizer
 
                                                     reader.BaseStream.Seek(offset, SeekOrigin.Begin);
 
-                                                    if (!name.Contains("NM") && format.Contains("DXT") && width == 2048 && height == 2048)
+                                                    bool isNMTexture = name.Contains("nm") | name.Contains("NM");
+
+                                                    if (!isNMTexture && format.Contains("DXT") && width == 2048 && height == 2048)
                                                     {
                                                         int mipmapCount = (int)(Math.Floor(Math.Log(Math.Max(width, height), 2)) + 1);
 
