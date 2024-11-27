@@ -449,6 +449,7 @@ namespace Overlord_Map_Visualizer
         {
             BitmapImage[] images = new BitmapImage[16];
             string gameDirectory = "";
+            string environmentPath = "";
 
             if (map.FilePath.Contains("Overlord II"))
             {
@@ -462,7 +463,6 @@ namespace Overlord_Map_Visualizer
             if (Directory.Exists(@gameDirectory + "/Resources") | Directory.Exists(@gameDirectory + "/Expansion"))
             {
                 BitmapImage fullTilemap = new BitmapImage();
-                string environmentPath = "";
                 var extensions = new List<string> { ".prp" };
                 string[] files = Directory.GetFiles(gameDirectory, "*.*", SearchOption.AllDirectories).Where(f => extensions.IndexOf(Path.GetExtension(f)) >= 0).ToArray();
 
@@ -473,7 +473,10 @@ namespace Overlord_Map_Visualizer
                         environmentPath = files[i];
                     }
                 }
+            }
 
+            if (environmentPath != "")
+            {
                 images = GetTilemapFromRpkFile(environmentPath);
             }
             else//Use default texture
