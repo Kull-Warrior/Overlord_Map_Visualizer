@@ -46,6 +46,8 @@ namespace Overlord_Map_Visualizer
             element.MouseRightButtonDown += MouseRightButtonDownHandler;
             element.MouseRightButtonUp += MouseRightButtonUpHandler;
             element.MouseWheel += OnMouseWheel;
+
+            element.KeyDown += KeyDown;
         }
 
         public void Detach(FrameworkElement element)
@@ -176,6 +178,46 @@ namespace Overlord_Map_Visualizer
 
             lookDirection.Normalize();
             position = position + u * lookDirection * e.Delta;
+
+            camera.Position = position;
+        }
+
+        private void KeyDown(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;
+            double u = 0.55;
+            Vector3D direction;
+            ProjectionCamera camera = (ProjectionCamera)SlaveViewPorts[0].Camera;
+
+            if (e.Key == Key.W)
+            {
+                direction = camera.LookDirection;
+                u = u * 1;
+            }
+            else if (e.Key == Key.S)
+            {
+                direction = camera.LookDirection;
+                u = u * -1;
+            }
+            else if (e.Key == Key.Space)
+            {
+                direction = new Vector3D(0, 1, 0);
+                u = u / 2 * 1;
+            }
+            else if (e.Key == Key.LeftCtrl)
+            {
+                direction = new Vector3D(0, 1, 0);
+                u = u / 2 * -1;
+            }
+            else
+            {
+                return;
+            }
+
+            Point3D position = camera.Position;
+
+            direction.Normalize();
+            position = position + u * direction;
 
             camera.Position = position;
         }
