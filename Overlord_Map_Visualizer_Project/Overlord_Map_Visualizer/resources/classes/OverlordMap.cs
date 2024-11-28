@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
-using MediaBrushes = System.Windows.Media.Brushes;
 
 namespace Overlord_Map_Visualizer
 {
@@ -10,7 +10,11 @@ namespace Overlord_Map_Visualizer
     {
         public string FilePath { get; set; }
         public int Width { get; set; }
-        public int Height { get; set; }
+        public int Depth { get; set; }
+
+        public string Environment { get; set; }
+
+        public BitmapImage[] TileMapImages { get; set; }
 
         public double WaterLevel { get; set; }
 
@@ -27,15 +31,15 @@ namespace Overlord_Map_Visualizer
         {
             FilePath = "";
             Width = 512;
-            Height = 512;
+            Depth = 512;
             WaterLevel = 0;
-            HeightMapDigitsOneAndTwo = new byte[Width, Height];
-            HeightMapDigitsThreeAndFour = new byte[Width, Height];
+            HeightMapDigitsOneAndTwo = new byte[Width, Depth];
+            HeightMapDigitsThreeAndFour = new byte[Width, Depth];
 
-            MainTextureMap = new byte[Width, Height];
-            FoliageMap = new byte[Width, Height];
-            WallTextureMap = new byte[Width, Height];
-            UnknownMap = new byte[Width, Height];
+            MainTextureMap = new byte[Width, Depth];
+            FoliageMap = new byte[Width, Depth];
+            WallTextureMap = new byte[Width, Depth];
+            UnknownMap = new byte[Width, Depth];
 
             ObjectList = new List<OverlordObject>();
         }
@@ -44,7 +48,7 @@ namespace Overlord_Map_Visualizer
         {
             FilePath = filePath;
             Width = width;
-            Height = height;
+            Depth = height;
             WaterLevel = waterLevel;
             HeightMapDigitsOneAndTwo = heightMapDigitsOneAndTwo;
             HeightMapDigitsThreeAndFour = heightMapDigitsThreeAndFour;
@@ -232,14 +236,14 @@ namespace Overlord_Map_Visualizer
 
         public byte[] GetMapData(int bytesPerPoint, MapMode mapMode)
         {
-            int totalNumberOfBytes = Width * Height * bytesPerPoint;
+            int totalNumberOfBytes = Width * Depth * bytesPerPoint;
             byte[] data = new byte[totalNumberOfBytes];
             int xOffset = bytesPerPoint;
             int yOffset = 0;
             int numberOfBytesInRow = Width * bytesPerPoint;
             int totalOffset;
 
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < Depth; y++)
             {
                 if (y != 0)
                 {
@@ -288,7 +292,7 @@ namespace Overlord_Map_Visualizer
             int numberOfBytesInRow = Width * bytesPerPoint;
             int totalOffset;
 
-            for (int y = 0; y < Height; y++)
+            for (int y = 0; y < Depth; y++)
             {
                 if (y != 0)
                 {
@@ -526,8 +530,8 @@ namespace Overlord_Map_Visualizer
         {
             int yMin = 0;
             int xMin = 0;
-            int xMax = 511;
-            int yMax = 511;
+            int xMax = Width - 1;
+            int yMax = Depth - 1;
             int cursorRadius = (int)(cursor.SizeSlider.Value / 2);
 
             if ((cursor.X - cursorRadius) >= xMin)
@@ -591,8 +595,8 @@ namespace Overlord_Map_Visualizer
         {
             int yMin = 0;
             int xMin = 0;
-            int xMax = 511;
-            int yMax = 511;
+            int xMax = Width - 1;
+            int yMax = Depth - 1;
             int cursorRadius = (int)(cursor.SizeSlider.Value / 2);
 
             if ((cursor.X - cursorRadius) >= xMin)
@@ -666,33 +670,33 @@ namespace Overlord_Map_Visualizer
         {
             for (int x = 0; x < Width / 2; x++)
             {
-                for (int y = x; y < Height - x - 1; y++)
+                for (int y = x; y < Depth - x - 1; y++)
                 {
                     byte temp = byteData[x, y];
 
                     byteData[x, y] = byteData[Width - 1 - y, x];
 
-                    byteData[Width - 1 - y, x] = byteData[Width - 1 - x, Height - 1 - y];
+                    byteData[Width - 1 - y, x] = byteData[Width - 1 - x, Depth - 1 - y];
 
-                    byteData[Width - 1 - x, Height - 1 - y] = byteData[y, Height - 1 - x];
+                    byteData[Width - 1 - x, Depth - 1 - y] = byteData[y, Depth - 1 - x];
 
-                    byteData[y, Height - 1 - x] = temp;
+                    byteData[y, Depth - 1 - x] = temp;
                 }
             }
         }
 
         public float[,] GetFloatMap()
         {
-            float[,] floatMap = new float[Width, Height];
+            float[,] floatMap = new float[Width, Depth];
 
             for (int x = 0; x < Width; x++)
             {
-                for (int y = 0; y < Height; y++)
+                for (int y = 0; y < Depth; y++)
                 {
                     double highestDigit = Math.Pow(16, 1) * (HeightMapDigitsThreeAndFour[x, y] & 0x0F);
                     double middleDigit = Math.Pow(16, 0) * ((HeightMapDigitsOneAndTwo[x, y] & 0xF0) >> 4);
                     double smallestDigit = Math.Pow(16, -1) * (HeightMapDigitsOneAndTwo[x, y] & 0x0F);
-                    
+
                     floatMap[x, y] = (float)(highestDigit + middleDigit + smallestDigit) / 2;
                 }
             }
@@ -700,70 +704,86 @@ namespace Overlord_Map_Visualizer
             return floatMap;
         }
 
-        public GeometryModel3D GetTerrainGeometryModel()
+        public List<GeometryModel3D> GetTerrainGeometryModel(BitmapImage[] tilemap)
         {
+            List<GeometryModel3D> terrainTileGroups = new List<GeometryModel3D>();
+            List<MeshGeometry3D> meshes = new List<MeshGeometry3D>();
+            List<DiffuseMaterial> materials = new List<DiffuseMaterial>();
+            List<ImageBrush> brushes = new List<ImageBrush>();
             float[,] floatMap = GetFloatMap();
 
-            //creation of the terrain
-            GeometryModel3D terrainGeometryModel = new GeometryModel3D(new MeshGeometry3D(), new DiffuseMaterial(MediaBrushes.Gray));
-            terrainGeometryModel.BackMaterial = terrainGeometryModel.Material;
-            Point3DCollection point3DCollection = new Point3DCollection();
-            Int32Collection triangleIndices = new Int32Collection();
-
-            //adding point
-            for (var y = 0; y < 512; y++)
+            for (int i = 0; i < 16; i++)
             {
-                for (var x = 0; x < 512; x++)
+                meshes.Add(new MeshGeometry3D());
+                brushes.Add(new ImageBrush());
+
+                brushes[i].ImageSource = tilemap[i];
+                materials.Add(new DiffuseMaterial(brushes[i]));
+            }
+
+            for (int y = 0; y < Depth - 1; y++)
+            {
+                for (int x = 0; x < Width - 1; x++)
                 {
-                    point3DCollection.Add(new Point3D(x, floatMap[x, y], y)); ;
+                    MeshGeometry3D temp_mesh = GetTerrainTile(new Point3D(x, floatMap[x, y], y), new Point3D(x + 1, floatMap[x + 1, y], y), new Point3D(x, floatMap[x, y + 1], y + 1), new Point3D(x + 1, floatMap[x + 1, y + 1], y + 1), meshes[MainTextureMap[x, y]].TriangleIndices.Count);
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        meshes[MainTextureMap[x, y]].Positions.Add(temp_mesh.Positions[i]);
+                        meshes[MainTextureMap[x, y]].TextureCoordinates.Add(temp_mesh.TextureCoordinates[i]);
+                        meshes[MainTextureMap[x, y]].TriangleIndices.Add(temp_mesh.TriangleIndices[i]);
+                    }
                 }
             }
-            ((MeshGeometry3D)terrainGeometryModel.Geometry).Positions = point3DCollection;
 
-            //defining triangles
-            int ind1, ind2;
-            int xLenght = 512;
-
-            for (var y = 0; y < 512 - 1; y++)
+            for (int i = 0; i < 16; i++)
             {
-                for (var x = 0; x < 512 - 1; x++)
-                {
-                    ind1 = x + y * xLenght;
-                    ind2 = ind1 + xLenght;
+                //Make the mesh's model. 
+                GeometryModel3D tileGroup = new GeometryModel3D(meshes[i], materials[i]);
 
-                    //first triangle
-                    triangleIndices.Add(ind1);
-                    triangleIndices.Add(ind2 + 1);
-                    triangleIndices.Add(ind2);
+                // Make the surface visible from both sides.
+                tileGroup.BackMaterial = materials[i];
 
-                    //second triangle
-                    triangleIndices.Add(ind1);
-                    triangleIndices.Add(ind1 + 1);
-                    triangleIndices.Add(ind2 + 1);
-                }
+                terrainTileGroups.Add(tileGroup);
+
+                // Make the surface visible from both sides.
+                tileGroup.BackMaterial = materials[i];
             }
-            ((MeshGeometry3D)terrainGeometryModel.Geometry).TriangleIndices = triangleIndices;
 
-            Transform3DGroup myTransformGroup = new Transform3DGroup();
-
-            // Create a transform to scale the size.
-            ScaleTransform3D myScaleTransform = new ScaleTransform3D();
-
-            // Create a transform to rotate the button
-            RotateTransform3D myRotateTransform = new RotateTransform3D();
-
-            //Create a transform to move from one position to other
-            TranslateTransform3D myTranslateTransform = new TranslateTransform3D();
-
-            myTransformGroup.Children.Add(myScaleTransform);
-            myTransformGroup.Children.Add(myRotateTransform);
-            myTransformGroup.Children.Add(myTranslateTransform);
-
-            terrainGeometryModel.Transform = myTransformGroup;
-
-            return terrainGeometryModel;
+            return terrainTileGroups;
         }
 
+        public MeshGeometry3D GetTerrainTile(Point3D lowerLeft, Point3D lowerRight, Point3D upperLeft, Point3D upperRight, int triangleIndicesOffset)
+        {
+            // Make a mesh to hold the surface.
+            MeshGeometry3D mesh = new MeshGeometry3D();
+
+            // Set the triangle's points.
+            mesh.Positions.Add(lowerLeft);
+            mesh.Positions.Add(lowerRight);
+            mesh.Positions.Add(upperRight);
+            mesh.Positions.Add(lowerLeft);
+            mesh.Positions.Add(upperLeft);
+            mesh.Positions.Add(upperRight);
+
+            // Set the points' texture coordinates.
+            mesh.TextureCoordinates.Add(new System.Windows.Point(0, 0));
+            mesh.TextureCoordinates.Add(new System.Windows.Point(1, 0));
+            mesh.TextureCoordinates.Add(new System.Windows.Point(1, 1));
+            mesh.TextureCoordinates.Add(new System.Windows.Point(0, 0));
+            mesh.TextureCoordinates.Add(new System.Windows.Point(0, 1));
+            mesh.TextureCoordinates.Add(new System.Windows.Point(1, 1));
+
+            // Create the triangle.
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 0);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 1);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 2);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 3);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 4);
+            mesh.TriangleIndices.Add(triangleIndicesOffset + 5);
+
+            return mesh;
+        }
         public GeometryModel3D GetWaterGeometryModel()
         {
             // creation of the water layers
@@ -785,10 +805,10 @@ namespace Overlord_Map_Visualizer
 
                 triangleCounter = waterPoint3DCollection.Count;
 
-                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, - Height));
-                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, +Height));
-                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, + Height));
-                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, - Height));
+                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, -Depth));
+                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, +Depth));
+                waterPoint3DCollection.Add(new Point3D(-Width, WaterLevel, +Depth));
+                waterPoint3DCollection.Add(new Point3D(+Width, WaterLevel, -Depth));
 
                 triangleIndices.Add(triangleCounter);
                 triangleIndices.Add(triangleCounter + 1);
