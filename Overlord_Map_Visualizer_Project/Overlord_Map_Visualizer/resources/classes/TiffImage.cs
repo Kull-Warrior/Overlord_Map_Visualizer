@@ -11,7 +11,7 @@ namespace Overlord_Map_Visualizer
 
         public byte[] Data { get; set; }
 
-        public TiffImage (int width, int height,byte[] data)
+        public TiffImage(int width, int height, byte[] data)
         {
             Width = width;
             Height = height;
