@@ -182,44 +182,79 @@ namespace Overlord_Map_Visualizer
             camera.Position = position;
         }
 
-        private void KeyDown(object sender, KeyEventArgs e)
+        private void MoveForwardBackwards(double u)
         {
-            e.Handled = true;
-            double u = 0.55;
-            Vector3D direction;
             ProjectionCamera camera = (ProjectionCamera)SlaveViewPorts[0].Camera;
-
-            if (e.Key == Key.W)
-            {
-                direction = camera.LookDirection;
-                u = u * 1;
-            }
-            else if (e.Key == Key.S)
-            {
-                direction = camera.LookDirection;
-                u = u * -1;
-            }
-            else if (e.Key == Key.Space)
-            {
-                direction = new Vector3D(0, 1, 0);
-                u = u / 2 * 1;
-            }
-            else if (e.Key == Key.LeftCtrl)
-            {
-                direction = new Vector3D(0, 1, 0);
-                u = u / 2 * -1;
-            }
-            else
-            {
-                return;
-            }
-
+            Vector3D direction = camera.LookDirection;
             Point3D position = camera.Position;
 
             direction.Normalize();
             position = position + u * direction;
 
             camera.Position = position;
+        }
+
+        private void MoveUpDown(double u)
+        {
+            ProjectionCamera camera = (ProjectionCamera)SlaveViewPorts[0].Camera;
+            Vector3D direction = camera.LookDirection;
+            Point3D position = camera.Position;
+
+            u = u / 2;
+
+            direction.Normalize();
+            position = position + u * direction;
+
+            camera.Position = position;
+        }
+
+        private void MoveSideways(double u)
+        {
+            ProjectionCamera camera = (ProjectionCamera)SlaveViewPorts[0].Camera;
+            Vector3D direction = new Vector3D(camera.LookDirection.Z, 0, -camera.LookDirection.X);
+            Point3D position = camera.Position;
+
+            u = u / 2;
+
+            direction.Normalize();
+            position = position + u * direction;
+
+            camera.Position = position;
+        }
+
+        private void KeyDown(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;
+
+            if (Keyboard.IsKeyDown(Key.W))
+            {
+                MoveForwardBackwards(1);
+            }
+            
+            if (Keyboard.IsKeyDown(Key.A))
+            {
+                MoveSideways(1);
+            }
+            
+            if (Keyboard.IsKeyDown(Key.S))
+            {
+                MoveForwardBackwards(-1);
+            }
+            
+            if (Keyboard.IsKeyDown(Key.D))
+            {
+                MoveSideways(-1);
+            }
+            
+            if (Keyboard.IsKeyDown(Key.Space))
+            {
+                MoveUpDown(1);
+            }
+            
+            if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                MoveUpDown(-1);
+            }
         }
 
         public void Reset()
