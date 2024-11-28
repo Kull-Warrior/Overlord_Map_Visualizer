@@ -16,6 +16,8 @@ namespace Overlord_Map_Visualizer
         // The state of the trackball
         private bool IsEnabled;
 
+        private double speed = 1;
+
         // The state of the current drag
         private Point InitialPoint; // Initial point of drag
 
@@ -180,34 +182,43 @@ namespace Overlord_Map_Visualizer
         {
             e.Handled = true;
 
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                speed = 1.75;
+            }
+            else
+            {
+                speed = 1;
+            }
+
             if (Keyboard.IsKeyDown(Key.W))
             {
-                MoveForwardBackwards(1);
+                MoveForwardBackwards(speed);
             }
             
             if (Keyboard.IsKeyDown(Key.A))
             {
-                MoveSideways(1);
+                MoveSideways(speed);
             }
             
             if (Keyboard.IsKeyDown(Key.S))
             {
-                MoveForwardBackwards(-1);
+                MoveForwardBackwards(-speed);
             }
             
             if (Keyboard.IsKeyDown(Key.D))
             {
-                MoveSideways(-1);
+                MoveSideways(-speed);
             }
             
             if (Keyboard.IsKeyDown(Key.Space))
             {
-                MoveUpDown(1);
+                MoveUpDown(speed);
             }
             
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                MoveUpDown(-1);
+                MoveUpDown(-speed);
             }
         }
 
