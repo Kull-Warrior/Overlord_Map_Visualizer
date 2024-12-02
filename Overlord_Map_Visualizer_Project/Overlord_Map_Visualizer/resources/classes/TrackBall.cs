@@ -13,6 +13,8 @@ namespace Overlord_Map_Visualizer
     {
         private List<Viewport3D> SlaveViewPorts;
 
+        private List<Label> CameraPositionLabels;
+
         // The state of the trackball
         private bool IsEnabled;
 
@@ -32,10 +34,16 @@ namespace Overlord_Map_Visualizer
             set { SlaveViewPorts = value; }
         }
 
+        public List<Label> Labels
+        {
+            get { return CameraPositionLabels ?? (CameraPositionLabels = new List<Label>()); }
+            set { CameraPositionLabels = value; }
+        }
+
         public bool Enabled
         {
             get { return IsEnabled && (SlaveViewPorts != null) && (SlaveViewPorts.Count > 0); }
-            set { IsEnabled = value; }
+            set { IsEnabled = value; UpdateCameraPositionLabels(); }
         }
 
         public void Attach(FrameworkElement element)
@@ -54,6 +62,15 @@ namespace Overlord_Map_Visualizer
             element.MouseRightButtonDown -= MouseRightButtonDownHandler;
             element.MouseRightButtonUp -= MouseRightButtonUpHandler;
             element.MouseWheel -= OnMouseWheel;
+        }
+
+        private void UpdateCameraPositionLabels()
+        {
+            ProjectionCamera camera = (ProjectionCamera)SlaveViewPorts[0].Camera;
+
+            CameraPositionLabels[0].Content = "X : " + camera.Position.X.ToString("000.00");
+            CameraPositionLabels[1].Content = "Z : " + camera.Position.Y.ToString("000.00");
+            CameraPositionLabels[2].Content = "Y : " + camera.Position.Z.ToString("000.00");
         }
 
         private void MouseMoveHandler(object sender, MouseEventArgs e)
@@ -136,6 +153,8 @@ namespace Overlord_Map_Visualizer
             position = position + u * lookDirection * e.Delta;
 
             camera.Position = position;
+
+            UpdateCameraPositionLabels();
         }
 
         private void MoveForwardBackwards(double u)
@@ -220,6 +239,8 @@ namespace Overlord_Map_Visualizer
             {
                 MoveUpDown(-speed);
             }
+
+            UpdateCameraPositionLabels();
         }
 
         public void Reset()
@@ -233,6 +254,8 @@ namespace Overlord_Map_Visualizer
 
             camera.Position = new Point3D(512, 100, 512);
             camera.LookDirection = new Vector3D(-0.8, -0.2, -0.8);
+
+            UpdateCameraPositionLabels();
         }
     }
 }
