@@ -69,8 +69,8 @@ namespace Overlord_Map_Visualizer
             ProjectionCamera camera = (ProjectionCamera)SlaveViewPorts[0].Camera;
 
             CameraPositionLabels[0].Content = "X : " + camera.Position.X.ToString("000.00");
-            CameraPositionLabels[1].Content = "Z : " + camera.Position.Y.ToString("000.00");
-            CameraPositionLabels[2].Content = "Y : " + camera.Position.Z.ToString("000.00");
+            CameraPositionLabels[1].Content = "Y : " + camera.Position.Y.ToString("000.00");
+            CameraPositionLabels[2].Content = "Z : " + camera.Position.Z.ToString("000.00");
         }
 
         private void MouseMoveHandler(object sender, MouseEventArgs e)
