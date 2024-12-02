@@ -643,10 +643,7 @@ namespace Overlord_Map_Visualizer
             Map3DMinionGateBlue.Children.Clear();
             Map3DTowerGates.Children.Clear();
             trackball.Enabled = false;
-            Reset.Visibility = Visibility.Hidden;
-            CameraXLabel.Visibility = Visibility.Hidden;
-            CameraYLabel.Visibility = Visibility.Hidden;
-            CameraZLabel.Visibility = Visibility.Hidden;
+            CameraInfo.Visibility = Visibility.Hidden;
             LocationMarkers.Visibility = Visibility.Visible;
 
             switch (MapModeDropDown.SelectedIndex)
@@ -734,10 +731,7 @@ namespace Overlord_Map_Visualizer
                     LocationMarkers.Visibility = Visibility.Hidden;
                     trackball.Enabled = true;
                     HideImportExportButtons();
-                    Reset.Visibility = Visibility.Visible;
-                    CameraXLabel.Visibility = Visibility.Visible;
-                    CameraYLabel.Visibility = Visibility.Visible;
-                    CameraZLabel.Visibility = Visibility.Visible;
+                    CameraInfo.Visibility = Visibility.Visible;
                     HideSelectedColor();
                     CurrentCursor.HideCursorModes();
                     CurrentCursor.HideCursorSubModes();
