@@ -47,7 +47,7 @@
         <CheckBox x:Name="checkBoxBlueMinionGate" Content="Show Blue Minion Gate" HorizontalAlignment="Left" Margin="820,164,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
         <CheckBox x:Name="checkBoxBloodPit" Content="Show Blood Pit" HorizontalAlignment="Left" Margin="820,184,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
         <CheckBox x:Name="checkBoxManaPit" Content="Show Mana Pit" HorizontalAlignment="Left" Margin="820,204,0,0" VerticalAlignment="Top" Visibility="Hidden"/>
-        <Button x:Name="Reset" Content="Reset camera" HorizontalAlignment="Left" Margin="93,269,0,0" VerticalAlignment="Top" Width="99" Click="Reset_Click" Height="39" Visibility="Hidden"/>
+        <Button x:Name="Reset" Content="Reset camera" HorizontalAlignment="Left" Margin="93,313,0,0" VerticalAlignment="Top" Width="100" Click="Reset_Click" Height="39" Visibility="Hidden"/>
         <Viewport3D Name="mainViewport" Margin="293,64,300,142" MouseDown="ToolClick">
             <Viewport3D.Camera>
                 <PerspectiveCamera
@@ -89,5 +89,8 @@
                 </ModelVisual3D.Content>
             </ModelVisual3D>
         </Viewport3D>
+        <Label x:Name="CameraXLabel" Content="X : 000,00" HorizontalAlignment="Left" Margin="46,269,0,0" VerticalAlignment="Top" Width="61" Visibility="Hidden"/>
+        <Label x:Name="CameraYLabel" Content="Y : 000,00" HorizontalAlignment="Left" Margin="112,269,0,0" VerticalAlignment="Top" Width="62" Visibility="Hidden"/>
+        <Label x:Name="CameraZLabel" Content="Z : 000,00" HorizontalAlignment="Left" Margin="179,269,0,0" VerticalAlignment="Top" Width="61" Visibility="Hidden"/>
     </Grid>
 </Window>

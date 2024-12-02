@@ -54,6 +54,9 @@ namespace Overlord_Map_Visualizer
 
             trackball.Attach(this);
             trackball.Slaves.Add(mainViewport);
+            trackball.Labels.Add(CameraXLabel);
+            trackball.Labels.Add(CameraYLabel);
+            trackball.Labels.Add(CameraZLabel);
         }
 
         private void DrawCoordinateSystem()
@@ -641,6 +644,9 @@ namespace Overlord_Map_Visualizer
             Map3DTowerGates.Children.Clear();
             trackball.Enabled = false;
             Reset.Visibility = Visibility.Hidden;
+            CameraXLabel.Visibility = Visibility.Hidden;
+            CameraYLabel.Visibility = Visibility.Hidden;
+            CameraZLabel.Visibility = Visibility.Hidden;
             LocationMarkers.Visibility = Visibility.Visible;
 
             switch (MapModeDropDown.SelectedIndex)
@@ -729,6 +735,9 @@ namespace Overlord_Map_Visualizer
                     trackball.Enabled = true;
                     HideImportExportButtons();
                     Reset.Visibility = Visibility.Visible;
+                    CameraXLabel.Visibility = Visibility.Visible;
+                    CameraYLabel.Visibility = Visibility.Visible;
+                    CameraZLabel.Visibility = Visibility.Visible;
                     HideSelectedColor();
                     CurrentCursor.HideCursorModes();
                     CurrentCursor.HideCursorSubModes();
