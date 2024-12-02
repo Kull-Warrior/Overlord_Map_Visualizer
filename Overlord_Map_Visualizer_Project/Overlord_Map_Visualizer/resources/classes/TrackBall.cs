@@ -172,7 +172,7 @@ namespace Overlord_Map_Visualizer
         private void MoveUpDown(double u)
         {
             ProjectionCamera camera = (ProjectionCamera)SlaveViewPorts[0].Camera;
-            Vector3D direction = camera.LookDirection;
+            Vector3D direction = new Vector3D(0, 1, 0);
             Point3D position = camera.Position;
 
             u = u / 2;
